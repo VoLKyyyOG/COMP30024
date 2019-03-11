@@ -1,9 +1,9 @@
-# COMP300024 - Artificial Intellgience, The University of Melbourne
+COMP300024 - Artificial Intellgience, The University of Melbourne
+=========
 GitHub for Akira and Callum.
 
-
-# Notes for the subject (courtesy to [this bloke](https://github.com/samuel-x))
-# What’s in the Exam???
+### Notes for the subject (courtesy to [this bloke](https://github.com/samuel-x))
+### What’s in the Exam???
 - Worth 70 marks - 7 questions 10 marks each
 - 3 hours
 - 35 mark hurdle
