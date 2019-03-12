@@ -6,9 +6,11 @@
 *Idea:* in a two-player game, the game state is measured with a signed integer/real.
 - Positive indicates player 1 is winning, negative that player 2 is winning, and zero for neutral.
 - Hence, player 1 is 'maximising player' and player 2 is 'minimising'.
+- `α` keeps track of the best (already explored) move for a maximisingPlayer.
+- `β` keeps track of the best (already explored) move for a minimisingPlayer.
 The following algorithm is depth-limited.
 1. Construct a directed acyclic graph of game states (nodes) from possible moves to a desired depth.
-2. Implement a heuristic (`eval_state_heuristic`) that will assign leaf nodes a score and initialise an `α` and `β` as `-∞` and `+∞` respectively. These are NOT local to `minimax()`.
+2. Implement a heuristic (`eval_state_heuristic`) that will assign leaf nodes a score and initialise an `α` and `β` as `-∞` and `+∞` respectively. These are LOCAL to each `minimax()`.
 2. Perform the minimax DFS algorithm:
 **Source**: https://en.wikipedia.org/wiki/Minimax#Minimax_algorithm_with_alternate_moves
 ```python
@@ -37,15 +39,13 @@ def minimax(node, depth, α, β, maximizingPlayer):
 
 4. Call `minimax(origin, depth, α, β, True)` to run.
 
-*Intuition*:
-- `α` keeps track of the least positive move that a maximisingPlayer could choose.
-- `β` tracks the least negative move that a minimisingPlayer could choose.
-- Using minimax, a maximisingPlayer updates `α` as the algorithm explores the nodes below it. Of course, the leftmost subtree has to be evaluated before any optimisations/pruning can be done: let's say this assigns `α` the value `α_left` (the best move the player can make from the leftmost subtree)
-- Eventually, the algorithm descends into other subtrees of this player and realises
-- A `maximisingPlayer`
-
-`αβ`
-
+**Example**:
+- A Minimising grandparent A has Maximising children B and C. B was a left subtree of A and has already been evaluated as 6
+- Hence, C will have `β = 6` (so the move that A will make in the worst case is <= 6)
+- Assume a child of C's is evaluated as 10
+    - C's best possible value (`α`) is now 10 (NB: best relative to C, a maximisingPlayer)
+    - This updates C's `α` (due to `α = max(α, value)`)
+    - C's best possible move is worse than A's worst-case move (`α` >= `β`)! There is no point further diving into any of C's other children and so C is pruned.
 
 ### A*
 
@@ -66,6 +66,7 @@ def minimax(node, depth, α, β, maximizingPlayer):
 ### Refutation Tables
 
 ### Killer Heuristic
+*Idea*: 
 
 ### Monte Carlo Methods
 
