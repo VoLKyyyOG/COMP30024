@@ -55,6 +55,7 @@ def minimax(node, depth, α, β, maximizingPlayer):
 
 ## Monte Carlo Tree Search (MCTS): **The planning ahead algorithm**
 [Introduction that's easy on the brain](https://medium.com/@quasimik/monte-carlo-tree-search-applied-to-letterpress-34f41c86e238)
+
 [Summary of various methods, HAVE NOT READ YET](http://mcts.ai/pubs/mcts-survey-master.pdf)
 
 MCTS uses randomisation to find the final solution. It is a four-step algorithm:
