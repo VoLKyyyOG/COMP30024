@@ -71,7 +71,11 @@ MCTS uses randomisation to find the final solution. It is a four-step algorithm:
 Choose a node on the tree with highest win evaluation (typically based on stats & how much it's been ignored). A tradeoff exists between exploration and exploitation though, described as the *multi-armed bandit problem*.
 
 **UCB1**:
-https://latex.codecogs.com/gif.latex?%5Cfrac%7Bw_i%7D%7Bn_i%7D%20&plus;%20c%5Csqrt%7B%5Cfrac%7Bln%28n_t%29%7D%7Bn_i%7D%7D
+
+[Please use this to format the below](https://www.codecogs.com/latex/eqneditor.php)
+Use frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}} until I figure out how to latex on github
+
+<!-- frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}} -->
 
 where
 - w_i is the number of wins observed at/below this node
@@ -79,7 +83,7 @@ where
 - n_t total simulations
 - c a parameter that controls the weighting of exploration (sqrt) over exploitation (wi/ni)
 
-<!-- frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}} -->
+
 
 #### Expansion
 If that node is non-terminal, create children (what to explore next). Typically only create one, but more advanced forms create all possible children.
