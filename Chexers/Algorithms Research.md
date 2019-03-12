@@ -49,6 +49,8 @@ def minimax(node, depth, α, β, maximizingPlayer):
 
 ### A*
 
+### UNINFORMED SERACHES: BFS, Uniform Cost Search, DFS, Depth Limited Ssearch, IDA*
+
 ## Extracurricular
 
 ### Rectangular Symmetry Reduction RSR)

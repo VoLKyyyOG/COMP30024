@@ -27,3 +27,19 @@ The game is declared a *draw* if:
 2. Each player has had 256 turns (includes passes) with no winner declared.
 
 **Board configuration**: Uniquely identifies a board state, where the same pieces occupy same hexes on the same players' turn. *Permutations of each players' pieces are ignored.*
+
+### States:
+-   Coordinate location of the **pieces** on a board consisting of 37 *hexes*
+-  Would it be better to use `1 - 37` to denote positions or an `i,j` representation in a matrix?
+
+### Actions:
+- Move player piece left, right, up, down
+- Jump over a piece GIVEN the directly adjacent hex is empty (Should be a high positive rating)
+- Exit the board (Set to INTMAX or +inf
+
+### Goal State:
+- 4 pieces completing an **exit action**
+- All other pieces have been converted to yours
+
+### Path Cost:
+- 3 per move (n-Players I believe???)

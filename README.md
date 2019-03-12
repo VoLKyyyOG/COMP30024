@@ -51,8 +51,9 @@ GitHub for Akira and Callum.
 
 ##### Choose and justify choice of agent type for a given problem
 - **Simple Reflex Agents**
-	- simple boi
-	- if x do y
+	- Very simple
+	- If x do y
+	- Good for categorising
 - **Model Based Reflex Agents**
 	- Has a current *internal representation of the world*
 	- Uses a lot of memory
@@ -80,6 +81,11 @@ GitHub for Akira and Callum.
 
 ##### Analyse complexity of a search strategy
 ##### Apply a search strategy to solve problem
+- **Note that:**  
+		- **b** = maximum branching factor of the search tree  
+		- **d** = depth of the least-cost solution  
+		- **m** = maximum depth of the state space (could be infinite)
+
 - **BFS**
 	- Expand breadth wise
 	- **Complete if branching factor is finite**
