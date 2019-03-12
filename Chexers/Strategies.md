@@ -26,11 +26,13 @@ Chexers Strategies
 - Let (p1, p2, p3) represent the zero-sum for player 1, player 2 and player 3:
     - For player 1, does a (5, 2 , 7) weigh better than a (5, 4, 4)?
     - If a player is out, how do we put it into consideration (-INTMAX or -inf)
+- *C: Whenever a heuristic/evaluation generates paths, can we store it for future reference to prevent computational waste?*
 
 ### Opening Stage:
 1. Play random / safe moves until another piece is capturable
 2. Move so that they are in groups that cannot be captured?
 3. *Look into finding moves that are more likely to win (such as corner tile heuristics for n-puzzles, centre column connect 4, 4 move checkmate in chess, etc)*
+**C: I think it's safe to assume that attaining center presence > staying on the edges, on the basis that centre = more maneouvrability and will threaten other players**
 
 ### Mid Stage:
 1. Blocking **exit actions** for opponents
@@ -38,11 +40,12 @@ Chexers Strategies
 3. Do a runner to the edge and attempt to exit the board
 
 ### End Game:
-- *What if an exit move comprimises your win (you have 2 pieces where one is an exit move whilst the other could be converted, and you have only had 2 exits)*
+- *What if an exit move compromises your win (you have 2 pieces where one is an exit move whilst the other could be converted, and you have only had 2 exits)*
 - Sacrificing pieces that are irrelevant to an exit move (decoy pieces?)
+     - **Could be resolved if evaluation heuristic can simulate a few moves ahead, ascertains a valuable move is possible**
 
 ### To Dos:
-- Play the game (print on carboard and see how that goes)
+- Play the game (print on cardboard and see how that goes)
 - Find positions that are weighted more crucially compared to others
 
 ### MP-Mix Algorithm:
@@ -65,7 +68,7 @@ for each i ∈ Players do:
     leadingEdge = H[1] − H[2];          // the two leaders
     leader = identity of player with highest score;
     if (leader = root player) then:    
-        if (leadingEdge ≥ Td) then: 
+        if (leadingEdge ≥ Td) then:
             Paranoid(...);
             end
     else:
