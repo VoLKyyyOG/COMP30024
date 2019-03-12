@@ -6,6 +6,8 @@
 *Idea:* in a two-player game, the game state is measured with a signed integer/real.
 - Positive indicates player 1 is winning, negative that player 2 is winning, and zero for neutral.
 - Hence, player 1 is 'maximising player' and player 2 is 'minimising'.
+- `α` keeps track of the best (already explored) move for a maximisingPlayer.
+- `β` keeps track of the best (already explored) move for a minimisingPlayer.
 The following algorithm is depth-limited.
 1. Construct a directed acyclic graph of game states (nodes) from possible moves to a desired depth.
 2. Implement a heuristic (`eval_state_heuristic`) that will assign leaf nodes a score and initialise an `α` and `β` as `-∞` and `+∞` respectively. These are LOCAL to each `minimax()`.
@@ -37,17 +39,14 @@ def minimax(node, depth, α, β, maximizingPlayer):
 
 4. Call `minimax(origin, depth, α, β, True)` to run.
 
-*Intuition*:
-- `α` keeps track of the best (already explored) move for a maximisingPlayer.
-- `β` keeps track of the best (already explored) move for a minimisingPlayer.
-- Example:
+**Example**:
 - A Minimising grandparent A has Maximising children B and C. B was a left subtree of A and has already been evaluated as 6
 - Hence, C will have `β = 6` (the move that A will make in the worst case)
 - Assume A child of C's is evaluated as 10
     - C's best possible move (`α`) is now 10. (NB: best for C, a maximisingPlayer)
     - This updates C's `α` (due to `α = max(α, value)`)
     - C's best possible move is worse than A's worst-case move (`α` < `β`)! There is no point further diving into any of C's other children and so C is pruned.
-    
+
 ### A*
 
 ## Extracurricular
