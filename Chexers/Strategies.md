@@ -15,6 +15,7 @@ Chexers Strategies
 
 ### Path Cost:
 - 3 per move (n-Players I believe???)
+    - **C: I think we should implement the game to handle variable board size (e.g. side 3) to allow greater computational power when exploring algorithmic choices.**
 
 ### Evaluation:
 - Completeness (play to win or to gain max benefits)
@@ -51,6 +52,18 @@ Chexers Strategies
 ### MP-Mix Algorithm:
 [Created by Inon Zuckerman and Ariel Felner](http://www.ise.bgu.ac.il/faculty/felner/papers/2011/Journal_mixed.pdf)  
 [Here is the MaxN algorithm](https://web.cs.du.edu/~sturtevant/papers/comparison_algorithms.pdf)  
+
+
+**C: Implement as a vector of weights w?**: a maximisingPlayer prefers evaluation a to b if dotP(w,a) > dotP(w,b).
+*Issue*: still need an input mechanism to specify which strategy to use.
+- Paranoid/Directed Offensive: `w[winningPlayer] = 1 if winner else -1, all others 0`
+- MaxN: `w[you] = 1, all others 0`
+- Other strategies with custom weights:
+    - Directed Defensive/"Charitable": `w[noob] = 1, all others 0`
+    - Random: `w[random] = 1, all others 0`
+- Also allows for emphasis weighting e.g. compound the weight of a winningPlayer the higher they go ... this might be redundant/impractical though
+
+
 All these approaches (MaxN, Paranoid and Offensive) are fixed.  We introduce the MaxN-Paranoid mixture (MP-Mix) algorithm, a multi-player  adversarial search algorithm which switches search strategies according to the game situation. MP-Mix is a meta-decision algorithm that outputs, according to the players’ relative strengths, whether the player should conduct a game-tree search according to the MaxN principle, the Paranoid principle, or the newly presented Directed Offensive principle. Thus, a player using the MP-Mix algorithm will be able to change his search strategy dynamically as the game develops.
 
 **Offensive Principle:**
