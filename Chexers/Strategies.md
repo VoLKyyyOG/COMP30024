@@ -45,3 +45,34 @@ Chexers Strategies
 - Play the game (print on carboard and see how that goes)
 - Find positions that are weighted more crucially compared to others
 
+### MP-Mix Algorithm:
+[Created by Inon Zuckerman and Ariel Felner](http://www.ise.bgu.ac.il/faculty/felner/papers/2011/Journal_mixed.pdf)  
+[Here is the MaxN algorithm](https://web.cs.du.edu/~sturtevant/papers/comparison_algorithms.pdf)  
+All these approaches (MaxN, Paranoid and Offensive) are fixed.  We introduce the MaxN-Paranoid mixture (MP-Mix) algorithm, a multi-player  adversarial search algorithm which switches search strategies according to the game situation. MP-Mix is a meta-decision algorithm that outputs, according to the players’ relative strengths, whether the player should conduct a game-tree search according to the MaxN principle, the Paranoid principle, or the newly presented Directed Offensive principle. Thus, a player using the MP-Mix algorithm will be able to change his search strategy dynamically as the game develops.
+
+**Offensive Principle:**
+Before discussing the MP-Mix algorithm we first introducea  new  propagation  strategy  called  the  Directed  Offensive strategy (denoted *offensive*) which complements the Paranoid strategy in an offensive manner. In this new strategy the root player first chooses a target opponent he wishes to attack. He then  explicitly  selects  the  path  which  results  in  the  lowest evaluation  score  for  the  target  opponent.  Therefore,  while traversing  the  search  tree  the  root  player  assumes  that  the opponents  are  trying  to  maximize  their  own  utility  (just  as they  do  in  the  MaxN  algorithm),  but  in  his  own  tree  level she selects the lowest value for the target opponent. This will prepare the root player for the worst-case where the opponents are not yet involved in stopping the target player themselves. In  this  case,  player  2  will  select  the best nodes with respect to his own evaluation (ties are broken to  the  left  node). As   stated   above,   if   coalitions   between   players   can   beformed  (either  explicitly  via  communication  or  implicitly  by mutual understanding of the situation), perhaps several of the opponents  will  decide  to  join  forces  in  order  to  “attack”  and counter  the  leading  player,  as  they  realize  that  it  will  give them a future opportunity to win. When this happens, the root player can run the same offensive algorithm against the leader but under the assumption that there exists a coalition against the  leader  which  will  select  the  worst  option  for  the  leader and not the best for himself.
+
+
+**ELI5:**
+If the current leader is the **root player**, the agent uses the **Paranoid Strategy** (*the agent will assume all other players want to hurt it*). However, if the current leader is **NOT** the **root player**, the agent will then use the **Offensive Strategy** (*the agent will attempt to worsen the situation of the leading player*).
+
+**Pseudocode:**
+```
+for each i ∈ Players do:
+    H[i] = evaluate(i);
+    endsort(H);         // decreasing order sorting
+    leadingEdge = H[1] − H[2];          // the two leaders
+    leader = identity of player with highest score;
+    if (leader = root player) then:    
+        if (leadingEdge ≥ Td) then: 
+            Paranoid(...);
+            end
+    else:
+        if (leadingEdge ≥ To) then:
+            Offensive(...);
+        end
+    end
+MaxN(...);
+```
+MP-Mix(Td,To)
