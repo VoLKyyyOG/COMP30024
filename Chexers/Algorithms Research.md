@@ -2,14 +2,6 @@
 
 ## Covered in COMP30024
 
-[tex]frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}}[/tex]
-
-[latex]frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}}[/latex]
-
-[img[https://latex.codecogs.com/gif.latex?frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}}]]
-
-<pre xml:lang="latex">frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}}</pre>
-
 https://latex.codecogs.com/gif.latex?frac{w_i}{n_i}&space;&plus;&space;c\sqrt{\frac{ln(n_t)}{n_i}}
 
 ### Minimax with alpha-beta pruning
