@@ -2,7 +2,9 @@
 
 ## Covered in COMP30024
 
-https://latex.codecogs.com/gif.latex?frac{w_i}{n_i}&space;&plus;&space;c\sqrt{\frac{ln(n_t)}{n_i}}
+![equation](https://latex.codecogs.com/gif.latex?frac{w_i}{n_i}&space;&plus;&space;c\sqrt{\frac{ln(n_t)}{n_i}})
+
+![equation](https://latex.codecogs.com/gif.latex?frac%7Bw_i%7D%7Bn_i%7D%20&plus;%20c%5Csqrt%7B%5Cfrac%7Bln%28n_t%29%7D%7Bn_i%7D%7D)
 
 ### Minimax with alpha-beta pruning
 *Idea:* in a two-player game, the game state is measured with a signed integer/real.
