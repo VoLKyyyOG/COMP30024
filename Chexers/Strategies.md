@@ -41,8 +41,6 @@ Chexers Strategies
 - *What if an exit move comprimises your win (you have 2 pieces where one is an exit move whilst the other could be converted, and you have only had 2 exits)*
 - Sacrificing pieces that are irrelevant to an exit move (decoy pieces?)
 
-
-
 ### To Dos:
 - Play the game (print on carboard and see how that goes)
 - Find positions that are weighted more crucially compared to others

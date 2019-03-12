@@ -87,11 +87,11 @@ GitHub for Akira and Callum.
 		- **m** = maximum depth of the state space (could be infinite)
 
 - **BFS**
-	- Expand breadth wise
-	- **Complete if branching factor is finite**
+	- Expands the shallowest unexpanded node
+	- **Complete if the branching factor (b) is finite**
 	- *Time:* **O(b<sup>d</sup>)**
 	- *Space:* **O(b<sup>d</sup>)**
-	- **Optimal Path if path cost is uniform, otherwise _not complete or optimal in general_**
+	- **Optimal Path if path cost is uniform (cost = 1), otherwise _not complete or optimal in general_**
 - **DFS**
 	- Expand depth wise
 	- **Not Complete if in Infinite Space**
