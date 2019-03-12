@@ -2,10 +2,6 @@
 
 ## Covered in COMP30024
 
-![equation](https://latex.codecogs.com/gif.latex?frac{w_i}{n_i}&space;&plus;&space;c\sqrt{\frac{ln(n_t)}{n_i}})
-
-![equation](https://latex.codecogs.com/gif.latex?frac%7Bw_i%7D%7Bn_i%7D%20&plus;%20c%5Csqrt%7B%5Cfrac%7Bln%28n_t%29%7D%7Bn_i%7D%7D)
-
 ### Minimax with alpha-beta pruning
 *Idea:* in a two-player game, the game state is measured with a signed integer/real.
 - Positive indicates player 1 is winning, negative that player 2 is winning, and zero for neutral.
@@ -72,8 +68,7 @@ Choose a node on the tree with highest win evaluation (typically based on stats 
 
 **UCB1**:
 
-[Please use this to format the below](https://www.codecogs.com/latex/eqneditor.php)
-Use frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}} until I figure out how to latex on github
+![equation](https://latex.codecogs.com/gif.latex?%5Cfrac%7Bw_i%7D%7Bn_i%7D%20&plus;%20c%5Csqrt%7B%5Cfrac%7Bln%28n_t%29%7D%7Bn_i%7D%7D)
 
 <!-- frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}} -->
 
