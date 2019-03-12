@@ -6,9 +6,11 @@
 *Idea:* in a two-player game, the game state is measured with a signed integer/real.
 - Positive indicates player 1 is winning, negative that player 2 is winning, and zero for neutral.
 - Hence, player 1 is 'maximising player' and player 2 is 'minimising'.
-*Assumptions*: Has access to a reasonable heuristic (**THIS IS THE MAIN PROBLEM**)
 - `α` keeps track of the best (already explored) move for a maximisingPlayer.
 - `β` keeps track of the best (already explored) move for a minimisingPlayer.
+
+*Assumptions*: Has access to a reasonable heuristic (**THIS IS THE MAIN PROBLEM**)
+
 The following algorithm is depth-limited.
 1. Construct a directed acyclic graph of game states (nodes) from possible moves to a desired depth.
 2. Implement a heuristic (`eval_state_heuristic`) that will assign leaf nodes a score and initialise an `α` and `β` as `-∞` and `+∞` respectively. These are LOCAL to each `minimax()`.
@@ -89,10 +91,11 @@ Update the current move sequence with the result, keeping track of which player 
 
 ### UCT
 
-
 ### Paranoid (complements Minimax)
 This algorithm is an n-player algorithm that assumes all opponents are collectively against the root player. Efficiency drops as n increases (not a concern for us) but does reduce complexity.
+
 *Assumptions*: Opponent behaviour is fixed.
+
 - Identical to a 2-player game, and hence allows for alpha-beta minimax!!!
 
 ### Zero-Window Search (adds to Minimax/AB)
@@ -101,20 +104,28 @@ This 2-player zero-sum algorithm asserts all leaves must evaluate to a win or lo
 
 ### Max^n (extends Minimax)
 This algorithm is an n-player analog of the minimax algorithm. Rather than a singular value representing state evaluation, an n-sized tuple is used, the ith value representing ith players' evaluation, and max_n chooses the child node of a player with tuple that maximises the choice player's score.
+
 *Assumptions*: Opponent behaviour is fixed.
+
 **Pruning in max_n with shallow pruning does not yield asymptotic gains theoretically, and deep pruning is unreliable** - this is suggestedly because it is based on only 2 of n players for max_n, rather than the effectively exhaustive comparison of a minimax pruning mechanism.
+
 **Tie-breaking rules impact a tree valuation** - however taking a paranoid approach and assuming opponents will attempt to minimise EITHER a certain player OR us specifically will allow us to prune ties that could allow opponents to do just that.
+
 **Overall**: Max_n tends to yield better results than paranoid where pruning is likelier to be possible, and worse when brute-force is the common/likeliest approach.
 
 [Sturtevant's remedy](https://www.cs.du.edu/~sturtevant/papers/spec_prune.pdf)
 ### Speculative/last-branch pruning (improves Max_n)
 **WARNING**: This only gets to decisions faster than without it, but evaluations are equivalent i.e. *Paranoid still wins.*
+
 *Requires*: lower bound on individual scores and maximum on sum of all scores
+
 *Idea/lemma*: If in a max_n tree, sum(lower_bounds) for a consecutive player sequence meets/exceeds max_sum, the max_n value of any child of the most recent player in the sequence cannot best the game tree.
+
 **Last-branch pruning**: Where the lemma conditions are met, pruning children of the most recent player will be correct IF
 1. The intermediate player(s) in the sequence are searching their last branch.
 - i.e. Player 1 can only prune a Player 3's decision if Player 2 is on their last-branch. *WHY? Because under the lemma conditions, it would be impossible for the most recent player 3 to choose a better move that BOTH the previous player 2, and the current player 1, could benefit from (as the bounds limit growth to one player at the other's expense)*
 2. The best max_n value from the intermediate player(s)' previously searched children cannot trump Player 1's current bound.
+
 **Speculative pruning**: Last-branch pruning that doesn't wait until last branch for intermediate branches, but is willing to re-search if necessary (i.e. where Player 2 and Player 1 could mutually benefit from another Player 2 branch that wasn't explored at the time of pruning).
 *Note: sub-optimal ordering forces re-search because it forces Player 1 to change its preference to the current sub-branch, rather than a prior. This upsets the bounds that uphold the lemma for pruning to work, and hence, fields must be re-evaluated in the subbranch we pruned.*
 
