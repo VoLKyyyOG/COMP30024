@@ -2,6 +2,16 @@
 
 ## Covered in COMP30024
 
+[tex]frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}}[/tex]
+
+[latex]frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}}[/latex]
+
+[img[https://latex.codecogs.com/gif.latex?frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}}]]
+
+<pre xml:lang="latex">frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}}</pre>
+
+https://latex.codecogs.com/gif.latex?frac{w_i}{n_i}&space;&plus;&space;c\sqrt{\frac{ln(n_t)}{n_i}}
+
 ### Minimax with alpha-beta pruning
 *Idea:* in a two-player game, the game state is measured with a signed integer/real.
 - Positive indicates player 1 is winning, negative that player 2 is winning, and zero for neutral.
