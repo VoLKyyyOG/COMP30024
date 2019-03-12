@@ -41,11 +41,11 @@ def minimax(node, depth, α, β, maximizingPlayer):
 
 **Example**:
 - A Minimising grandparent A has Maximising children B and C. B was a left subtree of A and has already been evaluated as 6
-- Hence, C will have `β = 6` (the move that A will make in the worst case)
-- Assume A child of C's is evaluated as 10
-    - C's best possible move (`α`) is now 10. (NB: best for C, a maximisingPlayer)
+- Hence, C will have `β = 6` (so the move that A will make in the worst case is <= 6)
+- Assume a child of C's is evaluated as 10
+    - C's best possible value (`α`) is now 10 (NB: best relative to C, a maximisingPlayer)
     - This updates C's `α` (due to `α = max(α, value)`)
-    - C's best possible move is worse than A's worst-case move (`α` < `β`)! There is no point further diving into any of C's other children and so C is pruned.
+    - C's best possible move is worse than A's worst-case move (`α` >= `β`)! There is no point further diving into any of C's other children and so C is pruned.
 
 ### A*
 
@@ -64,6 +64,7 @@ def minimax(node, depth, α, β, maximizingPlayer):
 ### Refutation Tables
 
 ### Killer Heuristic
+*Idea*: 
 
 ### Monte Carlo Methods
 
