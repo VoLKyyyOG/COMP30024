@@ -73,7 +73,7 @@ where
 - n_t total simulations
 - c a parameter that controls the weighting of exploration (sqrt) over exploitation (wi/ni)
 
-<!-- frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}} -->
+<!-- \frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}} -->
 
 #### Expansion
 If that node is non-terminal, create children (what to explore next). Typically only create one, but more advanced forms create all possible children.
