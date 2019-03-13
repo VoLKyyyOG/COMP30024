@@ -1,4 +1,4 @@
-# Covered in COMP30024
+#  Minimax + Improvements
 
 ## Minimax with alpha-beta pruning
 *Idea:* in a two-player game, the game state is measured with a signed integer/real.
@@ -49,9 +49,21 @@ def minimax(node, depth, α, β, maximizingPlayer):
     - This updates C's `α` (due to `α = max(α, value)`)
     - C's best possible move is worse than A's worst-case move (`α` >= `β`)! There is no point further diving into any of C's other children and so C is pruned.
 
-## A*
+## Fail-soft alpha beta (extends Minimax)
 
-# Extracurricular
+## Zero-Window Search (adds to Minimax/AB)
+This 2-player zero-sum algorithm asserts all leaves must evaluate to a win or loss by use of a threshold v.
+- Does not hold well for n-player games as the threshold can disguise worser positons as wins *e.g. buying a spoon is of equal value to buying a car if the threshold is just to be able to afford $1.*
+
+## Last-branch alpha beta (Zero-window earch applied to Minimax)
+
+## Negamax and variants
+This algorithm is a refactoring of the minimax algorithm with same performance and nearly-identical evaluation at each node.
+- Rather than assigning nodes the raw heuristic evaluation, each node's score represents the benefit it receives i.e. loss of the other player.
+- Each parent attempts to maximise the negated child's scores i.e. minimise the opponent's benefit i.e. maximise the parent's gain!
+- Since it's arguably more strenous to understand, **DO NOT USE**
+
+# Random walks and reinforcement learning approaches
 
 ## Monte Carlo Tree Search (MCTS): **The planning ahead algorithm**
 [Introduction that's easy on the brain](https://medium.com/@quasimik/monte-carlo-tree-search-applied-to-letterpress-34f41c86e238)
@@ -93,18 +105,16 @@ Update the current move sequence with the result, keeping track of which player 
 
 ## UCT
 
-## Paranoid (complements Minimax)
+# N-Player Analogs/Approaches
+
+## Paranoid (Reduces N-Player games to Minimax)
 This algorithm is an n-player algorithm that assumes all opponents are collectively against the root player. Efficiency drops as n increases (not a concern for us) but does reduce complexity.
 
 *Assumptions*: Opponent behaviour is fixed.
 
 - Identical to a 2-player game, and hence allows for alpha-beta minimax!!!
 
-## Zero-Window Search (adds to Minimax/AB)
-This 2-player zero-sum algorithm asserts all leaves must evaluate to a win or loss by use of a threshold v.
-- Does not hold well for n-player games as the threshold can disguise worser positons as wins *e.g. buying a spoon is of equal value to buying a car if the threshold is just to be able to afford $1.*
-
-## Max^n (extends Minimax)
+## Max^n (N-Player Minimax)
 This algorithm is an n-player analog of the minimax algorithm. Rather than a singular value representing state evaluation, an n-sized tuple is used, the ith value representing ith players' evaluation, and max_n chooses the child node of a player with tuple that maximises the choice player's score.
 
 *Assumptions*: Opponent behaviour is fixed.
@@ -182,7 +192,7 @@ def specmax_n(Node, ParentScore, GrandparentScore)
 - Allows for pruning when a (sufficiently) worst-case evaluation is returned
 - Does NOT allow shallow pruning
 
-## MP-Mix (strategically dynamic improvement on Paranoid, MaxN)
+## MP-Mix (Dynamic strategy in N-Player games)
 *Idea*: If strongly winning, play defensively (Paranoid). If another player is strongly winning, play offensive towards them to prevent your likely loss (Directed Offensive). Otherwise, play greedy (MaxN).
 *Implement as a vector of weights w*: maximisingPlayer prefers a to b if dotP(w,a) > dotP(w,b).
 - Paranoid/DO: `w[winningPlayer] = (2*(winningPlayer == me) - 1), all others 0` (works for both the winner and non-winner players)
@@ -210,13 +220,19 @@ def MP_mix(defensiveThreshold, offensiveThreshold):
 ```
 **OI**: Measures impact of a decision on other players' performance. Typically, agents whose strategy = function(OI) perform better --> hence, constant OI tends to imply a constant strategy agent will work well.
 
-## Rectangular Symmetry Reduction (RSR)
+# A* + Improvements
 
-## JPS (improves RSR)
+## A*
 
 ## SSS* (improves A*)
 
 ## D* (improves A*)
+
+# Tabular techniques/search memoization
+
+## Rectangular Symmetry Reduction (RSR)
+
+## JPS (improves RSR)
 
 ## Transposition Tables
 
