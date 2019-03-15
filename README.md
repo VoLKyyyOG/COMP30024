@@ -133,7 +133,7 @@ GitHub for Akira and Callum.
 	- **Complete**
 	- Time: _O(b<sup>d/2</sup>)_
 	- Space: _O(b<sup>d/2</sup>)_
-	- **Optimal**
+	- **Optimal** if done with the correct strategy (such as BFS)
 
 ## Week 3: Informed Search Algorithms 
 ##### Demonstrate operation of search algorithms
@@ -141,9 +141,9 @@ GitHub for Akira and Callum.
 ##### Discuss and evaluate the properties of search algorithms
 - **Greedy Best First Search**
 	- Go down the path that seems to be as close as possible to the end
-	- **Not Complete (needs repeated state checking)**
-	- *Time:* **O(b<sup>m</sup>)**
-	- *Space:* **O(b<sup>m</sup>)**
+	- **Not Complete** (needs repeated state checking)
+	- Time: _O(b<sup>m</sup>)_
+	- Space: _O(b<sup>m</sup>)_
 	- **Not Optimal**
 - [**AStar (A\*) Search**](https://qiao.github.io/PathFinding.js/visual/)
 	- Avoid expanding paths that are already expensive
@@ -153,9 +153,8 @@ GitHub for Akira and Callum.
 		- f(n) = cost so far to reach n (g(n)) + estimate cost to goal from n (heuristic h(n))
 	- Similar to Uniform Cost search but evaluating distance from the goal
 	- **Complete**
-	- *Time:* **Exponential in [relative error in h * length of soln]**
-			- **Expands similarly to breadth first so O(b<sup>error\*d</sup>)**
-	- *Space:* **O(b<sup>d</sup>) all nodes in memory**
+	- Time: Exponential in [relative error in h * length of soln] - Expands similarly to breadth first so O(b<sup>error\*d</sup>)
+	- Space: _O(b<sup>d</sup>)_ all nodes in memory**
 		- **Optimal**
 
 ##### Don’t forget about iterative improvement algorithms
@@ -189,8 +188,8 @@ GitHub for Akira and Callum.
 	- Absolutely **perfect play** with **infinite lookahead**
 	- **Complete**
 	- **Optimal (against another optimal opponent)**
-	- *Time:* **O(b<sup>m</sup>)**
-	- *Space:* **O(bm)**
+	- Time: **O(b<sup>m</sup>)**
+	- Space: **O(bm)**
 - [**AlphaBeta Pruning**](http://homepage.ufp.pt/jtorres/ensino/ia/alfabeta.html)
 	- Do the same as minimax, but every time you find a new minimum/maximum, keep track of it and discard values that are under/over this value
 		- Calculate our value
@@ -198,8 +197,8 @@ GitHub for Akira and Callum.
 		- Basically imagine you're pruning a tree to the shortest/longest branch
 	- **Not Complete**
 	- **Optimal since it results in the same thing**
-	- *Time:* **O(b<sup>m/2</sup>) with perfect ordering**
-	- *Space:* **Same as time?**
+	- Time: **O(b<sup>m/2</sup>) with perfect ordering**
+	- Space: **Same as time?**
 - Quiescence Search
 	- Find a cut-off depth in minimax
 
