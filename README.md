@@ -93,17 +93,17 @@ GitHub for Akira and Callum.
 	- *Space:* **O(b<sup>d</sup>)**
 	- **Optimal Path if path cost is uniform (cost = 1), otherwise _not complete or optimal in general_**
 - **DFS**
-	- Expand depth wise
+	- Expands depth wise (from the furthest unexpanded node)
 	- **Not Complete if in Infinite Space**
 	- *Time:* **O(b<sup>m</sup>)**
 	- *Space:* **O(bm)**
 	- **Not Optimal Path**
 - **Uniform Cost Search**
-	- Expand least-cost node
+	- Expand least-cost unexpanded node
 	- **Complete if step size > 0**
-	- *Time:* **n nodes g cost <= optimal cost**
-	- *Space:* **n nodes g cost <= optimal cost**
-	- **Optimal**
+	- *Time:* **number of nodes with g <= cost of optimal solution**
+	- *Space:* **number of nodes with g <= cost of optimal solution**
+	- **Optimal since it searches the least-cost node**
 - **Depth Limited Search**
 	- Do depth first to a certain limit
 	- **Not Complete**
