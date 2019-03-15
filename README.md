@@ -47,7 +47,7 @@ GitHub for Akira and Callum.
 - **Static vs Dynamic**
 	- Does your *environment change while you're thinking/deciding*?
 - **Discrete vs Continuous**
-	- Is there a *finite number of moves*? 
+	- Is there a *finite number of moves*?
 
 ##### Choose and justify choice of agent type for a given problem
 - **Simple Reflex Agents**
@@ -68,7 +68,7 @@ GitHub for Akira and Callum.
 - Make a decision **based on the environment**
 	- Don't use something too complex
 
-## Week 2: Problem Solving and Search 
+## Week 2: Problem Solving and Search
 ##### Formulate single state search problem
 - **Formulate a Problem**:
 	- Consider the **current state** and **goal state**
@@ -94,9 +94,9 @@ GitHub for Akira and Callum.
 	- **Optimal Path if path cost is uniform (cost = 1), otherwise _not complete or optimal in general_**
 - **DFS**
 	- Expand depth wise
-	- **Not Complete if in Infinite Space**
+	- **Not Complete if in Infinite Space (algorithm would infinitely expand states of zero cost)**
 	- *Time:* **O(b<sup>m</sup>)**
-	- *Space:* **O(bm)**
+	- *Space:* **O(bm) (at any given time, in the worst case, only need to remembe to depth m states, to get which you expanded at most b nodes each --> bm!)**
 	- **Not Optimal Path**
 - **Uniform Cost Search**
 	- Expand least-cost node
@@ -123,7 +123,7 @@ GitHub for Akira and Callum.
 	- *Space:* **O(b<sup>d/2</sup>)**
 	- **Optimal**
 
-## Week 3: Informed Search Algorithms 
+## Week 3: Informed Search Algorithms
 ##### Demonstrate operation of search algorithms
 
 ##### Discuss and evaluate the properties of search algorithms
@@ -157,7 +157,7 @@ GitHub for Akira and Callum.
 	- h<sub>1</sub>(n) >= h<sub>2</sub>(n) for *all of n*
 
 ## Week 4: Game Playing and Adversarial Search
-##### Design suitable evaluation functions for a game 
+##### Design suitable evaluation functions for a game
 - Evaluate games as a search problem
 	- Initial State
 	- Actions
@@ -166,9 +166,9 @@ GitHub for Akira and Callum.
 		- e.g. chess: +1, 0, -1
 		- poker: cash one or lost
 
-##### Discuss and evaluate the properties of game search algorithms 
+##### Discuss and evaluate the properties of game search algorithms
 
-##### Demonstrate operation of game search algorithms e.g., which nodes will be pruned under given node order or optimal node ordering in a given search tree 
+##### Demonstrate operation of game search algorithms e.g., which nodes will be pruned under given node order or optimal node ordering in a given search tree
 - **Minimax**
 	- Check all possible moves for their value up to a certain level
 		- Calculate our value with a heuristic similar to AStar
@@ -191,7 +191,7 @@ GitHub for Akira and Callum.
 - Quiescence Search
 	- Find a cut-off depth in minimax
 
-##### Explain how to search in nondeterministic games e.g., demonstrate operation of ExpectiMinimax 
+##### Explain how to search in nondeterministic games e.g., demonstrate operation of ExpectiMinimax
 - **Expectiminimax**
 	- Minimax but before every outcome you add a "chance node" which applies a probability to it
 	- Tree grows really fast
@@ -199,7 +199,7 @@ GitHub for Akira and Callum.
 		- Means we care less about really *deep nodes*
 
 ## Week 5: Machine Learning in Game Search
-##### Discuss opportunities for learning in game playing 
+##### Discuss opportunities for learning in game playing
 - **Can use machine learning in AI** when we **have an algorithm with weighted features**
 - **Gradient Descent Learning**
 	- *Error*: ![\large E = \frac{1}{2}\sum(t-z)^{2}](https://latex.codecogs.com/gif.latex?E&space;=&space;\frac{1}{2}\sum(t-z)^{2})
@@ -212,17 +212,17 @@ GitHub for Akira and Callum.
 	- **_Delayed Reinforcement_**: It takes a while before we get feedback
 	- **_Credit Assignment_**: We don't know *what actions* resulted in the outcome
 
-##### Explain differences between supervised and temporal difference learning 
+##### Explain differences between supervised and temporal difference learning
 - **Supervised Learning**:
 	- Single step prediction
 	- Predict tomorrow
 - **Temporal Difference Learning**
 	- Multi-step prediction
-		- Predict tomorrow and the day after etc. 
+		- Predict tomorrow and the day after etc.
 	- Delayed feedback
 	- Hope we're doing this right lol
 
-##### Not expected to derive or memorise the TDLeaf(λ) weight update rule, but if given this rule may ask you to explain what the main terms mean 
+##### Not expected to derive or memorise the TDLeaf(λ) weight update rule, but if given this rule may ask you to explain what the main terms mean
 - **TD Leaf**: ![\large w_{j} \leftarrow w_{j} + \eta \sum_{m=1}^{N-1} \frac{\partial r(s_{l}^{i}, w)}{\partial w_{j}} \[\sum_{m=1}^{N-1}\lambda^{m-i}d_{m}\]](https://latex.codecogs.com/gif.latex?w_{j}&space;\leftarrow&space;w_{j}&space;&plus;&space;\eta&space;\sum_{m=1}^{N-1}&space;\frac{\partial&space;r(s_{l}^{i},&space;w)}{\partial&space;w_{j}}&space;[\sum_{m=1}^{N-1}\lambda^{m-i}d_{m}])
 - w<sub>j</sub>: *Current weight*
 - d<sub>i</sub>: *Error*
@@ -233,7 +233,7 @@ GitHub for Akira and Callum.
 - ![\large \[\sum_{m=1}^{N-1}\lambda^{m-i}d_{m}\]](https://latex.codecogs.com/gif.latex?[\sum_{m=1}^{N-1}\lambda^{m-i}d_{m}]): **Weighted Sum of Error**
 
 ## Week 6: Constraint Satisfaction Problems
-##### Model a given problem as a CSP 
+##### Model a given problem as a CSP
 - A *CSP* has **three main parts**.
 	- **_X_ set of _variables_**: {X<sub>1</sub>... X<sub>n</sub>}
 	- **_D_ set of _domains_ for _each variable_**: {D<sub>1</sub>...D<sub>n</sub>}
@@ -246,20 +246,20 @@ GitHub for Akira and Callum.
 	- D would be *times available*
 	- C would be *all times different for each lecture i.e. allDiff*
 
-##### Demonstrate operation of CSP search algorithms 
+##### Demonstrate operation of CSP search algorithms
 - **Backtracking Search**
 	- Depth first search by assigning each domain value to each of variables
 		- Literally *takes forever*
 		- Ends up making _**n!d<sup>n</sup>**_ leaves! *Insanity.*
 - **Forward Checking**
-	- Whenever you **assign a variable**, **remove this value from any neighbours**	
+	- Whenever you **assign a variable**, **remove this value from any neighbours**
 		- e.g. for the australia state colour problem:
 			- We assign *RED to WA*:
 			- ![](examrev/examrev0.png)
 			- This results in *RED being removed from NT and SA*
 			- Now we assign *GREEN to Q*:
 			- ![](examrev/examrev1.png)
-			- Continue till we _reach a point where there is **no domain left for a variable**_ 
+			- Continue till we _reach a point where there is **no domain left for a variable**_
 			- ![](examrev/examrev2.png)
 		- Complexity *depends on whatever order you check variables/values*
 		- It could be _**O(d<sup>n</sup>)**_
@@ -289,7 +289,7 @@ GitHub for Akira and Callum.
 		- Pick the value for the variable **which removes the least number of values from its neighbours**
 		- ![](examrev/examrev3.png)
 
-###### e.g., show how the domain of values of each variable are updated by forward checking, or arc consistency, where X → Y means using arc consistency to update domain of X so that for every value x ∈ X there is some allowed value y ∈ Y 
+###### e.g., show how the domain of values of each variable are updated by forward checking, or arc consistency, where X → Y means using arc consistency to update domain of X so that for every value x ∈ X there is some allowed value y ∈ Y
 - See above
 
 ##### Discuss and evaluate the properties of different constraint satisfaction techniques
@@ -297,10 +297,10 @@ GitHub for Akira and Callum.
 	- Make a variable a root node
 	- Go down the tree and apply `makeArcConsistent(Parent(Xj) Xj)` to all nodes
 	- If you're at the deepest point, assign X so that it is consistent with it's parents
-	- *Best Case Time Complexity*: Tree can be solved in _O(nd<sup>2</sup>)_ i.e. linear time 
+	- *Best Case Time Complexity*: Tree can be solved in _O(nd<sup>2</sup>)_ i.e. linear time
 		- You **only need to take into account 2 nodes at any one time since removing a domain value from a node _will not impact its other children_ d<sup>2</sup>**
-		- If there *are loops* then you need to account for those with the below: 
-	- *Worst Case Time Complexity*: _**O(d<sup>n</sup>) i.e. Tree with Loops**_ 
+		- If there *are loops* then you need to account for those with the below:
+	- *Worst Case Time Complexity*: _**O(d<sup>n</sup>) i.e. Tree with Loops**_
 - **Nearly Tree Structured CSP**
 	- We can use **Cutset Conditioning**
 	- **Conditioning**: instantiate a *variable* and *prune its neighbours' domain* values
@@ -313,7 +313,7 @@ GitHub for Akira and Callum.
 
 ## Week 8: Making Complex Decisions
 
-##### Compare and contrast different types of auctions 
+##### Compare and contrast different types of auctions
 - Auctions have *3 main dimensions*:
 	- **Winner Determination**: Which bidder wins and what do they pay?
 		- *First price auctions*: highest bid is paid
@@ -361,11 +361,11 @@ GitHub for Akira and Callum.
 	- **Computational simplicity**
 	- **Counter intuitive** for **human bidders**
 
-##### Select the most appropriate type of auction for a given application 
-- 
+##### Select the most appropriate type of auction for a given application
+-
 
 ## Week 9: Uncertainty
-##### Calculate conditional probabilities using inference by enumeration 
+##### Calculate conditional probabilities using inference by enumeration
 - Inference by enumeration is changing the space in which the probability is taken from
 
 ##### Use conditional independence to simplify probability calculations
@@ -383,7 +383,7 @@ GitHub for Akira and Callum.
 		- `P(A, B, C) = P(C|A, B) P(B|A) P(A)`
 		- `P(A, B, C) = P(C|A) P(B|A) P(A)` = 2 + 2 + 1 = 5 entries vs 7
 
-##### Use Bayes’ rule for solving diagnostic problems 
+##### Use Bayes’ rule for solving diagnostic problems
 - `P(A|B)P(B) = P(B|A)P(A)`
 - Solve this into
 	- `P(A|B) = P(B|A)P(A)/P(B)`
@@ -396,7 +396,7 @@ GitHub for Akira and Callum.
 	- Causes -> Symptoms
 - A grandfather node *should be independent of it's grandchildren*
 
-##### Derive expression for joint probability distribution for given belief network 
+##### Derive expression for joint probability distribution for given belief network
 - Look at [Uncertainty](#use-conditional-independence-to-simplify-probability-calculations)
 - This is can be done with **global semantics**:
 	- Defines a **full joint distribution** as the product of the *local conditional distributions*
@@ -405,7 +405,7 @@ GitHub for Akira and Callum.
 		- ![](examrev/examrev10.png)
 	- **Local semantics**: *each node is conditionally independent* of its nondescendants *given its parents*
 
-##### Use inference by enumeration to answer a query about simple or conjunctive queries on a given belief network 
+##### Use inference by enumeration to answer a query about simple or conjunctive queries on a given belief network
 - **Simple Query**:
 	- Simply calculating a probability from posterior marginals
 	- e.g., P(NoGas|Gauge = empty, Lights = on, Starts = false)
@@ -414,8 +414,8 @@ GitHub for Akira and Callum.
 	- P(X<sub>i</sub>, X<sub>j</sub>|E = E) = P(X<sub>i</sub>|E = E) P(X<sub>j</sub>|X<sub>i</sub>, E = E)
 
 
-## Week 11: Robotics 
-##### Determine the number of degrees of freedom of a robot, and whether it is holonomic 
+## Week 11: Robotics
+##### Determine the number of degrees of freedom of a robot, and whether it is holonomic
 - Degrees of freedom: Basically **how many different ways can we "move"**
 	- You need *6 degrees of freedom* to move around without restrictions *in 3d space* (*3 for position* and *3 for rotation*)
 	- ![](examrev/examrev7.png)
@@ -423,7 +423,7 @@ GitHub for Akira and Callum.
 	- For example a **_car is non-holonomic_ because has 2 controls** but has **3 degrees of freedom**
 		- Since it **can rotate in the x axis** and we **can accelerate/decelerate in the x axis** but **we _cannot accelerate/decelerate in the y axis_**
 
-##### Characterise sources of uncertainty in a robot application scenario 
+##### Characterise sources of uncertainty in a robot application scenario
 - *Examples of Sources of Uncertainty in Robots*:
 	- **Perceptions (incorrect sensing)**
 		- *Incorrect sensors*
@@ -437,17 +437,17 @@ GitHub for Akira and Callum.
 		- *Inaccurate Joint Encoding*
 		- *Injuries (Effective Breakdown)*
 
-##### Explain the basic concepts of localisation and mapping 
+##### Explain the basic concepts of localisation and mapping
 - Basically we scan our environment and **decide where we can't go**
 
-##### Formulate an application problem using incremental Bayes, and calculate posterior probabilities 
+##### Formulate an application problem using incremental Bayes, and calculate posterior probabilities
 - Tutorial 11
 	- Basically re-calculating P(+) when calculating P(o|++)
 
-##### Model the configuration space for a simple robot 
+##### Model the configuration space for a simple robot
 - Draw where it can't go lol
 
-##### Compare different approaches to motion planning given a particular configuration space 
+##### Compare different approaches to motion planning given a particular configuration space
 - **Cell Decomposition**:
 	- Break configuration space into *simpler cells*
 		- Depends on the *resolution* of the cells
@@ -457,7 +457,7 @@ GitHub for Akira and Callum.
 	- *Voronoi Diagrams*:
 		- We define *limits* around the configuration space
 		- Voronoi Diagrams don't scale well
-	- *Probabilistic Roadmap*: 
+	- *Probabilistic Roadmap*:
 		- Generate random points within configuration space and creating a graph
 		- Need to generate enough points to ensure everywhere is reachable
 - **Localisation vs Mapping**
