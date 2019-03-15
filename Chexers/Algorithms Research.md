@@ -78,6 +78,7 @@ Choose a node on the tree with highest win evaluation (typically based on stats 
 
 **UCB1**:
 
+Uses the below equation to construct confidence intervals for each node (where you are not randomly choosing nodes to expand) and pick the machine with the highest upper bound. Has an growth rate of O(log n) error!
 ![equation](https://latex.codecogs.com/gif.latex?%5Cfrac%7Bw_i%7D%7Bn_i%7D%20&plus;%20c%5Csqrt%7B%5Cfrac%7Bln%28n_t%29%7D%7Bn_i%7D%7D)
 
 <!-- frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}} -->
@@ -88,22 +89,22 @@ where
 - n_t total simulations
 - c a parameter that controls the weighting of exploration (sqrt) over exploitation (wi/ni)
 
+**UCT**: Attempts to improve upon the random tie-breaking of a standard MCTS.
+- Enforces that you only descend through nodes that can be treated as a *multi-armed bandit problem*, i.e. there are win/loss statistics available for all its children.
+- UCB1 to descend trough the tree you reaching unevaluated node (cannot apply UCB1).
 
-<!-- \frac{w_i}{n_i} + c\sqrt{\frac{ln(n_t)}{n_i}} -->
 
 #### Expansion
 If that node is non-terminal, create children (what to explore next). Typically only create one, but more advanced forms create all possible children.
 
 #### Simulation
-Simulate play of the game for all new nodes until an outcome achieved. Most computationally expensive aspect of the algorithm.
+Simulate play of the game for all new nodes until an outcome achieved. Most computationally expensive aspect of the algorithm. Can be done in a "light playout" (a few moves) before making an evaluation or a full playout.
 
 #### Backpropagation
 Update the current move sequence with the result, keeping track of which player it benefits (e.g. increment all winning player's w_i, and every node's n_i)
 
 **Eventual decision**: chooses node that incurred most simulations (was, on average, the best place to explore)
 - And MCTS is run entirely again from the new starting state
-
-## UCT
 
 # N-Player Analogs/Approaches
 
