@@ -82,28 +82,28 @@ GitHub for Akira and Callum.
 ##### Analyse complexity of a search strategy
 ##### Apply a search strategy to solve problem
 - **Note that:**  
-		- **b** = maximum branching factor of the search tree  
-		- **d** = depth of the least-cost solution  
-		- **m** = maximum depth of the state space (could be infinite)
+		- $b$ = maximum branching factor of the search tree  
+		- $d$ = depth of the least-cost solution  
+		- $m$ = maximum depth of the state space (could be infinite)
 
 - **BFS**
 	- Expands the shallowest unexpanded node
-	- **Complete if the branching factor (b) is finite**
-	- *Time:* **O(b<sup>d</sup>)**
-	- *Space:* **O(b<sup>d</sup>)**
-	- **Optimal Path if path cost is uniform (cost = 1), otherwise _not complete or optimal in general_**
+	- **Complete if the branching factor ($b$) is finite**
+	- *Time:* $O(b^d)$
+	- *Space:* $O(b^d)$
+	- **Optimal Path if path cost is uniform ($cost = 1$), otherwise _not complete or optimal in general_**
 - **DFS**
-	- Expand depth wise
-	- **Not Complete if in Infinite Space (algorithm would infinitely expand states of zero cost)**
-	- *Time:* **O(b<sup>m</sup>)**
-	- *Space:* **O(bm) (at any given time, in the worst case, only need to remembe to depth m states, to get which you expanded at most b nodes each --> bm!)**
+	- Expands depth wise (from the furthest unexpanded node)
+	- **Not Complete if in Infinite Space  (algorithm would infinitely expand states of zero cost)**
+	- *Time:* $O(b^d)$
+	- *Space:* $O(bm)$ **(at any given time, in the worst case, only need to remembe to depth m states, to get which you expanded at most b nodes each --> bm!)**
 	- **Not Optimal Path**
 - **Uniform Cost Search**
-	- Expand least-cost node
-	- **Complete if step size > 0**
-	- *Time:* **n nodes g cost <= optimal cost**
-	- *Space:* **n nodes g cost <= optimal cost**
-	- **Optimal**
+	- Expand least-cost unexpanded node
+	- **Complete if $\text{step size }> 0$**
+	- *Time:* number of nodes with $g\geq$ cost of optimal solution
+	- *Space:* number of nodes with $g\geq$ cost of optimal solution
+	- **Optimal since it searches the least-cost node**
 - **Depth Limited Search**
 	- Do depth first to a certain limit
 	- **Not Complete**
