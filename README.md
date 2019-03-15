@@ -80,47 +80,59 @@ GitHub for Akira and Callum.
 	- We **measure how good a solution is** by using **path cost**
 
 ##### Analyse complexity of a search strategy
+
+- **Completeness**: Does it always find a solution if one exists?
+- **Time Complexity**: Number of nodes generated/expanded
+- **Space Complexity**: Maximum number of nodes in memory
+- **Optimality**: Does it always find a least-cost solution?
+
 ##### Apply a search strategy to solve problem
 - **Note that:**  
-		- $b$ = maximum branching factor of the search tree  
-		- $d$ = depth of the least-cost solution  
-		- $m$ = maximum depth of the state space (could be infinite)
+		- _b_ = maximum branching factor of the search tree  
+		- _d_ = depth of the least-cost solution  
+		- _m_ = maximum depth of the state space (could be infinite)
 
 - **BFS**
 	- Expands the shallowest unexpanded node
-	- **Complete if the branching factor ($b$) is finite**
-	- *Time:* $O(b^d)$
-	- *Space:* $O(b^d)$
-	- **Optimal Path if path cost is uniform ($cost = 1$), otherwise _not complete or optimal in general_**
+	- **Complete** if the branching factor (b) is finite
+	- Time: _O(b<sup>d</sup>)_
+	- Space: _O(b<sup>d</sup>)_
+	- **Optimal Path** if path cost is uniform (cost = 1), otherwise _not complete or optimal in general_
+
 - **DFS**
 	- Expands depth wise (from the furthest unexpanded node)
-	- **Not Complete if in Infinite Space  (algorithm would infinitely expand states of zero cost)**
-	- *Time:* $O(b^d)$
-	- *Space:* $O(bm)$ **(at any given time, in the worst case, only need to remembe to depth m states, to get which you expanded at most b nodes each --> bm!)**
-	- **Not Optimal Path**
+	- **Not Complete** if in an Infinite Space (algorithm would infinitely expand states of zero cost)
+	- Time: _O(b<sup>m</sup>)_
+	- Space: _O(bm)_ **(at any given time, in the worst case, only need to remembe to depth m states, to get which you expanded at most b nodes each --> bm!)**
+	- **Not an Optimal Path**
+
 - **Uniform Cost Search**
 	- Expand least-cost unexpanded node
-	- **Complete if $\text{step size }> 0$**
-	- *Time:* number of nodes with $g\geq$ cost of optimal solution
-	- *Space:* number of nodes with $g\geq$ cost of optimal solution
-	- **Optimal since it searches the least-cost node**
+	- **Complete** if step size > 0
+	- Time: _number of nodes with g >= cost of optimal solution_
+	- Space: _number of nodes with g >= cost of optimal solution_
+	- **Optimal** since it searches the least-cost node
+
 - **Depth Limited Search**
-	- Do depth first to a certain limit
+	- Perform a DFS with depth limit = _l_
 	- **Not Complete**
-	- *Time:* **O(b<sup>l</sup>)**
-	- *Space:* **O(bl)**
+	- Time: _O(b<sup>l</sup>)_
+	- Space: _O(bl)_
 	- **Not Optimal**
+
 - **Iterative Deepening Search**
 	- Do DFS for each 'step'
 	- **Complete**
-	- *Time:* **O(b<sup>d</sup>)**
-	- *Space:* **O(bd)**
-	- **Optimal if step size = 1**
+	- Time: _O(b<sup>d</sup>)_
+	- Space: _O(bd)_
+	- **Optimal** if step size = 1
+	- Can be modified to explore a uniform-cost tree
+
 - **Bidirectional Search**
 	- Search from both goal and start
 	- **Complete**
-	- *Time:* **O(b<sup>d/2</sup>)**
-	- *Space:* **O(b<sup>d/2</sup>)**
+	- Time: _O(b<sup>d/2</sup>)_
+	- Space: _O(b<sup>d/2</sup>)_
 	- **Optimal**
 
 ## Week 3: Informed Search Algorithms
