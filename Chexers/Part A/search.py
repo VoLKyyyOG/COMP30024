@@ -2,11 +2,12 @@
 COMP30024 Artificial Intelligence, Semester 1 2019
 Solution to Project Part A: Searching
 
-Authors: 
+Authors: Akira and Callum
+Team: _blank_
 """
 
-import sys
 import json
+import sys
 
 def main():
     with open(sys.argv[1]) as file:
@@ -15,6 +16,31 @@ def main():
     # TODO: Search for and output winning sequence of moves
     # ...
 
+    # track taken moves with list
+    # UCS search?
+    # starting piece "pieces" -> [[-1,2]] indicates a single piece on the hex indexed (-1, 2)
+    # "blocks" specifying the position of any blocks on the board
+    # -> For example, the entry "blocks": [[0,1], [2,-1]] indicates blocks on the hexes indexed (0, 1) and (2, -1)
+    # Use command: python search.py test.json         to run it via terminal
+    print_board(debug(data), message = "Test Board", debug=True)
+
+    # need to create a "move", "jump" and "exit" action 
+    # define functions that read the coordinate of pieces and blocks and check if valid
+
+    ############ search algo below i guess
+
+
+# The print_board dictionary should be of format {(q, r): color_of_piece}
+# The purpose of this is to visualise it
+def debug(data):
+    board_dict = {}
+    player_pieces = [tuple(i) for i in data['pieces']]
+    blocks = [tuple(i) for i in data['blocks']]
+    for i in player_pieces:
+        board_dict[i] = data['colour']
+    for i in blocks:
+        board_dict[i] = 'B'
+    return board_dict
 
 def print_board(board_dict, message="", debug=False, **kwargs):
     """
