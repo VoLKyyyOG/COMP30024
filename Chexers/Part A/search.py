@@ -21,7 +21,7 @@ def main():
     # starting piece "pieces" -> [[-1,2]] indicates a single piece on the hex indexed (-1, 2)
     # "blocks" specifying the position of any blocks on the board
     # -> For example, the entry "blocks": [[0,1], [2,-1]] indicates blocks on the hexes indexed (0, 1) and (2, -1)
-    # Use command: python search.py test.json         to run it via terminal
+    # Use command: python search.py test-files/test.json         to run it via terminal
     print_board(debug(data), message = "Test Board", debug=True)
 
     # need to create a "move", "jump" and "exit" action 
