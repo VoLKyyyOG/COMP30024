@@ -47,7 +47,7 @@ def possible_moves(data, player_goal):
         # if exit:
             # return exit()
         
-
+# Finds adjacent hexes
 def adj_hex(coordinate):
     # Taken from the test generator script
     valid_coordinates = [[-3, 0], [-3, 1], [-3, 2], [-3, 3], 
@@ -72,6 +72,7 @@ def adj_hex(coordinate):
 
     return valid_hexes
 
+# Finds possible move actions given a coordinate
 def move(valid_hexes, data):
     # Non-movable pieces on board
     non_movable = data["blocks"]+data["pieces"]
@@ -79,6 +80,7 @@ def move(valid_hexes, data):
 
     return possible_moves
 
+# Finds possible jump actions given a coordinate
 def jump(valid_hexes, data):
     # Jumpable pieces / blocks
     jumpable = data["blocks"] + data["pieces"]
@@ -89,17 +91,17 @@ def jump(valid_hexes, data):
     possible_jumps = list()
 
     # Check if the jump is not blocked
-    # Uncomment print statement if you want to see it
+    ### Uncomment print statement if you want to see the logic
     for hexes in possible_jumpable:
 
-        # print("Looking to jump over:",hexes)
+        ### print("Looking to jump over:",hexes)
 
         target_hex = [i*2 for i in hexes]
 
-        # print("To target coordinate: ",target_hex)
+        ### print("To target coordinate: ",target_hex)
 
         if target_hex in jumpable:
-            # print("HEX IS OCCUPIED - CANNOT JUMP")
+            ### print("HEX IS OCCUPIED - CANNOT JUMP")
             pass
         else:
             possible_jumps.append(target_hex)
