@@ -10,15 +10,17 @@ import json
 import sys
 #################
 from print_debug import debug, print_board
-from moves import possible_moves, find_goal
+from moves import *
+# Use command: python search.py test-files/test.json to run it via terminal
+
 
 def main():
+    # Read argv input
     with open(sys.argv[1]) as file:
         data = json.load(file)
-        print(data)
-    # TODO: Search for and output winning sequence of moves
-    # ...
-    # Use command: python search.py test-files/test.json to run it via terminal
+        print("Data input:", data)
+    
+    # Print current state
     print_board(debug(data), message = "Test Board", debug=True)
 
     # Find the player goal
@@ -27,7 +29,8 @@ def main():
     print("Player Gaol: ",player_goal)
     print("**********************************************************")
 
-    possible_moves(data)
+    # Print possible moves and valid adjacent hexes
+    possible_moves(data, player_goal)
 
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
