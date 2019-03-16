@@ -18,15 +18,24 @@ def find_goal(player, data):
 # Possible moves from current location
 def possible_moves(data, player_goal):
     player_pos = data["pieces"]
-    block_pos = data["blocks"]
     
     for i in player_pos:
         print("Player coordinate: ",i) 
-        valid_hexes = adj_hex(i)
 
+        # valid_hexes contains all adjacent hexes to the current position in nested list form
+        valid_hexes = adj_hex(i)
+        print("Adjacent hexes at:", valid_hexes)
+
+        # possible_moves contains all possible move actions to a coordinate in nested list form
         possible_moves = move(valid_hexes, data)
+        print("Possible Move Action to:",possible_moves)
+
+        # possible_jumps contains all possible jump actions to a coordinate in nested list form
         possible_jumps = jump(valid_hexes, data)
-        possible_exits = exit_move(i, player_goal)
+        print("Possible Jump Action to:",possible_jumps)
+
+        # Sees if the current hex is applicable for an exit action
+        exit_possible = exit_move(i, player_goal)
         print("**********************************************************")
 
         # check if there is block
@@ -61,27 +70,45 @@ def adj_hex(coordinate):
     # Checks if the hexes above are valid (within the board)
     valid_hexes = [i for i in [j for j in hexes] if i in valid_coordinates]
 
-    print("Adjacent hexes at:", valid_hexes)
-
     return valid_hexes
 
 def move(valid_hexes, data):
-    possible_moves = [i for i in valid_hexes if i not in data["blocks"]]
-
-    print("Possible Move Action to:",possible_moves)
+    # Non-movable pieces on board
+    non_movable = data["blocks"]+data["pieces"]
+    possible_moves = [i for i in valid_hexes if i not in non_movable]
 
     return possible_moves
 
 def jump(valid_hexes, data):
-    possible_jumps = [i for i in valid_hexes if i in data["blocks"] or i in data["pieces"]]
+    # Jumpable pieces / blocks
+    jumpable = data["blocks"] + data["pieces"]
 
-    print("Possible Jump Action to:",possible_jumps)
+    # Possible jumpable blocs from the current piece
+    possible_jumpable = [i for i in valid_hexes if i in jumpable]
+
+    possible_jumps = list()
+
+    # Check if the jump is not blocked
+    # Uncomment print statement if you want to see it
+    for hexes in possible_jumpable:
+
+        # print("Looking to jump over:",hexes)
+
+        target_hex = [i*2 for i in hexes]
+
+        # print("To target coordinate: ",target_hex)
+
+        if target_hex in jumpable:
+            # print("HEX IS OCCUPIED - CANNOT JUMP")
+            pass
+        else:
+            possible_jumps.append(target_hex)
 
     return possible_jumps
 
 def exit_move(coordinate, player_goal):
-    possible_exits = coordinate in player_goal
+    exit_possible = coordinate in player_goal
 
-    print("Exit Possible? ", possible_exits)
+    print("Exit Action Possible? ", exit_possible)
 
-    return possible_exits
+    return exit_possible
