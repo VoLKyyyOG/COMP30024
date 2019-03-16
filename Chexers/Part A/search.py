@@ -6,6 +6,9 @@ Authors: Akira and Callum
 Team: _blank_
 """
 
+"""FOR DEBUGGING"""
+DEBUG_FLAG = True
+
 import json
 import sys
 #################
@@ -30,7 +33,8 @@ def main():
     print("**********************************************************")
 
     # Print possible moves and valid adjacent hexes
-    possible_moves(data, player_goal)
+    ### ADJUST #DEBUGGING PRINTING HERE
+    possible_moves(data, player_goal, Debug_flag = DEBUG_FLAG)
 
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
