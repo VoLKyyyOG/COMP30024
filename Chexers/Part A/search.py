@@ -6,6 +6,20 @@ Authors: Akira and Callum
 Team: _blank_
 """
 
+"""
+
+Okay so
+1. jump wasn't working (99% sure of this) due to logic, so that's been adjusted
+2. Make valid_hex redundant by only needing coordinate and data to determine valid moves and jumps
+3. Streamlined debugging (just adjust debug_flag in search.py)
+4. Addition of classes.py to allow Vector addition, subtraction and scalar multiplication - see example syntax in the file.
+5. Make a lot of things global e.g. valid_coordinates (see moves.py) to reduce memory usage in future
+
+"""
+
+"""FOR DEBUGGING"""
+DEBUG_FLAG = True
+
 import json
 import sys
 #################
@@ -30,7 +44,8 @@ def main():
     print("**********************************************************")
 
     # Print possible moves and valid adjacent hexes
-    possible_moves(data, player_goal)
+    ### ADJUST #DEBUGGING PRINTING HERE
+    possible_moves(data, player_goal, Debug_flag = DEBUG_FLAG)
 
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
