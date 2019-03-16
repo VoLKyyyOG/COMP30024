@@ -45,7 +45,7 @@ def main():
 
     # Print possible moves and valid adjacent hexes
     ### ADJUST #DEBUGGING PRINTING HERE
-    possible_moves(data, player_goal, Debug_flag = DEBUG_FLAG)
+    possible_moves(data, player_goal, debug_flag = True)
 
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':

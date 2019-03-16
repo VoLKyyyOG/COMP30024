@@ -45,13 +45,12 @@ def possible_moves(data, player_goal, debug_flag= False):
         possible_jumps = jump(i, data, debug_flag)
 
         # Checks if the current hex is eligible for an exit action
-        exit_possible = exit_move(i, player_goal, debug_flag)
+        exit_possible = exit_move(i, player_goal)
 
-        if (debug_flag):
-            print("Player coordinate: ", i)
-            print("Possible Move Action to:",possible_moves)
-            print("Possible Jump Action to:",possible_jumps)
-            print("*" * 40)
+        print("Player coordinate: ", i)
+        print("Possible Move Action to:",possible_moves)
+        print("Possible Jump Action to:",possible_jumps)
+        print("*" * 40)
 
 # Retrieves adj hexes that are in valid coordinates
 def adj_hex(coordinate):
@@ -98,8 +97,8 @@ def jump(coordinate, data, debug_flag = False):
     return possible_jumps
 
 # Determines if exit action possible
-def exit_move(coordinate, player_goal, debug_flag = False):
+def exit_move(coordinate, player_goal):
     exit_possible = (coordinate in player_goal)
-    if (debug_flag): print("Exit Action Possible? ", exit_possible)
+    print("Exit Action Possible? ", exit_possible)
 
     return exit_possible
