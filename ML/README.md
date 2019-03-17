@@ -1,3 +1,7 @@
+I can rest in peace now
+======
+![alt text](https://github.com/akiratwang/COMP30024/blob/master/ML/first%20run.PNG)
+
 This file describes the various data files associated with Project 1 for COMP30027 Machine Learning in Semester 1 2019. References for the data files are listed in the accompanying Project specifications.
 
 The archive contains eleven files, of which nine are data files in (approximately) CSV format, headers.txt is a text file contains the corresponding CSV headers (if you require them), and README.txt is this file.
