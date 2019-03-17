@@ -19,7 +19,7 @@ from collections import defaultdict
 from classes import *
 from moves import *
 
-"""IDEA: Each of the 40 hexes has a 2-bit flag, + one flag for turn player + 3 flags for exit_totals = an 88-bit long int
+"""IDEA: Each of the 37 hexes has a 2-bit flag, + one flag for turn player + 3 flags for exit_totals = an 88-bit long int
 00 > empty, 01 > R, 10 > G, 11 > B"""
 
 ##################### Globals
