@@ -11,7 +11,6 @@ GOAL["green"].append([[q,3] for q in range(-3, 1)])
 
 # Game valid coordinate positions
 ## Taken from the test generator script
-""" Made it in caps so we know its a global variable """
 VALID_COORDINATES = [[-3, 0], [-3, 1], [-3, 2], [-3, 3],
                     [-2, -1], [-2, 0], [-2, 1], [-2, 2], [-2, 3],
                     [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2], [-1, 3],
@@ -21,7 +20,6 @@ VALID_COORDINATES = [[-3, 0], [-3, 1], [-3, 2], [-3, 3],
                     [3, -3], [3, -2], [3, -1], [3, 0]]
 
 # Partly adapted from https://www.redblobgames.com/grids/hexagons/#neighbors-axial
-""" Made it in caps so we know its a global variable """
 POSSIBLE_DIRECTIONS = [[0,1],[1,0],[1,-1],[0,-1],[-1,0],[-1,1]]
 
 ######################### FUNCTIONS #########################
@@ -29,19 +27,16 @@ POSSIBLE_DIRECTIONS = [[0,1],[1,0],[1,-1],[0,-1],[-1,0],[-1,1]]
 # Returns goals given player colour
 def find_goal(player, data):
 
-    # ***TEMPORARY*** # Default player goal
-    player_goal = GOAL[player][0]
-
     # Check if goal not blocked by piece(s)
     non_movable = data["blocks"] + data["pieces"]
 
-    """ updated this so that it counts your own pieces too """
-    player_goal = [i for i in player_goal if i not in non_movable]
+    """ TEMPORARY UPDATE: Merged default with update"""
+    player_goal = [i for i in GOAL[player] if i not in non_movable][0]
 
     return player_goal
 
 # Possible moves from current location
-def possible_moves(data, player_goal, debug_flag = False):
+def possible_moves(data, debug_flag = False):
     player_pieces = data["pieces"]
     for piece in player_pieces:
         # All possible move actions to a coordinate in nested list form
