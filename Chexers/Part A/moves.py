@@ -11,6 +11,7 @@ GOAL["green"].append([[q,3] for q in range(-3, 1)])
 
 # Game valid coordinate positions
 ## Taken from the test generator script
+"""DO NOT CHANGE THE ORDER OF THE POINTS IN HERE... UNLESS YOU WANT THE HASH TO FAIL"""
 VALID_COORDINATES = [[-3, 0], [-3, 1], [-3, 2], [-3, 3],
                     [-2, -1], [-2, 0], [-2, 1], [-2, 2], [-2, 3],
                     [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2], [-1, 3],

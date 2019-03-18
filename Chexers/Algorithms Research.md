@@ -1,78 +1,3 @@
-Notes
-
-# Monday's discussion (18/03/2019)
-
-To attack Part A:
-- 1. Use IDA* to explore. g(n) is cost to get here, = 2*moves + jumps
-- 2. Use transposition/history tables (set) unique to each leaf, use hash(state) to prevent 'down the branch' repetition
-- 3. Use a transposition/history table (dict of key hash(state) and value, pointers to instances of it) to prevent 'across the branches' repetition
-- 4. 
-
-# Hexagonal manipulation (Redblob)
-- Use of cube coordinates (q,r,s)
-- The implementation used allows for q+r+s=0 --> (q,r,-q-r)
-- Consider Hex() and Cube() and decorators to allow interactivity in functions/code (easy isinstance tests)
-- Can calculate '2nd tier diagonals' with cube coordinates
-- Use 1/2 * (sum of all absolute differences in q,r,s) for distance metric
-- Can generate valid_coordinates easily with some simple looping over q,r,s (just assert q+r+s=0, loop over -3 to 3 3 times)
-- Can find rings and common areas of two groups
-- Searching with A*, Dijkstra, Floyd-Warshall with some adjustment works! (and it goes without saying so does BFS)
-
-CODING COMMENTS (for Callum, dw Akira)
-
- - GREAT IDEA: Create CustomNode inheritances that add on desired
-- Don't get too carried away with draws/etc. as this aspect of implementation not introduced yet...
-- OrderedDict allows equality!
-- `__iadd__` for in-place addition (+= stuff)
-- data = list/tuple of stuff but NOT dictionary
-functionality acc. search. Simply define it in the algorithm calling function/just prior to it. Then, attribute assignment possible AND Node structure/data structure unambiguous.
-- Replace .is_over attribute with .game_status attribute assigned @ `__init__`:
-      - 1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW
-- Remove 'player' flag, that's in state!
-- Sequential players determinable by x+1 % 3... ref global dict for string form
-- Explore mapping \**kwargs to attributes --> `setattr(self, key, value)`
-- Classes, lists, dicts are MUTABLE -> x1 = class and x2 = x1 copies the reference. Edits to x1 can be made that impact x2, however directly re-assigning either will break the link (new object wins)
-- ADVANCED GOAL: Attempt rotational symmetry reduction in N-player case (color-rotational symmetry too)
-- ADVANCED GOAL: Sound TT implementation + solving outlined issues
-
-# ALGORITHMS/HEURISTICS
-
-## Heuristic for Part A BRAINSTORM:
-- Admissible: cost evaluation <= actual solution cost (does NOT over-estimate)
-- Consistent: monotonic. Not very likely...
-Ideas:
-- "Row displacement": # perp. rows away from disappearing (e.g. pieces on
-- Should be f(n) = g(n) + h(n). G(n) is "cost to get here" (using move = 2, jump = 1 is simple)
-- h(n) or "cost to exit" is reliant on the children evaluation.
-
-For Paranoid/Directed Offensive + AB :
-- data = (root, a, b)
-- (same fxn, outcome dpt on root vs curr_player)
-- MUST use tuples/immutables for arguments to NOT be an alias (local to each call)
-
-TT Implementation:
-- Simple defaultdict(1) with a) LEAST COST SO FAR occurrence reference and b) integer count
-- Remember, if perfect heuristic, cost(entry) should always be same no matter where in tree
-- Update after EVERY node generation
-- Check on every update to TT if edit meets draw_condition (easy check)
-
-TT Issues:
-- Problem : TT's are unique to each leaf (game simulation)
-- Soln 1: Implicit TT by exploring path for dupes FOR EVERY NEW NODE (once)
-- Soln 2: Explicit TT @ each node by updating (& copying) parent TT
-- Idea: DELETE TT of parents to save memory?
-Ultimate Q: does SUM(node memory unexpanded) > SUM(TT tables memoized)?
-
-RSR for semi-static env (dynamic only if piece identity changes)
-- Note: this is NOT TT - TT is duplicates 'down the branch', RSR is 'across the branch'
-- Idea: "Best" with ID search algorithms?
-- Q: RSR benefits from moved_piece (attach to parent) --> in data OR as an attribute?
-- Method A: Explore all child paths where root piece is moved
-- 1. Detect path networks of same piece (just ignore other children that aren't)
-- 2. Perform RSR on THOSE PATHS, and only on children with SAME piece
-- 3. Same boards are same = if you can RSR, do it! Don't worry a/b alternate piece choices
-
-REMEMBER: Most explorative algorithms require strictly positive edges (i.e. every move costs you)
 
 ## A*:
 - Best-first search: evaluates nodes with g(n) + h(n) (cost to get here + cost to get to goal). Expand at each step by removing from the 'fringe' (PQ?), update heuristic values, and rinse/repeat until find the goal.
@@ -212,6 +137,7 @@ This algorithm is an n-player algorithm that assumes all opponents are collectiv
 - Identical to a 2-player game, and hence allows for alpha-beta minimax!!!
 
 ## Max^n (N-Player Minimax)
+[Here is the MaxN algorithm source](https://web.cs.du.edu/~sturtevant/papers/comparison_algorithms.pdf)
 This algorithm is an n-player analog of the minimax algorithm. Rather than a singular value representing state evaluation, an n-sized tuple is used, the ith value representing ith players' evaluation, and max_n chooses the child node of a player with tuple that maximises the choice player's score.
 
 *Assumptions*: Opponent behaviour is fixed.
@@ -290,6 +216,8 @@ def specmax_n(Node, ParentScore, GrandparentScore)
 - Does NOT allow shallow pruning
 
 ## MP-Mix (Dynamic strategy in N-Player games)
+[Created by Inon Zuckerman and Ariel Felner](http://www.ise.bgu.ac.il/faculty/felner/papers/2011/Journal_mixed.pdf)  
+
 *Idea*: If strongly winning, play defensively (Paranoid). If another player is strongly winning, play offensive towards them to prevent your likely loss (Directed Offensive). Otherwise, play greedy (MaxN).
 *Implement as a vector of weights w*: maximisingPlayer prefers a to b if dotP(w,a) > dotP(w,b).
 - Paranoid/DO: `w[winningPlayer] = (2*(winningPlayer == me) - 1), all others 0` (works for both the winner and non-winner players)
@@ -299,7 +227,7 @@ def specmax_n(Node, ParentScore, GrandparentScore)
       - Play MaxN if not playing DO/Paranoid
 *Best applications*: Where **OI** (empirical/theoretical % of all states in a game that allow for moves that impede an opponent) is high. However, all this relies on the game and evaluation functions used.
 
-[Pseudocode Source](http://www.ise.bgu.ac.il/faculty/felner/papers/2011/Journal_mixed.pdf)
+Pseudocode
 ```python
 def MP_mix(defensiveThreshold, offensiveThreshold):
     for each i ∈ Players:
