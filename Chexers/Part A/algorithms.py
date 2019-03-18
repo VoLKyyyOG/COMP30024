@@ -18,6 +18,10 @@ class Node:
     # FINALISE ACTIONS FIRST
     def create_children(self, actions):
         """Given a chosen action(s), create children"""
+        # Apply_board()
+
+    def apply_move(self, action):
+        """Applies action and returns new Node (state)"""
 
     # FINALISE DATA FIRST
     def is_over(self):

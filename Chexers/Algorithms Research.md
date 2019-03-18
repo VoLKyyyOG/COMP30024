@@ -1,3 +1,99 @@
+Notes
+
+# Monday's discussion (18/03/2019)
+
+To attack Part A:
+- 1. Use IDA* to explore. g(n) is cost to get here, = 2*moves + jumps
+- 2. Use transposition/history tables (set) unique to each leaf, use hash(state) to prevent 'down the branch' repetition
+- 3. Use a transposition/history table (dict of key hash(state) and value, pointers to instances of it) to prevent 'across the branches' repetition
+- 4. 
+
+# Hexagonal manipulation (Redblob)
+- Use of cube coordinates (q,r,s)
+- The implementation used allows for q+r+s=0 --> (q,r,-q-r)
+- Consider Hex() and Cube() and decorators to allow interactivity in functions/code (easy isinstance tests)
+- Can calculate '2nd tier diagonals' with cube coordinates
+- Use 1/2 * (sum of all absolute differences in q,r,s) for distance metric
+- Can generate valid_coordinates easily with some simple looping over q,r,s (just assert q+r+s=0, loop over -3 to 3 3 times)
+- Can find rings and common areas of two groups
+- Searching with A*, Dijkstra, Floyd-Warshall with some adjustment works! (and it goes without saying so does BFS)
+
+CODING COMMENTS (for Callum, dw Akira)
+
+ - GREAT IDEA: Create CustomNode inheritances that add on desired
+- Don't get too carried away with draws/etc. as this aspect of implementation not introduced yet...
+- OrderedDict allows equality!
+- `__iadd__` for in-place addition (+= stuff)
+- data = list/tuple of stuff but NOT dictionary
+functionality acc. search. Simply define it in the algorithm calling function/just prior to it. Then, attribute assignment possible AND Node structure/data structure unambiguous.
+- Replace .is_over attribute with .game_status attribute assigned @ `__init__`:
+      - 1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW
+- Remove 'player' flag, that's in state!
+- Sequential players determinable by x+1 % 3... ref global dict for string form
+- Explore mapping \**kwargs to attributes --> `setattr(self, key, value)`
+- Classes, lists, dicts are MUTABLE -> x1 = class and x2 = x1 copies the reference. Edits to x1 can be made that impact x2, however directly re-assigning either will break the link (new object wins)
+- ADVANCED GOAL: Attempt rotational symmetry reduction in N-player case (color-rotational symmetry too)
+- ADVANCED GOAL: Sound TT implementation + solving outlined issues
+
+# ALGORITHMS/HEURISTICS
+
+## Heuristic for Part A BRAINSTORM:
+- Admissible: cost evaluation <= actual solution cost (does NOT over-estimate)
+- Consistent: monotonic. Not very likely...
+Ideas:
+- "Row displacement": # perp. rows away from disappearing (e.g. pieces on
+- Should be f(n) = g(n) + h(n). G(n) is "cost to get here" (using move = 2, jump = 1 is simple)
+- h(n) or "cost to exit" is reliant on the children evaluation.
+
+For Paranoid/Directed Offensive + AB :
+- data = (root, a, b)
+- (same fxn, outcome dpt on root vs curr_player)
+- MUST use tuples/immutables for arguments to NOT be an alias (local to each call)
+
+TT Implementation:
+- Simple defaultdict(1) with a) LEAST COST SO FAR occurrence reference and b) integer count
+- Remember, if perfect heuristic, cost(entry) should always be same no matter where in tree
+- Update after EVERY node generation
+- Check on every update to TT if edit meets draw_condition (easy check)
+
+TT Issues:
+- Problem : TT's are unique to each leaf (game simulation)
+- Soln 1: Implicit TT by exploring path for dupes FOR EVERY NEW NODE (once)
+- Soln 2: Explicit TT @ each node by updating (& copying) parent TT
+- Idea: DELETE TT of parents to save memory?
+Ultimate Q: does SUM(node memory unexpanded) > SUM(TT tables memoized)?
+
+RSR for semi-static env (dynamic only if piece identity changes)
+- Note: this is NOT TT - TT is duplicates 'down the branch', RSR is 'across the branch'
+- Idea: "Best" with ID search algorithms?
+- Q: RSR benefits from moved_piece (attach to parent) --> in data OR as an attribute?
+- Method A: Explore all child paths where root piece is moved
+- 1. Detect path networks of same piece (just ignore other children that aren't)
+- 2. Perform RSR on THOSE PATHS, and only on children with SAME piece
+- 3. Same boards are same = if you can RSR, do it! Don't worry a/b alternate piece choices
+
+REMEMBER: Most explorative algorithms require strictly positive edges (i.e. every move costs you)
+
+## A*:
+- Best-first search: evaluates nodes with g(n) + h(n) (cost to get here + cost to get to goal). Expand at each step by removing from the 'fringe' (PQ?), update heuristic values, and rinse/repeat until find the goal.
+Admissible heuristic --> optimal.
+- Need to enforce that you should only add nodes to the 'set to explore' only if their evaluated cost will be less than before
+
+## IDA*:
+- Depth-first iterative limited search BUT the limit is not depth but rather a threshold for the f(n). At each iteration, extract minimum cost path found so far. You set threshold to the 'this is what I want optimally, find it' --> if it succeeds, great! If not, you're still going to find the next cheapest fringe progression.
+IDA* is beneficial when the problem is memory constrained... A* search keeps a large queue of unexplored nodes...
+By contrast... IDA* does not remember any node except the ones on the current path... O(solution) memory space-complexity
+
+## Dijkstra: NEEDS A HEURISTIC
+- Single-source minimum cost path. Basically A* with h(n) = 0 (no cost heuristic to get to finish considered)
+
+## Floyd-Warshall: PRETTY BAD. O(|V|^3)... |V|x|V| array of all distance combinations. Iterate over each row-col pair and ask if there's shorter. Do this repeatedly (each time = get shortest paths of length total_num_iterations)
+
+## JPS: DOES NOT NEED A HEURISTIC
+- not 'ideal' for hexagonal, however you could do it with the following:
+- For all directions, progression y is a jump node if either A) it's goal, B.) it has a certain blocking, C) there's a cell you can JP to from y
+- Could also pre-process graphs to identify JP's ... but this assumes static env
+
 #  Minimax + Improvements
 
 ## Minimax with alpha-beta pruning
