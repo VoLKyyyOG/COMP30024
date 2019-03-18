@@ -109,8 +109,8 @@ GitHub for Akira and Callum.
 - **Uniform Cost Search**
 	- Expand least-cost unexpanded node
 	- **Complete** if step size > 0
-	- Time: _number of nodes with g >= cost of optimal solution_
-	- Space: _number of nodes with g >= cost of optimal solution_
+	- Time: _number of nodes with g <= cost of optimal solution_
+	- Space: _number of nodes with g <= cost of optimal solution_
 	- **Optimal** since it searches the least-cost node
 
 - **Depth Limited Search**
