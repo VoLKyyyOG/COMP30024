@@ -1,5 +1,21 @@
 # Implementation Notes
 
+## My updates 20/03/2019 (a copy of the github merge description)
+It's Wednesday, yay I can finally code.
+Few major changes:
+1. One of the goals was wrong, so I fixed that.
+2. Made minor naming alterations to Node and moves.py to improve readibility (e.g. replaced move with action whenever action was meant, and not the actual 'move to an adjacent' move the game describes.)
+
+3. Partly implemented IDA* to work with current classes, including creating a subclass IDA_Node that inherits the Node properties but also pre-initialises travel_cost and exit_cost for you. It doesn't have to be used, but it makes it very clear what a node is intended to be used for.
+
+4. Coded the admissible 'max-displacement' heuristic we were discussing using cubic coordinate form (Vector.get_cubic())
+
+5. Moved hash.py into classes.py
+
+6. Slightly modified flags in Z_hash for better heuristic implementation, nothing major.
+
+7. Added INF
+
 ## Plan of Attack for Part A:
 - 1. Use IDA* to explore. Requires admissibility!
     - g(n) is cost to get here, = 2*moves + jumps.

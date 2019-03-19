@@ -1,12 +1,19 @@
+""" moves.py
+
+Defines core game structure, globals, and actions
+Currently formatted for Part A
+"""
+
+########################## IMPORTS ###########################
 from collections import defaultdict
 from classes import *
 
-######################### GLOBALS #########################
+########################## GLOBALS ###########################
 
 # Goals for each player
 GOAL = defaultdict(list)
 GOAL["red"].append([[3,r] for r in range(-3, 1)])
-GOAL["blue"].append([[-3,0],[-2,1],[-1,2],[0,3]])
+GOAL["blue"].append([[-3,0],[-2,-1],[-1,-2],[0,-3]])
 GOAL["green"].append([[q,3] for q in range(-3, 1)])
 
 # Game valid coordinate positions
@@ -31,13 +38,12 @@ def find_goal(player, data):
     # Check if goal not blocked by piece(s)
     non_movable = data["blocks"] + data["pieces"]
 
-    """ TEMPORARY UPDATE: Merged default with update"""
     player_goal = [i for i in GOAL[player] if i not in non_movable][0]
 
     return player_goal
 
-# Possible moves from current location
-def possible_moves(data, debug_flag = False):
+# Possible actions from current location
+def possible_actions(data, debug_flag = False):
     player_pieces = data["pieces"]
     for piece in player_pieces:
         # All possible move actions to a coordinate in nested list form
@@ -47,7 +53,7 @@ def possible_moves(data, debug_flag = False):
         possible_jumps = jump(piece, data, debug_flag)
 
         # Checks if the current hex is eligible for an exit action
-        exit_possible = exit_move(piece, player_goal)
+        exit_possible = exit_action(piece, player_goal)
 
         print("Player coordinate: ", piece)
         print("Possible Move Action to:", possible_moves)
@@ -78,7 +84,6 @@ def move(coordinate, data, debug_flag = False):
     return possible_moves
 
 # Finds possible jump actions given a coordinate
-"""You had it as Debug_flag and it kept giving errors lelelele"""
 def jump(coordinate, data, debug_flag = False):
     # Non-movable pieces on board
     non_movable = data["blocks"] + data["pieces"]
@@ -100,7 +105,7 @@ def jump(coordinate, data, debug_flag = False):
     return possible_jumps
 
 # Determines if exit action possible
-def exit_move(coordinate, player_goal):
+def exit_action(coordinate, player_goal):
     exit_possible = (coordinate in player_goal)
     print("Exit Action Possible? ", exit_possible)
 
