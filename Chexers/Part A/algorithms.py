@@ -47,3 +47,71 @@ class Node:
         """Retrieves current player. ONLY IMPLEMENT AFTER "DATA" structure FINALISED
         Consider just reading it from the state hash"""
         pass
+
+
+######################### IDA* ######################### 
+
+def IDA(node, threshold, newThreshold):
+
+    for move in node.possible_moves:
+
+        # childrennnn 
+        new node.state = node.state
+        new node.apply_move(move)
+
+        # Add a cost
+        new node.goal += 1
+
+        # Heuristic cost
+        cost = h(n)
+        new node.heuristic += new node.goal + cost
+
+        if new node.heuristic > threshold:
+            # we have expanded another one
+            if new node.heuristic < newThreshold:
+                # Update threshold
+                newThreshold = new node.heuristic
+        else:
+            if cost == 0:
+                # Made it
+                return new node
+            
+            # r E c U r S i O n
+            root = IDA(new node, threshold, newThreshold)
+
+            if not root:
+                return root
+    return None
+
+
+
+def IDA_control_loop(data, debug=False):
+
+    initial node = threshold = initial heuristic
+
+    while not root:
+        newThreshold = float("inf")
+
+        # Goal cost and heuristic = 0
+        root.goal = root.heuristic = 0
+        
+        # Copy the initial board state
+        current node.state = initial node.state
+
+        # Find possible moves
+        current node.possible_moves = possible_moves(data)
+
+        # r E c U r S i O n
+        root = IDA(current node, threshold, newThreshold)
+
+        if not root:
+            threshold = newThreshold
+            if debug:
+                print(newThreshold)
+    
+    return root.goal
+
+        
+
+
+
