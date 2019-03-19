@@ -157,7 +157,12 @@ GitHub for Akira and Callum.
 	- Space: _O(b<sup>d</sup>)_ all nodes in memory**
 		- **Optimal**
 
-##### Don’t forget about iterative improvement algorithms
+##### Heuristic behaviour for A*
+- If h(n) is very high relative to g(n), then only h(n) plays a role, and A\* turns into **Greedy Best-First-Search**
+- If h(n) is 0, then only g(n) plays a role, and A\* turns into **Uniform Cost Search**, which finds the optimal solution
+- If  h(n)  is  always  lower  than  (or  equal  to)  the  cost  of  moving  from  n  tothe  goal,  then  A\*  is  guaranteed  to  find  a  shortest  path.  The  lower  h(n)  is, the more node A\* expands, making it slower.
+- If h(n) is sometimes greater than the cost of moving from n to the goal, then A\* is not guaranteed to find a shortest path, but it can run faster
+- If  h(n)  is  exactly  equal  to  the  cost  of  moving  from  n  to  the  goal,  then A\* will only follow the best path and never expand anything else, making it very fast.
 
 ##### Derive and compare heuristics for a problem e.g., is a given heuristic h1 admissible; for given heuristics h1 and h2, does h1 dominate h2
 - Heuristics is the *h(n)* part of the AStar evaluation
