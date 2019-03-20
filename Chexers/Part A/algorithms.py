@@ -29,6 +29,8 @@ class Node:
     def __init__(self, hashed_state, parent):
         COUNT_TOTAL += 1
         self.hashed_state = hashed_state
+        self.depth = self.parent.depth + 1
+        self.is_expanded = False # Allows us to realise, if there are no childen, this is a dead end
         self.state = hashed_state.data() # Board state data: piece positions, # exits etc. accessed through here
         self.player = self.__get_player() # Flag for which player you are
         self.game_status = self.__get_status(self)
@@ -42,11 +44,13 @@ class Node:
         for action in actions:
             new_child = Node(hashed_state = self.hashed_state, parent = self)
             new_child.apply_action(action)
+            # Check if a duplicate?
             self.children.append(new_child)
+        self.is_expanded = True
 
     ######################### TO DEFINE ############################
     def apply_action(self, action):
-        """Applies action and returns new Node"""
+        """Applies action to passed node, updates attributes"""
         pass
 
     def __get_status(self):

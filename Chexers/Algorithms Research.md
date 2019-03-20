@@ -245,10 +245,6 @@ def MP_mix(defensiveThreshold, offensiveThreshold):
 ```
 **OI**: Measures impact of a decision on other players' performance. Typically, agents whose strategy = function(OI) perform better --> hence, constant OI tends to imply a constant strategy agent will work well.
 
-# A* + Improvements
-
-## A*
-
 ## SSS* (improves A*)
 
 ## D* (improves A*)
