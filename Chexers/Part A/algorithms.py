@@ -17,6 +17,9 @@ from sys import getsizeof
 COUNT_TRIM = 0
 COUNT_TOTAL = 0
 MEMORY_TOTAL = 0
+MOVE = 0
+JUMP = 1
+EXIT = 2
 COUNT_PER_DEPTH = list() # index by depth, e.g. COUNT_PER_DEPTH[5] has total count @ depth 5. Depth 0 is root.
 MAX_COORDINATE_VAL = 3 # Point indices range from -3 to 3
 INF = float("inf")
@@ -52,27 +55,43 @@ class Node:
         self.is_expanded = True
 
     ######################### TO DEFINE ############################
-    def apply_action(self, action):
-        """Applies action to passed node, updates attributes"""
-        pass
+    def apply_action(self, piece, action_flag, new_position=None):
+        """Applies action to passed node, updates attribute"""
+        if action_flag == MOVE or action_flag == JUMP:
+            try:
+                self.state["pieces"].replace(piece, Vector.add(piece, new_position))
+            except:
+                print("Error in moving/jumping - coordinate not passed?")
+        elif action_flag == EXIT:
+                """PART B: Must update exit total flags here"""
+                self.remove(piece)
+        else:
+            print("Action error: not valid action_flag")
+            raise ValueError
+
+        # Update hashed_state, game_status, possible_actions
+        self.__init__(Z_hash(self.state), self.parent)
 
     def __get_status(self):
-        """1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW -2 DUPLICATE for is_over call
+        """PART A: 0 is over, more than 1 is not over
+        PART B: 1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW -2 DUPLICATE for is_over call
         Determines if a win/loss/draw has occurred
-        just read it from the state hash"""
-        pass
+        just read it from the state for Part A, try doing it from hash for Part B"""
+        return not len(self.state["pieces"])
 
     def __get_player(self):
-        """Retrieves current player. ONLY IMPLEMENT AFTER "DATA" structure FINALISED
+        """Retrieves current player.
+        PART A: Simple, just get it from data
+        PART B: ONLY IMPLEMENT AFTER "DATA" structure FINALISED
         Consider just reading it from the state hash"""
-        pass
+        return self.state["colour"]
 
     ##################### SUBCLASSES WILL DEFINE ADDITIONAL DATA, FUNCS ETC ######################
 
 
 ################ HEURISTICS FOR PART A #################
 
-def test_manhexxan(piece_coords):
+def test_heuristic(piece_coords):
     """Admissible Heuristic (range >= 0): Assuming 100\% free jumping, calculates no. actions to win"""
 
     """ Note: PLAYER_CODE defined in hash.py"""
@@ -83,7 +102,7 @@ def test_manhexxan(piece_coords):
 
     for piece in piece_coords:
         # Distance of a piece to its exit (# rows between it and exit)
-        axis_to_use = 0
+        axis_to_use = PLAYER_CODE["red"]
         distance = MAX_COORDINATE_VAL - Vector.get_cubic(piece)[axis_to_use]
 
         # Max jumps to get off board; the best case. +1 to account for exit action
@@ -92,11 +111,9 @@ def test_manhexxan(piece_coords):
 
     return sum(piece_eval_stor)
 
-print(f"Test for red: {test_manhexxan([[0,0]])} \
-{test_manhexxan([[0,0], [1,1], [-3,3]])} \
-{test_manhexxan([[3,0],[3,-1],[3,-2],[0,0]])}")
+print(f"Test for red: {test_heuristic([[0,0]])}")
 
-def jump_manhexxan(node):
+def jump_heuristic(node):
     """Admissible Heuristic (range >= 0): Assuming 100\% free jumping, calculates no. actions to win"""
 
     """ Note: PLAYER_CODE defined in hash.py"""
@@ -115,7 +132,6 @@ def jump_manhexxan(node):
         piece_eval_stor.append(ceil(distance / 2.0) + 1)
 
     return sum(piece_eval_list)
-
 
 ######################### IDA* #########################
 
