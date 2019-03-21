@@ -1,5 +1,11 @@
 # Implementation Notes
 
+Re-structure search.py, move.py (whilst obeying specs) to try and get a main.py
+
+Allow debugging on the board by defining node/position labels, and allow debug_print access to this if it doesn't already
+
+Can assume we are only tested on solveable configurations!
+
 ## My updates 20/03/2019 (a copy of the github merge description)
 It's Wednesday, yay I can finally code.
 Few major changes:
