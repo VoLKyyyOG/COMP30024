@@ -17,7 +17,6 @@ For each new addition:
 from collections import defaultdict
 from moves import *
 
-
 ########################## VECTORS ############################
 
 """ Example

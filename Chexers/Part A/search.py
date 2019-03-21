@@ -35,7 +35,7 @@ def main():
 
     # Print possible actions and valid adjacent hexes
     ### ADJUST #DEBUGGING PRINTING HERE
-    possible_actions(data, player_goal, debug_flag = True)
+    possible_actions(data, debug_flag = True)
 
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
