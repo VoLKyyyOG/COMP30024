@@ -85,12 +85,41 @@ $\hat{Pr}(X=x,Y=y) = \frac{freq(x,y)}{N}$
 
 $\hat{Pr}(X=x|Y=y) = \frac{freq(x,y)}{N}$
 
+## Lecture 4: Naive Bayes
+##### The Naive Bayes Implementation
+The Naive Bayes assumes that all probabilities are independent. 
 
+We have that for ever class $j$,
 
+$Pr(x_1,x_2,\dots,x_n | c_j) \approx \prod_{i=1}P(x_i | c_j)$
 
+This is called a **conditional independence assumption**, and makes Naive Bayes a tractable method. 
 
+```python
+for every test instance:
+    for every attribute in test instance:
+        for every class label:
+            calculate the probability (conditional independence)
+    return the largest probability and find the corresponding class label
+```
 
+##### Probabilistic Smoothing
+If you note the formula before, then multiplying any probability of 0 results in 0. This means that unseen events become an "impossible" event, which is untrue.
 
+**Using epsilon:**  
+To combat this, we assume that **no event is impossible** (i.e. every probability is greater than 0). This is implemented by replacing 0 with a value $\epsilon\rightarrow 0$, where $1+\epsilon \approx 1$, so we don't need change our approach with non-zero probabilities. 
 
+**Using Laplace smoothing (or add-one):**   
+BETTER ALTERNATIVE - *add-k smoothing*.  
+Laplace smoothing essentially gives unseen events a count of 1. Then, all counts are increased to ensure that monotonicity is maintained. Let $V = \textrm{Number of attributes},
 
+Then for every class $j$, and event $i$,  
+$\hat{Pr}(x_i | c_j) = \frac{1 + freq(x_i, c_j)}{V + freq(c_j)}
 
+##### Missing Values
+- If a value is missing in a test instance, it is possible to just simply ignore that feature for the purposes of classification.    
+- If a value is missing in a training instance, then it is possible to simply have it no contribute to the attribute-value counts/probability estimates for that feature. 
+```python
+if value == missing:
+    pass
+```
