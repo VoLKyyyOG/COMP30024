@@ -1,11 +1,7 @@
-I can rest in peace now
+Current Results
 ======
 ![alt text](https://github.com/akiratwang/COMP30024/blob/master/ML/first%20run.PNG)
 ======
-1. Implemented Cross-Val
-  - We need to clean and optimise (to an extent) the code
-2. Double check if we should indeed use cross-val and if so, which k values
-3. Answer Q1, 2, 4 and 6
 
 This file describes the various data files associated with Project 1 for COMP30027 Machine Learning in Semester 1 2019. References for the data files are listed in the accompanying Project specifications.
 
