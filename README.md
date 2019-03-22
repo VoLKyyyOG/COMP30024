@@ -1,4 +1,4 @@
-COMP300024 - Artificial Intellgience, The University of Melbourne
+COMP300024 - Artificial Intelligence, The University of Melbourne
 =========
 GitHub for Akira and Callum.
 
