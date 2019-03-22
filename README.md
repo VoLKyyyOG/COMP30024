@@ -156,6 +156,16 @@ GitHub for Akira and Callum.
 	- Time: Exponential in [relative error in h * length of soln] - Expands similarly to breadth first so O(b<sup>error\*d</sup>)
 	- Space: _O(b<sup>d</sup>)_ all nodes in memory**
 		- **Optimal**
+- **Iterative Improvement Search**
+	- IDEA: Consider a current state, and try to optimise it iteratively by choosing configurations that improve  on the current.
+	- Evaluate with some "objective" function (i.e. a utility/goal function) to determine how close a state is to optimality
+	- Path is irrelevant, only achievement of the goal/constraint is priority
+	- Constant space (history is not recorded, your current state always overwrites the previous in the algorithm)
+	- Example algorithm: Hill-climbing (applied iteratively to achieve this search)
+		- Take the current state
+		- Look at successor states, and take the state that is closest to the goal
+		- NOTE: sometimes finding successors are difficult --> some algorithms randomly choose at this stage
+	- HOWEVER this algorithm gets stuck in local maximums rather than global maximums
 
 ##### Heuristic behaviour for A*
 - If h(n) is very high relative to g(n), then only h(n) plays a role, and A\* turns into **Greedy Best-First-Search**
