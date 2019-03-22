@@ -163,7 +163,7 @@ def IDA(node, travel_h, exit_h, threshold, new_threshold):
 
         # Heuristic cost
         new_node.travel_cost = travel_h(new_node)
-        new_node.exit_cost = exit_h(node)
+        new_node.exit_cost = exit_h(new_node)
         new_node.total_cost = new_node.travel_cost + new_node.exit_cost
 
         if new_node.total_cost > threshold:
