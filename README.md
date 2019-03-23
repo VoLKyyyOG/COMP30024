@@ -1,3 +1,15 @@
+While I was Gone Thread:
+=========
+- ML info_gain() completed
+- ML cross validation optimised
+- ML added relevant comments
+- I read through AI, fixed a couple minor errors in definitions 
+- AI added a neat pythonic list comprehension to make our marker hate us
+### TODO:
+- Answer ML questions due 5th April 12pm
+- Complete the implementation for AI due 12th April 11pm
+
+
 COMP300024 - Artificial Intelligence, The University of Melbourne
 =========
 GitHub for Akira and Callum.
