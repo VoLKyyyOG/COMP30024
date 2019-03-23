@@ -10,8 +10,9 @@ Notes:
 
 ########################## IMPORTS ###########################
 from math import ceil
-from classes import *
 from sys import getsizeof
+
+from classes import *
 
 ########################## GLOBALS ###########################
 COUNT_TRIM = 0
@@ -90,7 +91,7 @@ class Node:
 
 
 ################ HEURISTICS FOR PART A #################
-
+# Uses coordinate based system
 def test_heuristic(piece_coords):
     """Admissible Heuristic (range >= 0): Assuming 100\% free jumping, calculates no. actions to win"""
 
@@ -100,20 +101,27 @@ def test_heuristic(piece_coords):
     piece_eval_stor = list()
     # Use PLAYER_CODE to choose the cubic coordinate to use to evaluate distance below
 
-    for piece in piece_coords:
-        # Distance of a piece to its exit (# rows between it and exit)
-        axis_to_use = PLAYER_CODE["red"]
-        distance = MAX_COORDINATE_VAL - Vector.get_cubic(piece)[axis_to_use]
+    # for piece in piece_coords:
+    #     # Distance of a piece to its exit (# rows between it and exit)
+    #     axis_to_use = PLAYER_CODE["red"]
+    #     distance = MAX_COORDINATE_VAL - Vector.get_cubic(piece)[axis_to_use]
+    # 
+    #     # Max jumps to get off board; the best case. +1 to account for exit action
+    #     # The ceil() calculates minimum no. jumps to get to exit tile from distance
+    #     piece_eval_stor.append(ceil(distance / 2.0) + 1)
 
-        # Max jumps to get off board; the best case. +1 to account for exit action
-        # The ceil() calculates minimum no. jumps to get to exit tile from distance
-        piece_eval_stor.append(ceil(distance / 2.0) + 1)
+    # return sum(piece_eval_stor)
 
-    return sum(piece_eval_stor)
+    """If you really wanted to I guess you could use this"""
+    return sum([ceil((MAX_COORDINATE_VAL - Vector.get_cubic(piece)[PLAYER_CODE["red"]]) / 2) + 1 for piece in piece_coords])
+    """It works"""
 
-print(f"Test for red: {test_heuristic([[0,0]])}")
+print(f"Test heuristic for red: {test_heuristic([[1,3]])}")
+print(f"Test heuristic for red: {test_heuristic([[0,0]])}")
+print(f"Test heuristic for red: {test_heuristic([[3,-3]])}")
 
-def jump_heuristic(node):
+# Uses current node passed through
+def jump_heuristic(IDA_node):
     """Admissible Heuristic (range >= 0): Assuming 100\% free jumping, calculates no. actions to win"""
 
     """ Note: PLAYER_CODE defined in hash.py"""
@@ -122,6 +130,7 @@ def jump_heuristic(node):
     piece_eval_stor = list()
     # Use PLAYER_CODE to choose the cubic coordinate to use to evaluate distance below
 
+    """Would it be better to just pass through new_node.state into the function rather than the whole node"""
     for piece in node.state["pieces"]:
         # Distance of a piece to its exit (# rows between it and exit)
         axis_to_use = PLAYER_CODE[node.get_player()]
@@ -131,7 +140,10 @@ def jump_heuristic(node):
         # The ceil() calculates minimum no. jumps to get to exit tile from distance
         piece_eval_stor.append(ceil(distance / 2.0) + 1)
 
-    return sum(piece_eval_list)
+        # A one liner return if you want to hahahah
+        # return sum([ceil((MAX_COORDINATE_VAL - Vector.get_cubic(piece)[PLAYER_CODE[node.get_player()]]) / 2) + 1 for piece in node.state["pieces"]])
+
+    return sum(piece_eval_stor)
 
 ######################### IDA* #########################
 
@@ -148,22 +160,27 @@ class IDA_Node(Node):
         self.travel_cost = 0   # Travel cost = cost to have gotten to this state
         self.exit_cost = 0     # Exit cost = cost to get from here to completion
         self.total_cost = self.travel_cost + self.exit_cost
+        """Surely just the one liner Pythonic init self.travel_cost = self.exit_cost = self.total_cost = 0"""
 
-def IDA(node, travel_h, exit_h, threshold, new_threshold):
+def IDA(IDA_node, travel_h, exit_h, threshold, new_threshold):
     """Implements IDA*"""
-    for action in node.possible_actions:
+    for action in IDA_node.possible_actions:
 
         # Create a child following that action
         # NOTE: apply_action has side-effect of self.travel_cost += 1
-        new_node = IDA_Node(node.state, node)
+        new_node = IDA_Node(node.state, IDA_node)
         new_node.apply_action(action)
 
         """TO-DO OPTIMISATION 1: Check this child in TT for repetition down the branch
         This must be sub_node independent."""
 
         # Heuristic cost
-        new_node.travel_cost = travel_h(new_node)
+        new_node.travel_cost = jump_heuristic(new_node)
         new_node.exit_cost = exit_h(new_node)
+        
+        #### DEBUG ####
+        print(f"Travel {new_node.travel_cost}, Exit: {new_node.exit_cost}")
+
         new_node.total_cost = new_node.travel_cost + new_node.exit_cost
 
         if new_node.total_cost > threshold:
@@ -185,7 +202,8 @@ def IDA(node, travel_h, exit_h, threshold, new_threshold):
     # IDA has failed to find anything
     return None
 
-def IDA_control_loop(initial_state, travel_h, exit_h, maxThreshold = 60, debug=False):
+"""Made debug=True for now"""
+def IDA_control_loop(initial_state, travel_h, exit_h, maxThreshold = 60, debug=True):
     """Runs IDA*. Must use two heuristics that work with Nodes. Returns 0 at goal"""
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 

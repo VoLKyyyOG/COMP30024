@@ -32,17 +32,16 @@ POSSIBLE_DIRECTIONS = [[0,1],[1,0],[1,-1],[0,-1],[-1,0],[-1,1]]
 
 ######################### FUNCTIONS #########################
 
-# Returns goals given player colour
+# Returns goals for a given player colour
 def find_goal(player, data):
 
     # Check if goal not blocked by piece(s)
     non_movable = data["blocks"] + data["pieces"]
 
-    player_goal = [i for i in GOAL[player] if i not in non_movable][0]
-
-    return player_goal
+    return [i for i in GOAL[player] if i not in non_movable][0]
 
 # Possible actions from current location
+
 def possible_actions(data, debug_flag = False):
     player_pieces = data["pieces"]
     for piece in player_pieces:
@@ -55,10 +54,11 @@ def possible_actions(data, debug_flag = False):
         # Checks if the current hex is eligible for an exit action
         exit_possible = exit_action(piece, player_goal)
 
-        print("Player coordinate: ", piece)
-        print("Possible Move Action to:", possible_moves)
-        print("Possible Jump Action to:", possible_jumps)
-        print("*" * 40)
+        if debug_flag:
+            print("Player coordinate: ", piece)
+            print("Possible Move Action to:", possible_moves)
+            print("Possible Jump Action to:", possible_jumps)
+            print("*" * 40)
 
 # Retrieves adj hexes that are in valid coordinates
 def adj_hex(coordinate):
