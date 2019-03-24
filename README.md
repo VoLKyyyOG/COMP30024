@@ -1,12 +1,22 @@
 While I was Gone Thread:
 =========
-- ML info_gain() completed
-- ML cross validation optimised
-- ML added relevant comments
+- ~ML info_gain() completed~
+- ML info_gain() was made to work iteratively in case we would lose marks for not doing so
+- ~ML cross validation optimised~
+- ~ML added relevant comments~
 - I read through AI, fixed a couple minor errors in definitions 
 - AI added a neat pythonic list comprehension to make our marker hate us
 ### TODO:
-- Answer ML questions due 5th April 12pm
+- ~Answer ML questions due 5th April 12pm~
+- Added brief dotpoint answers to questions. will need to verify Q2 is correct with other people (it looks like a legit shit show if what I have done is correct. the logic is below)
+```python
+for each attribute (A) excluding the class:
+	calculate its entropy H(A)
+	for every other attribute (A'):
+		calculate its mean_info sum(Pr(A')H(A')
+		THEN:
+			info gain(A' | A) = H(A) - sum(Pr(A')H(A'))
+```
 - Complete the implementation for AI due 12th April 11pm
 
 
