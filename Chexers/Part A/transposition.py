@@ -17,19 +17,19 @@ from collections import defaultdict
 from classes import *
 
 ########################## GLOBALS ############################
-def TT:
+class TT:
     def __init__(self):
         self.table = defaultdict(list)
         self.size = 0
 
     def append(self, node):
         """Appends a node instance to the TT with key hashed_state"""
-        self.table[node.hashed_state].append(node)
+        self.table[Z_hash(node)].append(node)
         self.size += 1
 
     def in_table(self, node):
         """Checks if a node is in the TT i.e. exists in memory"""
-        return (node.hashed_state in self.table.keys())
+        return (Z_hash(node) in self.table.keys())
 
     def get_path(self, leaf_node):
         """Given a leaf_node, if in TT, returns ancestry"""

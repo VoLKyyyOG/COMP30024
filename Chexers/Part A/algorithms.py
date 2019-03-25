@@ -13,11 +13,11 @@ from math import ceil
 from sys import getsizeof
 from copy import deepcopy
 from queue import PriorityQueue as PQ
-from itertools import count
 
 from classes import *
 from moves import *
 from print_debug import *
+from transposition import *
 
 ########################## GLOBALS ###########################
 
@@ -168,6 +168,7 @@ class IDA_Node(Node):
     COUNT_TOTAL = 0
     COUNT_TRIM = 0
     MEMORY_TOTAL = 0
+    VISITED_TT = TT()
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -201,6 +202,9 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
         This must be sub_node independent."""
 
         # Evaluate child and calculate potential children
+        #if (Z_hash(child) in VISITED_SET):
+            #if child
+        #    pass
         child.exit_cost = exit_h(child)
         child.total_cost = child.depth + child.exit_cost
         child.possible_actions = possible_actions(child.state)
@@ -243,8 +247,8 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 15, d
     initial_node = create_IDA_root(initial_state)
     initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
     if debug_flag:
-            print(str(initial_node))
-            print_board(debug(initial_node.state))
+        print(str(initial_node))
+        print_board(debug(initial_node.state))
 
     root = None
     while root is None and threshold < max_threshold:
