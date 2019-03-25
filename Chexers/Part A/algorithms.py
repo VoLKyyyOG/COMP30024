@@ -47,13 +47,15 @@ class Node:
         #MEMORY_TOTAL += getsizeof(self)
         self.parent = parent # MUST BE REFERENCE, NOT COPY # Points to parent Node
         if (parent is not None):
+            print(f"Parent is defined as {self.parent}\n")
             self.state = self.parent.state
             self.depth = self.parent.depth + 1
-            self.player = self.__get_player()
-        self.state = self.player = None
-        self.depth = 0
+            self.player = self._get_player()
+        else:
+            self.state = self.player = None
+            self.depth = 0
         self.game_status = self.possible_actions = None
-        print(f"Test in __init__: {self.game_status}")
+        # print(f"Test in __init__: {self.game_status}")
         self.is_expanded = False # Allows us to realise, if there are no childen, this is a dead end
         self.action_made = None # The action that the parent made to get to here - is defined in apply_action/create children
         self.children = list() # Could be different, maybe a PQ for weighted choices acc. heuristic
@@ -84,7 +86,7 @@ class Node:
             except:
                 print("Error in moving/jumping - coordinate not passed?")
         elif action_flag == EXIT:
-                """PART B: Do NOT evaluate no. exits - this is done via _get_status below"""
+                """PART B: Do NOT evaluate no. exits - this is done via get_status below"""
                 self.remove(piece)
                 self.action_made = action
         else:
@@ -92,16 +94,16 @@ class Node:
             raise ValueError
 
         # Update game_status, possible_actions (now that state is updated)
-        self.game_status = _get_status(self)
+        self.game_status = self.get_status()
         self.possible_actions = possible_actions(self.state)
 
-    def _get_status(self):
+    def get_status(self):
         """PART A: 0 is over, more than 1 is not over
         PART B: 1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW -2 DUPLICATE for is_over call
         Determines if a win/loss/draw has occurred
         just read it from the state"""
-        print(f"WE MADE IT HERE {len(self.state['pieces']) > 0}")
-        return (len(self.state["pieces"]) > 0)
+        # print(f"WE MADE IT HERE {len(self.state['pieces']) > 0}")
+        return (len(self.state["pieces"]) > 0 if self.state is not None else True)
 
     def _get_player(self):
         """Retrieves current player.
@@ -173,10 +175,10 @@ def jump_heuristic(node):
 
 def create_root(initial_state):
     root = IDA_Node(None)
-    print(f"My root is {type(root)} and has properties {dir(root)}")
+    # print(f"My root is {type(root)} and has properties {dir(root)}")
     root.state = initial_state # Board state data: piece positions, # exits etc. accessed through here
-    root.game_status = Node._get_status(root)
-    print(f"{root.game_status}")
+    root.game_status = Node.get_status(root)
+    # print(f"{root.game_status}")
     root.possible_actions = possible_actions(root.state)
     root.depth =  0
     root.player = initial_state['colour']
@@ -189,7 +191,7 @@ class IDA_Node(Node):
     def __init__(self, parent):
         try:
             # Define properties that a Node already has
-            Node.__init__(self, parent)
+            super().__init__(parent)
         except:
             print("Uh oh, IDA someone *cough-cough Callum* screwed up here...\n")
             raise ValueError
@@ -199,17 +201,17 @@ class IDA_Node(Node):
 
     def __str__(self):
         cur_str = super().__str__()
-        cur_str += f"\nExit: {self.exit_cost} + Depth = {self.total_cost}\n"
+        cur_str += f"\nExit ({self.exit_cost}) + Depth = {self.total_cost}\n"
         return cur_str
 
-def IDA(IDA_node, exit_h, threshold, new_threshold):
+def IDA(node, exit_h, threshold, new_threshold):
     """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
-    for action in IDA_node.possible_actions:
-
+    for action in node.possible_actions:
+        print(f"\n************\nEvaluating {action}...\n")
         # Create a child following that action
         # NOTE: apply_action has side-effect of self.travel_cost += 1
         # NOTE: The very creation of the node will auto-update the depth, etc.
-        new_node = IDA_Node(IDA_node)
+        new_node = IDA_Node(node)
         new_node.apply_action(action)
 
         """TO-DO OPTIMISATION 1: Check this child in TT for repetition down the branch
@@ -247,9 +249,10 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, maxThreshold = 60, de
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
     initial_node = create_root(initial_state)
-    print(f"In IDA_C: {initial_node.game_status}\nCheck if IDA*: {type(initial_node)}")
+    # print(f"In IDA_C: {initial_node.game_status}\nCheck if IDA*: {type(initial_node)}")
     print(str(initial_node))
     initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
+    initial_node.possible_actions = possible_actions(initial_node.state)
     print(initial_node.possible_actions)
 
     root = None
@@ -258,7 +261,7 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, maxThreshold = 60, de
         newThreshold = [INF] # To allow passing of reference so that IDA() can manipulate it
 
         # r E c U r S i O n
-        root = IDA(initial_node,  exit_h, threshold, newThreshold)
+        root = IDA(initial_node, exit_h, threshold, newThreshold)
 
         if not root:
             threshold = newThreshold[0]
