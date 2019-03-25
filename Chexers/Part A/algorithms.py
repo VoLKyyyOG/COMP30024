@@ -40,18 +40,24 @@ class Node:
 
     @staticmethod
     def create_root(initial_state):
+        print("WE MADE IT TO CREATION OF ROOT\n")
         root = Node(None)
         root.state = initial_state # Board state data: piece positions, # exits etc. accessed through here
         root.game_status = root.__get_status()
+        print(f"{root.game_status}")
         root.possible_actions = possible_actions(root.state)
         root.depth =  0
-        root.player = "red"
+        root.player = initial_state['colour']
+        return root
+
+    def __str__(self):
+        return f"State: {self.state}\nDepth:{self.depth}\nGame Stat:{self.game_status}"
 
     def __init__(self, parent):
         """Creates new node. For a root node just do Node(), else do Node(parent)
         It will inherit the parent's state - this needs updating with apply_action"""
-        COUNT_TOTAL += 1
-        MEMORY_TOTAL += getsizeof(self)
+        #COUNT_TOTAL += 1
+        #MEMORY_TOTAL += getsizeof(self)
         self.parent = parent # MUST BE REFERENCE, NOT COPY # Points to parent Node
         if (parent is not None):
             self.state = self.parent.state
@@ -67,30 +73,33 @@ class Node:
     def create_children(self, actions):
         """Given a list of action tuples, create children.
          e.g. actions = [(piece, MOVE, new_pos),  ... (piece, EXIT, None) ... (piece, JUMP, new_pos)...]"""
-        for piece, action_flag, dest in actions:
+        actions = possible_actions(self.state)
+        for action in actions:
             new_child = Node(parent=self)
-            new_child.apply_action(piece, action_flag, dest)
+            new_child.apply_action(action)
             # Check if a duplicate?
             self.children.append(new_child)
         self.is_expanded = True
 
     ######################### TO DEFINE ############################
-    def apply_action(self, piece, action_flag, new_position=None):
+    def apply_action(self, action):
         """Applies action to passed node, updates attribute"""
         """NOTE: state is the parent's state!"""
+        piece, action_flag, dest = action
         if action_flag == MOVE or action_flag == JUMP:
             try:
-                self.state["pieces"].replace(piece, new_position)
-                """PART B: Must evaluate capturing here"""
-                self.action_made = action_flag
+                self.state["pieces"].remove(piece)
+                self.state["pieces"].append(new_position)
+                """PART B: CONSIDER ORDERING & Must evaluate capturing here"""
+                self.action_made = action
             except:
                 print("Error in moving/jumping - coordinate not passed?")
         elif action_flag == EXIT:
-                """PART B: Do NOT evaluate exit flags - this is done via __get_status"""
+                """PART B: Do NOT evaluate no. exits - this is done via __get_status below"""
                 self.remove(piece)
-                self.action_made = action_flag
+                self.action_made = action
         else:
-            print("Action error: not valid action_flag")
+            print("Action error: not valid action")
             raise ValueError
 
         # Update game_status, possible_actions (now that state is updated)
@@ -102,7 +111,8 @@ class Node:
         PART B: 1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW -2 DUPLICATE for is_over call
         Determines if a win/loss/draw has occurred
         just read it from the state"""
-        return not len(self.state["pieces"])
+        print(f"WE MADE IT HERE {len(self.state['pieces']) > 0}")
+        return (len(self.state["pieces"]) > 0)
 
     def __get_player(self):
         """Retrieves current player.
@@ -175,16 +185,30 @@ def jump_heuristic(node):
 class IDA_Node(Node):
     """Call this like IDA_node(parent)
     DOES NOT CALCULATE HEURISTICS AUTOMATICALLY"""
+
+    def create_root(initial_state):
+        return IDA_Node(Node.create_root(initial_state))
+
     def __init__(self, parent):
         try:
             # Define properties that a Node already has
-            self.super().__init__(self, parent)
+            super().__init__(parent)
         except:
             print("Uh oh, someone *cough-cough Callum* screwed up here...\n")
             raise ValueError
         # Additional functionality for IDA*
         # Exit cost = cost to get from here to completion. Total cost factors in depth
         self.total_cost = self.exit_cost = 0
+
+    def __str__(self):
+        cur_str = super().__str__()
+        cur_str += f"\nExit: {self.exit_cost} + Depth = {self.total_cost}\n"
+        return cur_str
+
+    def extra_str(self):
+        cur_str = super().__str__()
+        cur_str += f"\nExit: {self.exit_cost} + Depth = {self.total_cost}\n"
+        return cur_str
 
 def IDA(IDA_node, exit_h, threshold, new_threshold):
     """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
@@ -230,8 +254,11 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, maxThreshold = 60, de
     """Runs IDA*. Must use two heuristics that work with Nodes. Returns 0 at goal"""
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
-    initial_node = IDA_Node(initial_state, None)
-    initial_node.total_cost = threshold = exit_h(initial_node)
+    initial_node = IDA_Node.create_root(initial_state)
+    print(f"In IDA_C: {initial_node.game_status}\nCheck if IDA*: {type(initial_node)}")
+    print(str(initial_node))
+    initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
+    print(initial_node.possible_actions)
 
     root = None
     while not root and threshold < maxThreshold:
@@ -239,7 +266,7 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, maxThreshold = 60, de
         newThreshold = [INF] # To allow passing of reference so that IDA() can manipulate it
 
         # r E c U r S i O n
-        root = IDA(initial_node, travel_h, exit_h, threshold, newThreshold)
+        root = IDA(initial_node,  exit_h, threshold, newThreshold)
 
         if not root:
             threshold = newThreshold[0]

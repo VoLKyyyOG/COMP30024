@@ -12,9 +12,9 @@ from classes import *
 
 # Goals for each player
 GOAL = defaultdict(list)
-GOAL["red"].append([[3,r] for r in range(-3, 1)])
+GOAL["red"].append([[3, -3], [3, -2], [3, -1], [3, 0]])
 GOAL["blue"].append([[-3,0],[-2,-1],[-1,-2],[0,-3]])
-GOAL["green"].append([[q,3] for q in range(-3, 1)])
+GOAL["green"].append([[-3, 3], [-2, 3], [-1, 3], [0, 3]])
 
 # Game valid coordinate positions
 ## Taken from the test generator script
@@ -59,15 +59,15 @@ def possible_actions(data, debug_flag = False):
         result += [(piece, JUMP, dest) for dest in possible_jumps]
 
         # Checks if the current hex is eligible for an exit action
-        exit_possible = exit_action(piece, player_goal, debug_flag)
-        if exit_possible:
+        possible_exit = exit_action(piece, data, debug_flag)
+        if possible_exit:
             result.append((piece, EXIT, None))
 
         if debug_flag:
             print("Player coordinate: ", piece)
             print("Possible Move Action to:", possible_moves)
             print("Possible Jump Action to:", possible_jumps)
-            print("Exit possible: ", "Yes" if possible_jumps else "No")
+            print("Exit possible: ", "Yes" if possible_exit else "No")
             print("*" * 40)
     return result
 
@@ -111,11 +111,11 @@ def jump(coordinate, data, debug_flag = False):
     return possible_jumps
 
 # Determines if exit action possible
-def exit_action(coordinate, player_goal, debug_flag=False):
-    exit_possible = (coordinate in player_goal)
-    if debug_flag: print("Exit Action Possible? ", exit_possible)
+def exit_action(coordinate, data, debug_flag=False):
+    possible_exit = coordinate in GOAL[data["colour"]]
+    if debug_flag: print("Exit Action Possible? ", possible_exit)
 
-    return exit_possible
+    return possible_exit
 
 # REDUNDANT
 # Retrieves adj hexes that are in valid coordinates

@@ -15,7 +15,6 @@ For each new addition:
 
 ########################## IMPORTS ############################
 from collections import defaultdict
-from moves import *
 
 ########################## VECTORS ############################
 
@@ -92,7 +91,14 @@ PLAYER_CODE.update(dict(zip(PLAYER_CODE.values(), PLAYER_CODE.keys())))
 
 # Exit code hashing scheme lookup
 EXIT_CODE = list(range(3))
-
+VALID_COORDINATES = [[-3, 0], [-3, 1], [-3, 2], [-3, 3],
+                    [-2, -1], [-2, 0], [-2, 1], [-2, 2], [-2, 3],
+                    [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2], [-1, 3],
+                    [0, -3], [0, -2], [0, -1], [0, 0], [0, 1], [0, 2], [0, 3],
+                    [1, -3], [1, -2], [1, -1], [1, 0], [1, 1], [1, 2],
+                    [2, -3], [2, -2], [2, -1], [2, 0], [2, 1],
+                    [3, -3], [3, -2], [3, -1], [3, 0]]
+                    
 def Z_hash(data):
     """Hash the board state"""
     hashed = 0b0
