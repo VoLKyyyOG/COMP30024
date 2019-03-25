@@ -1,4 +1,13 @@
+""" print_debug.py
+
+Useful functions for debugging code during project work.
+
+"""
+
+#################### CLASSES & FUNCTIONS #####################
+
 def debug(data):
+    """Creates a dictionary of board pieces (keys) with string flag (value)"""
     board_dict = {}
     player_pieces = [tuple(i) for i in data['pieces']]
     blocks = [tuple(i) for i in data['blocks']]
@@ -7,7 +16,6 @@ def debug(data):
     for i in blocks:
         board_dict[i] = 'B'
     return board_dict
-
 
 def print_board(board_dict, message="", debug=False):
     """
@@ -79,11 +87,11 @@ def print_board(board_dict, message="", debug=False):
     # prepare the provided board contents as strings, formatted to size.
     ran = range(-3, +3+1)
     cells = []
-    for qr in [(q,r) for q in ran for r in ran if -q-r in ran]:
-        if qr in board_dict:
-            cell = str(board_dict[qr]).center(5)
+    for coord in [(q,r) for q in ran for r in ran if -q-r in ran]:
+        if coord in board_dict:
+            cell = str(board_dict[coord]).center(5)
         else:
-            cell = "     " # 5 spaces will fill a cell
+            cell = " " * 5 # 5 spaces will fill a cell
         cells.append(cell)
 
     # fill in the template to create the board drawing, then print!

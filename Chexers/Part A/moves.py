@@ -2,23 +2,25 @@
 
 Defines core game structure, globals, and actions
 Currently formatted for Part A
+
 """
 
 ########################## IMPORTS ###########################
+# Standard modules
 from collections import defaultdict
+
+# User-defined files
 from classes import *
 
 ########################## GLOBALS ###########################
-
 # Goals for each player
-GOAL = defaultdict(list)
-GOAL["red"] = [[3, -3], [3, -2], [3, -1], [3, 0]]
-GOAL["blue"] = [[-3,0],[-2,-1],[-1,-2],[0,-3]]
-GOAL["green"] = [[-3, 3], [-2, 3], [-1, 3], [0, 3]]
+GOAL = {
+    "red": [[3, -3], [3, -2], [3, -1], [3, 0]],
+    "blue": [[-3,0],[-2,-1],[-1,-2],[0,-3]],
+    "green": [[-3, 3], [-2, 3], [-1, 3], [0, 3]]
+}
 
-# Game valid coordinate positions
-## Taken from the test generator script
-"""DO NOT CHANGE THE ORDER OF THE POINTS IN HERE... UNLESS YOU WANT THE HASH TO FAIL"""
+# Game valid coordinate positions (taken from the test generator script)
 VALID_COORDINATES = [[-3, 0], [-3, 1], [-3, 2], [-3, 3],
                     [-2, -1], [-2, 0], [-2, 1], [-2, 2], [-2, 3],
                     [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2], [-1, 3],
@@ -27,99 +29,89 @@ VALID_COORDINATES = [[-3, 0], [-3, 1], [-3, 2], [-3, 3],
                     [2, -3], [2, -2], [2, -1], [2, 0], [2, 1],
                     [3, -3], [3, -2], [3, -1], [3, 0]]
 
-# Partly adapted from https://www.redblobgames.com/grids/hexagons/#neighbors-axial
 POSSIBLE_DIRECTIONS = [[0,1],[1,0],[1,-1],[0,-1],[-1,0],[-1,1]]
 
-MOVE = 0
-JUMP = 1
-EXIT = 2
+# As point indices range from -3 to 3
+MAX_COORDINATE_VAL = 3
 
-######################### FUNCTIONS #########################
+# action_flags for use in action tuples
+MOVE, JUMP, EXIT = 0,1,2
 
-# Possible actions from current location
-def possible_actions(data, debug_flag = False):
-    player_pieces = data["pieces"]
+#################### CLASSES & FUNCTIONS #####################
+
+def inverse_action(action):
+    """Finds inverse action. NOT FINAL AND MAY BE REDUNDANT"""
+    piece, action_flag, dest = action
+    if (action_flag != EXIT):
+        # Get inverse direction
+        action_direction = Vector.sub(dest, piece)
+        for direction in POSSIBLE_DIRECTIONS:
+            if Vector.add(action_direction, direction) == [0,0]:
+                # This is the inverse action_direction
+                if (action_flag == MOVE):
+                    new_dest = Vector.add(piece, direction)
+                elif (action_flag == EXIT):
+                    new_dest = Vector.add(piece, Vector.mult(direction, 2))
+            return (piece, action_flag, new_dest)
+        print("Error, did not find an inverse")
+        raise ValueError
+    else: # Cannot invert exit with current implementation
+        return None
+
+def possible_actions(state, debug_flag = False):
+    """Possible actions from current location"""
     result = list()
-    for piece in player_pieces:
-        # All possible move actions to a coordinate
-        possible_moves = move(piece, data, debug_flag)
+
+    for piece in state["pieces"]:
+        possible_moves = move(piece, state)
         result += [(piece, MOVE, dest) for dest in possible_moves]
 
-        # All possible jump actions to a coordinate
-        possible_jumps = jump(piece, data, debug_flag)
+        possible_jumps = jump(piece, state)
         result += [(piece, JUMP, dest) for dest in possible_jumps]
 
-        # Checks if the current hex is eligible for an exit action
-        possible_exit = exit_action(piece, data, debug_flag)
-        if possible_exit:
-            result.append((piece, EXIT, None))
+        possible_exit = exit_action(piece, state, debug_flag)
+        if possible_exit: result.append((piece, EXIT, None))
 
         if debug_flag:
-            print("Player coordinate: ", piece)
-            print("Possible Move Action to:", possible_moves)
-            print("Possible Jump Action to:", possible_jumps)
-            print("Exit possible: ", "Yes" if possible_exit else "No")
-            print("*" * 40)
+            print(f"Player coordinate: {piece}\nMoves: {possible_moves}\n" + \
+            f"Jumps: {possible_jumps}\nExits? : {possible_exit}\n{BANNER}")
+
     return result
 
-# Finds possible move actions given a coordinate
-def move(coordinate, data, debug_flag = False):
+def move(coordinate, state):
+    """Finds possible move actions given a coordinate"""
     # Non-movable pieces on board
-    non_movable = data["blocks"] + data["pieces"]
+    occupied = state["blocks"] + state["pieces"]
     possible_moves = list()
 
     for direction in POSSIBLE_DIRECTIONS:
         adjacent_hex = Vector.add(coordinate, direction)
+
         if adjacent_hex in VALID_COORDINATES: # Then it's not off-board
-            if adjacent_hex not in non_movable: # Then it's free for the taking
+            if adjacent_hex not in occupied: # Then it's free for the taking
                 possible_moves.append(adjacent_hex)
-            elif (debug_flag):
-                print("OCCUPIED - CANNOT MOVE to", adjacent_hex)
-        elif (debug_flag):
-            print("OFF-BOARD - CANNOT MOVE")
 
     return possible_moves
 
-# Finds possible jump actions given a coordinate
-def jump(coordinate, data, debug_flag = False):
-    # Non-movable pieces on board
-    non_movable = data["blocks"] + data["pieces"]
+def jump(coordinate, state):
+    """Finds possible jump actions given a coordinate"""
+    occupied = state["blocks"] + state["pieces"]
     possible_jumps = list()
 
     for direction in POSSIBLE_DIRECTIONS:
         adjacent_hex = Vector.add(coordinate, direction)
         target_hex = Vector.add(adjacent_hex, direction)
-        # ONLY NESTED FOR DEBUGGING PURPOSES
-        if adjacent_hex in non_movable: # Then you can jump over it
+
+        if adjacent_hex in occupied: # Then you can jump over it
             if target_hex in VALID_COORDINATES: # Then not off-board
-                if target_hex not in non_movable: # Then actual place to land
+                if target_hex not in occupied: # Then actual place to land
                     possible_jumps.append(target_hex)
-                elif (debug_flag):
-                    print("HEX OCCUPIED - CANNOT JUMP over", adjacent_hex)
-            elif (debug_flag):
-                print("OFF BOARD - CANNOT JUMP")
 
     return possible_jumps
 
 # Determines if exit action possible
-def exit_action(coordinate, data, debug_flag=False):
-    possible_exit = coordinate in GOAL[data["colour"]]
-    if debug_flag: print("Exit Action Possible? ", possible_exit)
-
+def exit_action(coordinate, state, debug_flag=False):
+    possible_exit = coordinate in GOAL[state["colour"]]
+    if debug_flag:
+        print("Exit Action Possible? ", possible_exit)
     return possible_exit
-
-# REDUNDANT
-
-# Returns a goal for a given player colour
-"""FINDS A GOAL (not necessarily the most optimal)"""
-def find_goal(player, data):
-
-    # Check if goal not blocked by piece(s)
-    non_movable = data["blocks"] + data["pieces"]
-    return [i for i in GOAL[player] if i not in non_movable][0]
-
-
-# Retrieves adj hexes that are in valid coordinates
-def adj_hex(coordinate):
-    return [Vector.add(coordinate, x) for x in POSSIBLE_DIRECTIONS if
-        Vector.add(coordinate, x) in VALID_COORDINATES]

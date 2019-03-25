@@ -1,49 +1,42 @@
 """
-COMP30024 Artificial Intelligence, Semester 1 2019
-Solution to Project Part A: Searching
-Authors: Akira and Callum
-Team: _blank_
+################################################################################
+##########    COMP30024 Artificial Intelligence, Semester 1 2019    ############
+##########          Solution to Project Part A: Searching           ############
+##########       Akira Wang (######), Callum Holmes (899251)        ############
+##########                       Team: _blank_                      ############
+################################################################################
 """
 
 ########################## IMPORTS ###########################
-import json
-import sys
-#################
+# Standard modules
+from json import load
+from sys import argv
+
+# User-defined files
 from print_debug import *
-from classes import *
-from moves import *
 from algorithms import *
-# Use command: python search.py test-files/test.json to run it via terminal
 
 ########################## GLOBALS ###########################
-"""FOR DEBUGGING"""
-DEBUG_FLAG = False
-BANNER = "**********************************************************"
+BANNER = '*' * 60 + '\n'
+
+######################### FUNCTIONS ##########################
+
 def main():
-    # Read argv input
-    """
-    data = {
-        "colour": "red",
-        "pieces": [[0,0],[0,3],[3,-3]],
-        "blocks": [[-1,0],[-1,1],[1,1],[3,-1],[-2,0]]
-    }
-    """
-    with open(sys.argv[1]) as file:
-        data = json.load(file)
-        print("Data input:", data)
+    DEBUG_FLAG = False # FOR DEBUGGING
+
+    # Read argv input for initial state
+    with open(argv[1]) as file:
+        data = load(file)
+        print('# Data input:', data)
 
     # Print current state
     print_board(debug(data), debug=True)
 
-    # Find the player goal
-    player = data["colour"]
-    print(BANNER)
-
     # Implementing IDA*
     optimal_solution = IDA_control_loop(data, debug_flag=DEBUG_FLAG)
-    print(f"{BANNER}\n{IDA_Node.COUNT_TOTAL} generated and {IDA_Node.MEMORY_TOTAL} bytes used.")
+    print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} trimmed and ~{IDA_Node.MEMORY_TOTAL} bytes used.')
     if (optimal_solution is not None):
-        print(f"A solution was found!\nSequence of moves: ")
+        print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves: ')
         path = list()
         node_temp = optimal_solution
         while (node_temp is not None):
@@ -53,14 +46,13 @@ def main():
             if (move.action_made is not None):
                 piece, action, dest = move.action_made
                 if (action == MOVE):
-                    print(f"MOVE {piece} to {dest}")
+                    print(f'MOVE from {piece} to {dest}.')
                 elif (action == JUMP):
-                    print(f"JUMP {piece} to {dest}")
+                    print(f'JUMP from {piece} to {dest}.')
                 elif (action == EXIT):
-                    print(f"EXIT {piece}")
+                    print(f'EXIT from {piece}.')
     else:
-        print(f"No solution found at this depth")
-
+        print(f'# ERROR: No solution found at this depth')
 
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
@@ -113,6 +105,6 @@ pikawin = """        ,@@@@@@@@@@,,@@@@@@@%  .#&@@@&&.,@@@@@@@@@@,      %@@@@@@%*
 .,,,,*****//////////////////////////*******(#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##(*******
 .,,,,,,***********/////////////////********/(#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%(*******"""
 
-#print(pikawin)
-if (input("Print a pikachu? >> ").lower()[0] == 'y'):
+
+if (input("# Print a pikachu? >> ").lower()[0] == 'y'):
     print(pikawin)
