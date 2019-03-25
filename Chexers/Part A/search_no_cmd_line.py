@@ -17,35 +17,24 @@ from algorithms import *
 
 ########################## GLOBALS ###########################
 """FOR DEBUGGING"""
-DEBUG_FLAG = False
+DEBUG_FLAG = True
 BANNER = "**********************************************************"
+
 def main():
     # Read argv input
-
     data = {
         "colour": "red",
-        "pieces": [[0,0],[0,3],[3,-3]],
+        "pieces": [[3,0]],
         "blocks": [[-1,0],[-1,1],[1,1],[3,-1],[-2,0]]
     }
-
-
     # Print current state
     #print_board(debug(data), message = "Test Board", debug=False)
 
     # Find the player goal
-    player = data["colour"]
-    player_goal = find_goal(player, data)
-    #print("Player Goal: ",player_goal)
-    #print(BANNER)
-
-    # Print possible actions and valid adjacent hexes
-    ### ADJUST #DEBUGGING PRINTING HERE
-    #print(possible_actions(data, debug_flag = True))
-
-    print(BANNER, "IDA*:")
+    print(BANNER, "\nIDA*:\n")
 
     # Implementing IDA*
-    IDA_control_loop(data)
+    IDA_control_loop(data, debug_flag=DEBUG_FLAG)
 
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
@@ -98,4 +87,5 @@ pikawin = """        ,@@@@@@@@@@,,@@@@@@@%  .#&@@@&&.,@@@@@@@@@@,      %@@@@@@%*
 .,,,,*****//////////////////////////*******(#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##(*******
 .,,,,,,***********/////////////////********/(#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%(*******"""
 
-print(pikawin)
+#print(pikawin)
+print("ALL CLEAR")

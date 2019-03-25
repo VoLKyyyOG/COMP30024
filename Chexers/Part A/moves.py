@@ -12,9 +12,9 @@ from classes import *
 
 # Goals for each player
 GOAL = defaultdict(list)
-GOAL["red"].append([[3, -3], [3, -2], [3, -1], [3, 0]])
-GOAL["blue"].append([[-3,0],[-2,-1],[-1,-2],[0,-3]])
-GOAL["green"].append([[-3, 3], [-2, 3], [-1, 3], [0, 3]])
+GOAL["red"] = [[3, -3], [3, -2], [3, -1], [3, 0]]
+GOAL["blue"] = [[-3,0],[-2,-1],[-1,-2],[0,-3]]
+GOAL["green"] = [[-3, 3], [-2, 3], [-1, 3], [0, 3]]
 
 # Game valid coordinate positions
 ## Taken from the test generator script
@@ -35,15 +35,6 @@ JUMP = 1
 EXIT = 2
 
 ######################### FUNCTIONS #########################
-
-# Returns a goal for a given player colour
-"""FINDS A GOAL (not necessarily the most optimal)"""
-def find_goal(player, data):
-
-    # Check if goal not blocked by piece(s)
-    non_movable = data["blocks"] + data["pieces"]
-
-    return [i for i in GOAL[player] if i not in non_movable][0]
 
 # Possible actions from current location
 def possible_actions(data, debug_flag = False):
@@ -118,6 +109,16 @@ def exit_action(coordinate, data, debug_flag=False):
     return possible_exit
 
 # REDUNDANT
+
+# Returns a goal for a given player colour
+"""FINDS A GOAL (not necessarily the most optimal)"""
+def find_goal(player, data):
+
+    # Check if goal not blocked by piece(s)
+    non_movable = data["blocks"] + data["pieces"]
+    return [i for i in GOAL[player] if i not in non_movable][0]
+
+
 # Retrieves adj hexes that are in valid coordinates
 def adj_hex(coordinate):
     return [Vector.add(coordinate, x) for x in POSSIBLE_DIRECTIONS if
