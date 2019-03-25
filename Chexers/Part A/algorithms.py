@@ -13,6 +13,7 @@ from math import ceil
 from sys import getsizeof
 from copy import deepcopy
 from queue import PriorityQueue as PQ
+from itertools import count
 
 from classes import *
 from moves import *
@@ -20,9 +21,6 @@ from print_debug import *
 
 ########################## GLOBALS ###########################
 
-COUNT_TRIM = 0
-COUNT_TOTAL = 0
-MEMORY_TOTAL = 0
 COUNT_PER_DEPTH = list() # index by depth, e.g. COUNT_PER_DEPTH[5] has total count @ depth 5. Depth 0 is root.
 MAX_COORDINATE_VAL = 3 # Point indices range from -3 to 3
 INF = float("inf")
@@ -34,11 +32,10 @@ Call this superclass like Node(hash, parent)
 Most attributes/methods are initialized here, to force us to be consistent
 Subclasses e.g. IDA_Node(Node) define and add extra functionality"""
 class Node:
+
     def __init__(self, parent):
         """Creates new node. For a root node just do Node(), else do Node(parent)
         It will inherit the parent's state - this needs updating with apply_action"""
-        #COUNT_TOTAL += 1
-        #MEMORY_TOTAL += getsizeof(self)
         self.parent = parent # MUST BE REFERENCE, NOT COPY # Points to parent Node
         if (parent is not None):
             self.state = deepcopy(self.parent.state)
@@ -126,10 +123,6 @@ def test_heuristic(piece_coords):
     """ Note: PLAYER_CODE defined in classes.py"""
     return sum([ceil((MAX_COORDINATE_VAL - Vector.get_cubic(piece)[PLAYER_CODE["red"]]) / 2) + 1 for piece in piece_coords])
 
-print(f"Test heuristic for red: {test_heuristic([[1,3]])}")
-print(f"Test heuristic for red: {test_heuristic([[0,0]])}")
-print(f"Test heuristic for red: {test_heuristic([[3,-3]])}")
-
 # Uses current node passed through
 def jump_heuristic(node):
     """Admissible Heuristic (range >= 0): Assuming 100\% free jumping, calculates no. actions to win"""
@@ -172,17 +165,18 @@ def create_IDA_root(initial_state):
 class IDA_Node(Node):
     """Call this like IDA_node(parent)
     DOES NOT CALCULATE HEURISTICS AUTOMATICALLY"""
+    COUNT_TOTAL = 0
+    COUNT_TRIM = 0
+    MEMORY_TOTAL = 0
 
     def __init__(self, parent):
-        try:
-            # Define properties that a Node already has
-            super().__init__(parent)
-        except:
-            print("Uh oh, IDA someone *cough-cough Callum* screwed up here...\n")
-            raise ValueError
+        super().__init__(parent)
+
         # Additional functionality for IDA*
         # Exit cost = cost to get from here to completion. Total cost factors in depth
         self.total_cost = self.exit_cost = 0
+        IDA_Node.COUNT_TOTAL += 1
+        IDA_Node.MEMORY_TOTAL += getsizeof(self)
 
     def __str__(self):
         cur_str = super().__str__()
@@ -199,7 +193,7 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
     """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
     # print(f"\n********************************\nEvaluating {node.action_made}...")
     node.create_children(node.possible_actions)
-    queue = PQ()
+    queue = PQ() # Gets item with lowest total_cost
 
     # Initialize children
     for child in node.children:
@@ -210,11 +204,12 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
         child.exit_cost = exit_h(child)
         child.total_cost = child.depth + child.exit_cost
         child.possible_actions = possible_actions(child.state)
-        queue.put((-child.total_cost, child))
+        queue.put(child)
 
     # Expand children by least cost upwards
     while not queue.empty():
-        child = queue.get()[1]
+        child = queue.get()
+        # print("Best child:\n" + str(child))
         # print("********************************************")
         # print(str(child))
         #print_board(debug(child.state))
@@ -226,40 +221,38 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
             # we have expanded another node! Check if it's cheaper than previous
             if child.total_cost < new_threshold[0]:
                 # Update threshold
-                # print(child.state)
                 new_threshold[0] = child.total_cost
-        elif child.total_cost == 0:
+        elif child.total_cost == child.depth:
                 # Made it to completion! This is optimal if heuristic admissible
-                # print(child.state)
                 return child
         else:
             # We haven't hit the fringe yet... r E c U r S i O n down the tree
             root = IDA(child, exit_h, threshold, new_threshold)
 
-            if root: # I found a solution below me, return it upwards
-                print("yay...")
+            if root is not None: # I found a solution below me, return it upwards
                 return root
 
     # IDA has failed to find anything
     return None
 
 """Made debug=True for now"""
-def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 3, debug_flag=True):
+def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 15, debug_flag=True):
     """Runs IDA*. Must use two heuristics that work with Nodes. Returns 0 at goal"""
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
     initial_node = create_IDA_root(initial_state)
     initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
-    print(str(initial_node))
-    if debug_flag: print_board(debug(initial_node.state))
+    if debug_flag:
+            print(str(initial_node))
+            print_board(debug(initial_node.state))
 
     root = None
-    while not root and threshold < max_threshold:
+    while root is None and threshold < max_threshold:
         """OPTIMISATION 2: Test the TT to eliminate across-the-branch repetition"""
         new_threshold = [INF] # To allow passing of reference so that IDA() can manipulate it
         # r E c U r S i O n
         root = IDA(initial_node, exit_h, threshold, new_threshold)
-        if not root:
+        if root is None:
             threshold = new_threshold[0]
-        print(f"root{root}, threshold ({threshold}), new_threshold ({new_threshold[0]})")
+        print(f"Threshold ({threshold}), new_threshold ({new_threshold[0]})")
     return root

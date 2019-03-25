@@ -17,14 +17,14 @@ from algorithms import *
 
 ########################## GLOBALS ###########################
 """FOR DEBUGGING"""
-DEBUG_FLAG = True
+DEBUG_FLAG = False
 BANNER = "**********************************************************"
 
 def main():
     # Read argv input
     data = {
         "colour": "red",
-        "pieces": [[3,0]],
+        "pieces": [[1,0]],
         "blocks": [[-1,0],[-1,1],[1,1],[3,-1],[-2,0]]
     }
     # Print current state
@@ -34,7 +34,9 @@ def main():
     print(BANNER, "\nIDA*:\n")
 
     # Implementing IDA*
-    IDA_control_loop(data, debug_flag=DEBUG_FLAG)
+    optimal_solution = IDA_control_loop(data, debug_flag=DEBUG_FLAG)
+    print(f"{BANNER}\n{IDA_Node.COUNT_TOTAL} generated and {IDA_Node.MEMORY_TOTAL} bytes used.\n" + \
+        f"This solution is: {'NOT Complete' if optimal_solution.game_status else 'Complete'}\n{optimal_solution}")
 
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':

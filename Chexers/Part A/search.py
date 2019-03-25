@@ -33,22 +33,34 @@ def main():
         print("Data input:", data)
 
     # Print current state
-    print_board(debug(data), message = "Test Board", debug=True)
+    print_board(debug(data), debug=True)
 
     # Find the player goal
     player = data["colour"]
-    player_goal = find_goal(player, data)
-    print("Player Goal: ",player_goal)
-    print(BANNER)
-
-    # Print possible actions and valid adjacent hexes
-    ### ADJUST #DEBUGGING PRINTING HERE
-    print(possible_actions(data, debug_flag = True))
-
     print(BANNER)
 
     # Implementing IDA*
-    IDA_control_loop(data)
+    optimal_solution = IDA_control_loop(data, debug_flag=DEBUG_FLAG)
+    print(f"{BANNER}\n{IDA_Node.COUNT_TOTAL} generated and {IDA_Node.MEMORY_TOTAL} bytes used.")
+    if (optimal_solution is not None):
+        print(f"A solution was found!\nSequence of moves: ")
+        path = list()
+        node_temp = optimal_solution
+        while (node_temp is not None):
+            path.append(node_temp)
+            node_temp = node_temp.parent
+        for move in path[::-1]:
+            if (move.action_made is not None):
+                piece, action, dest = move.action_made
+                if (action == MOVE):
+                    print(f"MOVE {piece} to {dest}")
+                elif (action == JUMP):
+                    print(f"JUMP {piece} to {dest}")
+                elif (action == EXIT):
+                    print(f"EXIT {piece}")
+    else:
+        print(f"No solution found at this depth")
+
 
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
@@ -101,4 +113,6 @@ pikawin = """        ,@@@@@@@@@@,,@@@@@@@%  .#&@@@&&.,@@@@@@@@@@,      %@@@@@@%*
 .,,,,*****//////////////////////////*******(#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%##(*******
 .,,,,,,***********/////////////////********/(#%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%(*******"""
 
-print(pikawin)
+#print(pikawin)
+if (input("Print a pikachu? >> ").lower()[0] == 'y'):
+    print(pikawin)
