@@ -51,7 +51,6 @@ class Vector:
         """Converts axial coordinates to cubic coordinates"""
         return [list_1[0], list_1[1], -list_1[0]-list_1[1]]
 
-
 ########################## HASHING ############################
 
 """
@@ -65,7 +64,7 @@ IMPLEMENTATION: The general idea is, Each of the 37 hexes has a 2-bit flag,
 Example use (using my_data = {'colour': 'red', 'pieces': [[0, 0]], 'blocks': [[3, -1]]}):
 - hashed_board_state = Z_hash(my_data)
 # Effectively equivalent to my_data, PLUS coordinates in 'pieces', 'blocks' sorted!
-- extract_data = hashed_board_state.data()
+- extract_data = Z_data(hashed_board_state)
 
 This is ideally used for trees, and could allow for similarity checks.
 Should be indifferent however to using hash() for hash tables HOWEVER
@@ -94,70 +93,69 @@ PLAYER_CODE.update(dict(zip(PLAYER_CODE.values(), PLAYER_CODE.keys())))
 # Exit code hashing scheme lookup
 EXIT_CODE = list(range(3))
 
-class Z_hash:
-    def __init__(self, data):
-        """Hash the board state"""
-        self.hashed = 0b0
+def Z_hash(data):
+    """Hash the board state"""
+    hashed = 0b0
 
-        """TEMPORARY (PART A) HASH SCHEME
-        0b(turn)(red_exits)(green_exits)(blue_exits)(37 hex state flags....):
-        - For turn player:
-            - 11 for none # This is just here for Part B
-            - 00 for red
-            - 01 for green
-            - 10 for blue
-        - For flags of exit_totals:
-            - 00 for 0, 01 for 1 ... etc
-        - For the 37 hexes:
-            - 00 for empty
-            - 01 for player
-            - 10 for block # Could have been 11, just needed to not be 00 or 01
-         THIS WILL NEED UPDATING POST PROJECT A TO HANDLE ALL 3 COLOURS"""
+    """TEMPORARY (PART A) HASH SCHEME
+    0b(turn)(red_exits)(green_exits)(blue_exits)(37 hex state flags....):
+    - For turn player:
+        - 11 for none # This is just here for Part B
+        - 00 for red
+        - 01 for green
+        - 10 for blue
+    - For flags of exit_totals:
+        - 00 for 0, 01 for 1 ... etc
+    - For the 37 hexes:
+        - 00 for empty
+        - 01 for player
+        - 10 for block # Could have been 11, just needed to not be 00 or 01
+     THIS WILL NEED UPDATING POST PROJECT A TO HANDLE ALL 3 COLOURS"""
 
-        # Append turn player
-        self.hashed = self.hashed | PLAYER_CODE[data["colour"]]
+    # Append turn player
+    hashed = hashed | PLAYER_CODE[data["colour"]]
 
-        # Currently 0b(turn)
-        # TEMPORARY: NOT implementing num_exits flag yet. Still need to shift by 6.
-        """
-        for color in exit_count_data (this would need appending to data):
-            self.hashed = (self.hashed << 2) | EXIT_CODE[color]
-        """
-        self.hashed = self.hashed << NUM_PLAYERS * CODE_LEN # just a fix to make room for num_exits
+    # Currently 0b(turn)
+    # TEMPORARY: NOT implementing num_exits flag yet. Still need to shift by 6.
+    """
+    for color in exit_count_data (this would need appending to data):
+        hashed = (hashed << 2) | EXIT_CODE[color]
+    """
+    hashed = hashed << NUM_PLAYERS * CODE_LEN # just a fix to make room for num_exits
 
-        # Encode coordinates: First, make space
-        self.hashed = self.hashed << NUM_HEXES * CODE_LEN
+    # Encode coordinates: First, make space
+    hashed = hashed << NUM_HEXES * CODE_LEN
 
-        # ith pair of 2-bits = ith location in VALID_COORDINATES
-        # AGAIN, A TEMPORARY HASHING SCHEME FOR PART A
-        for coordinate in data["blocks"]:
-            self.hashed = self.hashed ^ (0b10 << CODE_LEN * VALID_COORDINATES.index(coordinate))
-        for coordinate in data["pieces"]:
-            self.hashed = self.hashed ^ (0b01 << CODE_LEN * VALID_COORDINATES.index(coordinate))
+    # ith pair of 2-bits = ith location in VALID_COORDINATES
+    # AGAIN, A TEMPORARY HASHING SCHEME FOR PART A
+    for coordinate in data["blocks"]:
+        hashed = hashed ^ (0b10 << CODE_LEN * VALID_COORDINATES.index(coordinate))
+    for coordinate in data["pieces"]:
+        hashed = hashed ^ (0b01 << CODE_LEN * VALID_COORDINATES.index(coordinate))
 
-    def data(self):
-        """Return data for board"""
-        result = defaultdict(list)
-        result["colour"] = PLAYER_CODE[self.hashed >> HASH_LEN - CODE_LEN] # First entry
+def Z_data(hashed):
+    """Return data for board"""
+    result = defaultdict(list)
+    result["colour"] = PLAYER_CODE[hashed >> HASH_LEN - CODE_LEN] # First entry
 
-        # N.B.: Will need Another few lines to read exit information, not necessary right now
-        """
-        ( read exit states into result)
-        """
+    # N.B.: Will need Another few lines to read exit information, not necessary right now
+    """
+    ( read exit states into result)
+    """
 
-        for i, coordinate in enumerate(VALID_COORDINATES):
-            # ith coordinate = 2ith 2-bit combination in hash
-            hex_code = (self.hashed >> CODE_LEN*i) & 0b11  # Extracts JUST the code for ith coordinate
+    for i, coordinate in enumerate(VALID_COORDINATES):
+        # ith coordinate = 2ith 2-bit combination in hash
+        hex_code = (hashed >> CODE_LEN*i) & 0b11  # Extracts JUST the code for ith coordinate
 
-            """WARNING: Will need changing to handle all colours in Part B. For now, it's either same or different"""
-            if PLAYER_CODE[hex_code] == result["colour"]:
-                result["pieces"].append(coordinate)
-            elif PLAYER_CODE[hex_code] != "none": # Again, this will change when Part B comes along
-                result["blocks"].append(coordinate)
+        """WARNING: Will need changing to handle all colours in Part B. For now, it's either same or different"""
+        if PLAYER_CODE[hex_code] == result["colour"]:
+            result["pieces"].append(coordinate)
+        elif PLAYER_CODE[hex_code] != "none": # Again, this will change when Part B comes along
+            result["blocks"].append(coordinate)
 
-        return dict(result)
+    return dict(result)
 
-"""Debugging"""
+"""Debugging
 if __name__ == "__main__":
     my_data = {'colour': 'red', 'pieces': [[0, 0], [0, 1], [-2, 1]], 'blocks': [[-1, 0], [-1, 1], [1, 1], [3, -1]]}
     test_color = {'colour': 'red', 'pieces': [], 'blocks': []}
@@ -168,10 +166,7 @@ if __name__ == "__main__":
             print(i+1, my_hash.hashed >> 2*i & 0b11)
     print("*"*40)
     print(my_hash.data())
-
-
-
-
+"""
 
 ########################## END OF FILE ###############################
 ########################## END OF FILE ###############################
