@@ -37,19 +37,6 @@ Call this superclass like Node(hash, parent)
 Most attributes/methods are initialized here, to force us to be consistent
 Subclasses e.g. IDA_Node(Node) define and add extra functionality"""
 class Node:
-
-    @staticmethod
-    def create_root(initial_state):
-        print("WE MADE IT TO CREATION OF ROOT\n")
-        root = Node(None)
-        root.state = initial_state # Board state data: piece positions, # exits etc. accessed through here
-        root.game_status = root.__get_status()
-        print(f"{root.game_status}")
-        root.possible_actions = possible_actions(root.state)
-        root.depth =  0
-        root.player = initial_state['colour']
-        return root
-
     def __str__(self):
         return f"State: {self.state}\nDepth:{self.depth}\nGame Stat:{self.game_status}"
 
@@ -63,8 +50,10 @@ class Node:
             self.state = self.parent.state
             self.depth = self.parent.depth + 1
             self.player = self.__get_player()
+        self.state = self.player = None
         self.depth = 0
         self.game_status = self.possible_actions = None
+        print(f"Test in __init__: {self.game_status}")
         self.is_expanded = False # Allows us to realise, if there are no childen, this is a dead end
         self.action_made = None # The action that the parent made to get to here - is defined in apply_action/create children
         self.children = list() # Could be different, maybe a PQ for weighted choices acc. heuristic
@@ -95,7 +84,7 @@ class Node:
             except:
                 print("Error in moving/jumping - coordinate not passed?")
         elif action_flag == EXIT:
-                """PART B: Do NOT evaluate no. exits - this is done via __get_status below"""
+                """PART B: Do NOT evaluate no. exits - this is done via _get_status below"""
                 self.remove(piece)
                 self.action_made = action
         else:
@@ -103,10 +92,10 @@ class Node:
             raise ValueError
 
         # Update game_status, possible_actions (now that state is updated)
-        self.game_status = __get_status(self)
+        self.game_status = _get_status(self)
         self.possible_actions = possible_actions(self.state)
 
-    def __get_status(self):
+    def _get_status(self):
         """PART A: 0 is over, more than 1 is not over
         PART B: 1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW -2 DUPLICATE for is_over call
         Determines if a win/loss/draw has occurred
@@ -114,7 +103,7 @@ class Node:
         print(f"WE MADE IT HERE {len(self.state['pieces']) > 0}")
         return (len(self.state["pieces"]) > 0)
 
-    def __get_player(self):
+    def _get_player(self):
         """Retrieves current player.
         PART A: Simple, just get it from data
         PART B: ONLY IMPLEMENT AFTER "DATA" structure FINALISED"""
@@ -182,30 +171,33 @@ def jump_heuristic(node):
 
 ######################### IDA* #########################
 
+def create_root(initial_state):
+    root = IDA_Node(None)
+    print(f"My root is {type(root)} and has properties {dir(root)}")
+    root.state = initial_state # Board state data: piece positions, # exits etc. accessed through here
+    root.game_status = Node._get_status(root)
+    print(f"{root.game_status}")
+    root.possible_actions = possible_actions(root.state)
+    root.depth =  0
+    root.player = initial_state['colour']
+    return root
+
 class IDA_Node(Node):
     """Call this like IDA_node(parent)
     DOES NOT CALCULATE HEURISTICS AUTOMATICALLY"""
 
-    def create_root(initial_state):
-        return IDA_Node(Node.create_root(initial_state))
-
     def __init__(self, parent):
         try:
             # Define properties that a Node already has
-            super().__init__(parent)
+            Node.__init__(self, parent)
         except:
-            print("Uh oh, someone *cough-cough Callum* screwed up here...\n")
+            print("Uh oh, IDA someone *cough-cough Callum* screwed up here...\n")
             raise ValueError
         # Additional functionality for IDA*
         # Exit cost = cost to get from here to completion. Total cost factors in depth
         self.total_cost = self.exit_cost = 0
 
     def __str__(self):
-        cur_str = super().__str__()
-        cur_str += f"\nExit: {self.exit_cost} + Depth = {self.total_cost}\n"
-        return cur_str
-
-    def extra_str(self):
         cur_str = super().__str__()
         cur_str += f"\nExit: {self.exit_cost} + Depth = {self.total_cost}\n"
         return cur_str
@@ -254,7 +246,7 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, maxThreshold = 60, de
     """Runs IDA*. Must use two heuristics that work with Nodes. Returns 0 at goal"""
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
-    initial_node = IDA_Node.create_root(initial_state)
+    initial_node = create_root(initial_state)
     print(f"In IDA_C: {initial_node.game_status}\nCheck if IDA*: {type(initial_node)}")
     print(str(initial_node))
     initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
