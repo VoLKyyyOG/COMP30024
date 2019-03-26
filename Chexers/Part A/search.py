@@ -38,7 +38,7 @@ def main():
     print_board(debug(data), debug=False)
 
     # Implementing IDA*
-    optimal_solution = IDA_control_loop(data, debug_flag=DEBUG_FLAG)
+    optimal_solution = IDA_control_loop(data, debug_flag=True)
 
     # END TIME (FOUND SOLUTION)
     end = time.time()
