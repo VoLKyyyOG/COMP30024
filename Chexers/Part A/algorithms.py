@@ -1,11 +1,8 @@
 """ Algorithms.py
-
 Implements algorithms for use in game exploration, NOT actual agent logic.
-
 Notes:
 - Utilise game_status to tell if trimmed (symmetrical flag) --> DONT Explore
 - Maybe have a different flag; so that way, one flag = "win/loss/draw", the other is "trim/duplicate" etc
-
 """
 
 ########################## IMPORTS ###########################
@@ -20,7 +17,6 @@ from queue import PriorityQueue as PQ
 from classes import *
 from moves import *
 from print_debug import *
-from transposition import *
 
 ########################## GLOBALS ###########################
 INF = float('inf')
@@ -166,28 +162,6 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
 
     # Initialize children, with trimming
     for child in node.children:
-        """Help me debug this, it's meant to not allow 'inverse actions'"""
-        if False and (node.parent is not None) and (Z_hash(node.parent.state) == Z_hash(child.state)):
-            # You repeated the last move, do not evaluate!
-            # node.children.remove(child) Can't remove while iterating over it or it skips children :(
-            IDA_Node.MEMORY_TOTAL -= getsizeof(child)
-            IDA_Node.TRIM_TOTAL += 1
-            continue
-        """IGNORE THIS, THIS IS FOR TRYING TO DO TT
-        # Evaluate child and calculate potential children
-        if (Z_hash(child.state) in IDA_Node.VISITED_TT):
-            # Duplicate - keep the most optimal position
-            assert(len(IDA_Node.VISITED_TT[Z_hash(child.state)]) == 1)
-            if not (child < IDA_Node.VISITED_TT[Z_hash(child.state)][0]):
-                # The currently stored is better - kill it
-                print("********************************************")
-                node.children.remove(child)
-                IDA_Node.MEMORY_TOTAL -= getsizeof(child)
-                IDA_Node.TRIM_TOTAL += 1
-                del(child)
-                continue
-        else:
-            IDA_Node.VISITED_TT[Z_hash(child.state)].append(child)"""
 
         # Evaluate heuristics, define possible_actions, append to queue
         child.exit_cost = exit_h(child)

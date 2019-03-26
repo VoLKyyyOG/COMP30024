@@ -39,42 +39,38 @@ MOVE, JUMP, EXIT = 0,1,2
 
 #################### CLASSES & FUNCTIONS #####################
 
-def inverse_action(action):
-    """Finds inverse action. NOT FINAL AND MAY BE REDUNDANT"""
-    piece, action_flag, dest = action
-    if (action_flag != EXIT):
-        # Get inverse direction
-        action_direction = Vector.sub(dest, piece)
-        for direction in POSSIBLE_DIRECTIONS:
-            if Vector.add(action_direction, direction) == [0,0]:
-                # This is the inverse action_direction
-                if (action_flag == MOVE):
-                    new_dest = Vector.add(piece, direction)
-                elif (action_flag == EXIT):
-                    new_dest = Vector.add(piece, Vector.mult(direction, 2))
-            return (piece, action_flag, new_dest)
-        print("Error, did not find an inverse")
-        raise ValueError
-    else: # Cannot invert exit with current implementation
-        return None
-
 def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""
     result = list()
 
-    for piece in state["pieces"]:
-        possible_moves = move(piece, state)
-        result += [(piece, MOVE, dest) for dest in possible_moves]
+    MAX_MOVES = 3
+    no_moves = 1
 
+    for piece in state["pieces"]:
+        
+        # Always check if EXIT possible
+        possible_exit = exit_action(piece, state, debug_flag)
+        if possible_exit: # If so, ONLY do this action
+            result.append((piece, EXIT, None))
+            break
+
+        # Next, we prefer jump moves so check these 
         possible_jumps = jump(piece, state)
         result += [(piece, JUMP, dest) for dest in possible_jumps]
 
-        possible_exit = exit_action(piece, state, debug_flag)
-        if possible_exit: result.append((piece, EXIT, None))
+        # Otherwise, we will move
+        possible_moves = move(piece, state)
+        result += [(piece, MOVE, dest) for dest in possible_moves]
 
         if debug_flag:
             print(f"Player coordinate: {piece}\nMoves: {possible_moves}\n" + \
             f"Jumps: {possible_jumps}\nExits? : {possible_exit}\n{BANNER}")
+        
+        # Only check a max of MAX_MOVES moves. This should allow going forward, sideways or backwards
+        if no_moves == MAX_MOVES:
+            break
+        
+        no_moves += 1
 
     return result
 
