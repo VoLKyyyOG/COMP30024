@@ -49,7 +49,7 @@ class Node:
     def create_children(self):
         if self.is_expanded:
             try:
-                assert len(self.children) == len(self.possible_actions)
+                pass #assert len(self.children) == len(self.possible_actions)
             except AssertionError:
                 print(f"Children: {[i.action_made for i in self.children]}")
                 print(f"Actions: {self.possible_actions}")
@@ -177,6 +177,22 @@ def IDA(node, exit_h, TT, threshold, new_threshold, debug_flag=False):
 
         # Initialize children, with trimming
         for child in node.children:
+            # Optimisation: don't expand duplicates
+
+            if True: # Flip this to toggle symmetry reduction with TT
+                if Z_hash(child.state) in TT:
+                    # Keep the child that is better evaluated
+                    #assert(Z_hash(Z_data(Z_hash(child.state))) == Z_hash(Z_data(Z_hash(TT[Z_hash(child.state)][0].state))))
+                    #assert(len(TT[Z_hash(child.state)]) == 1)
+                    if child.depth <= TT[Z_hash(child.state)][0].depth:
+                        TT[Z_hash(child.state)] = [child]
+                    else:
+                        IDA_Node.TRIM_TOTAL += 1
+                        IDA_Node.MEMORY_TOTAL -= 1
+                        continue
+                else: # First encounter
+                    TT[Z_hash(child.state)].append(child)
+
             # Evaluate heuristics, define possible_actions, append to queue
             child.exit_cost = exit_h(child)
             child.total_cost = child.depth + child.exit_cost
@@ -189,23 +205,6 @@ def IDA(node, exit_h, TT, threshold, new_threshold, debug_flag=False):
     # Expand children, preferring those of least (estimated) total_cost
     while not queue.empty():
         child = queue.get()
-
-        # Optimisation: don't expand duplicates
-        if Z_hash(child.state) in TT:
-            IDA_Node.TRIM_TOTAL += 1
-            assert(len(TT[Z_hash(child.state)]) == 1)
-            # Keep the child that is better evaluated
-            if child < TT[Z_hash(child.state)][0]:
-                pass #TT[Z_hash(child.state)] = [child]
-            else:
-                pass # continue
-        else:
-            # First encounter
-            IDA_Node.TRIM_TOTAL -= 1
-            ## 46230 generated, 45809 trimmed and ~1479360 bytes used.
-            # Diff = 1378. Presumably this means only 1378 nodes were unique.
-            ## 46230 generated, 44431 trimmed and ~1479360 bytes used.
-            TT[Z_hash(child.state)].append(child)
 
         if child.total_cost == child.depth:
                 # Made it to completion!
