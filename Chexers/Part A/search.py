@@ -44,6 +44,12 @@ def main():
     time_taken = end - start
 
     print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} trimmed and ~{IDA_Node.MEMORY_TOTAL} bytes used.')
+    print(f'# Depth analysis: ')
+    print(f'# Depth: ' + " | ".join([f"{x:7d}" for x in range(10)]))
+    print(f'# Count: ' + " | ".join(map(lambda x: f"{x:7d}", IDA_Node.COUNT_BY_DEPTH[:10])))
+    print('# ' + '-' * 110 +  f'\n# Depth: ' + " | ".join([f"{x:7d}" for x in range(10, 20)]))
+    print(f'# Count: ' + " | ".join(map(lambda x: f"{x:7d}", IDA_Node.COUNT_BY_DEPTH[10:])))
+
     if (optimal_solution is not None):
         print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves: ')
         path = list()
@@ -63,12 +69,11 @@ def main():
     else:
         print(f'# ERROR: No solution found at this depth')
 
+    print(f"#\n#\n# (Real) Time Elapsed {time_taken:.6f}")
     if (time_taken < 30):
-        print(f"\n\n(Real) Time Elapsed {time_taken:.6f}s\n\n")
         PASSED = True
     else:
-        print(f"\n\n(Real) Time Elapsed {time_taken:.6f}s\n\n")
-        print("F to Pay Respects.")
+        print("# F to Pay Respects.")
 
 
 # when this module is executed, run the `main` function:

@@ -141,6 +141,7 @@ def create_IDA_root(initial_state):
 class IDA_Node(Node):
     """IDA* Node definition with inbuilt attributes for heuristic/total cost"""
     COUNT_TOTAL = TRIM_TOTAL = MEMORY_TOTAL = 0
+    COUNT_BY_DEPTH = [0] * 20
 
     def __init__(self, parent):
         super().__init__(parent)
@@ -151,6 +152,7 @@ class IDA_Node(Node):
         self.total_cost = self.exit_cost = 0
         IDA_Node.COUNT_TOTAL += 1
         IDA_Node.MEMORY_TOTAL += getsizeof(self)
+        IDA_Node.COUNT_BY_DEPTH[self.depth] += 1
 
     def __str__(self):
         """Appends additional IDA information to standard Node str format"""
@@ -225,6 +227,6 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 15, d
         root = IDA(initial_node, exit_h, threshold, new_threshold)
         if root is None: # Update threshold, the goal hasn't been found
             threshold = new_threshold[0]
-        if debug_flag:
+        #if debug_flag:
             print(f"Threshold ({threshold}), new_threshold ({new_threshold[0]})")
     return root

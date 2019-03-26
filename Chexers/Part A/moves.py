@@ -57,7 +57,7 @@ def possible_actions(state, debug_flag = False):
 
         possible_jumps = jump(piece, state)
         result += [(piece, JUMP, dest) for dest in possible_jumps]
-        
+
         if debug_flag:
             print(f"Player coordinate: {piece}\nMoves: {possible_moves}\n" + \
             f"Jumps: {possible_jumps}\nExits? : {possible_exit}\n{BANNER}")
