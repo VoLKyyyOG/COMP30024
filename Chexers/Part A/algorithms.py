@@ -48,6 +48,12 @@ class Node:
         self.children = list() # Stores addresses of children
 
     def create_children(self):
+        if self.is_expanded:
+            try:
+                assert len(self.children) == len(self.possible_actions)
+            except AssertionError:
+                print(f"Children: {[i.action_made for i in self.children]}")
+                print(f"Actions: {self.possible_actions}")
         """Given a list of action tuples, create new children."""
         for action in self.possible_actions:
             new_child = self.new_child()
@@ -58,6 +64,7 @@ class Node:
     def apply_action(self, action):
         """Applies action to passed node, updates attributes.
         NOTE: state is usually the parents', as self still being defined"""
+        assert not self.is_expanded
         piece, action_flag, dest = action
         if action_flag != EXIT:
             self.state["pieces"].remove(piece)
@@ -161,44 +168,26 @@ class IDA_Node(Node):
 
 def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
     """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
-    node.create_children()
+
     queue = PQ() # Gets item with lowest total_cost
 
-    # Initialize children, with trimming
-    for child in node.children:
-        """Help me debug this, it's meant to not allow 'inverse actions'"""
-        if False and (node.parent is not None) and (Z_hash(node.parent.state) == Z_hash(child.state)):
-            # You repeated the last move, do not evaluate!
-            # node.children.remove(child) Can't remove while iterating over it or it skips children :(
-            IDA_Node.MEMORY_TOTAL -= getsizeof(child)
-            IDA_Node.TRIM_TOTAL += 1
-            continue
-        """IGNORE THIS, THIS IS FOR TRYING TO DO TT
-        # Evaluate child and calculate potential children
-        if (Z_hash(child.state) in IDA_Node.VISITED_TT):
-            # Duplicate - keep the most optimal position
-            assert(len(IDA_Node.VISITED_TT[Z_hash(child.state)]) == 1)
-            if not (child < IDA_Node.VISITED_TT[Z_hash(child.state)][0]):
-                # The currently stored is better - kill it
-                print("********************************************")
-                node.children.remove(child)
-                IDA_Node.MEMORY_TOTAL -= getsizeof(child)
-                IDA_Node.TRIM_TOTAL += 1
-                del(child)
-                continue
-        else:
-            IDA_Node.VISITED_TT[Z_hash(child.state)].append(child)"""
+    if (len(node.children) == 0):
+        node.create_children()
 
-        # Evaluate heuristics, define possible_actions, append to queue
-        child.exit_cost = exit_h(child)
-        child.total_cost = child.depth + child.exit_cost
-        child.possible_actions = possible_actions(child.state)
-        queue.put(child)
+        # Initialize children, with trimming
+        for child in node.children:
+            # Evaluate heuristics, define possible_actions, append to queue
+            child.exit_cost = exit_h(child)
+            child.total_cost = child.depth + child.exit_cost
+            child.possible_actions = possible_actions(child.state)
+            queue.put(child)
+    else:
+        for child in node.children:
+            queue.put(child)
 
     # Expand children, preferring those of least (estimated) total_cost
     while not queue.empty():
         child = queue.get()
-        child.create_children()
 
         if child.total_cost > threshold:
             # we have expanded beyond the fringe! Check if cheaper than previous
@@ -219,7 +208,7 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
     return None
 
 """Made debug_flag=True for now"""
-def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 14, debug_flag=True):
+def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 15, debug_flag=True):
     """Runs IDA*. Must use a heuristic that works with Nodes and returns 0 @ goal"""
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
