@@ -35,7 +35,7 @@ POSSIBLE_DIRECTIONS = [[0,1],[1,0],[1,-1],[0,-1],[-1,0],[-1,1]]
 MAX_COORDINATE_VAL = 3
 
 # action_flags for use in action tuples
-MOVE, JUMP, EXIT = 0,1,2
+MOVE, JUMP, EXIT = 0, 1, 2
 
 #################### CLASSES & FUNCTIONS #####################
 
@@ -43,7 +43,12 @@ def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""
     result = list()
 
-    MAX_MOVES = 3
+
+    # There at most 2 FORWARD, 1 LEFT, 1 RIGHT, and 2 BACKWARDS MOVES
+    # Jumps are only preferred if they are FORWARD
+
+
+    MAX_MOVES = 2 # BEST CASE 2 FORWARDS, WORST CASE 2 BACKWARDS
     no_moves = 1
 
     for piece in state["pieces"]:
@@ -107,7 +112,8 @@ def jump(coordinate, state):
 
 # Determines if exit action possible
 def exit_action(coordinate, state, debug_flag=False):
-    possible_exit = coordinate in GOAL[state["colour"]]
+    possible_goals = [i for i in GOAL[state["colour"]] if i not in state["blocks"]]
+    possible_exit = coordinate in possible_goals
     if debug_flag:
         print("Exit Action Possible? ", possible_exit)
     return possible_exit
