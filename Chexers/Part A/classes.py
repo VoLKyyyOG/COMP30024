@@ -119,7 +119,8 @@ def Z_data(hashed):
     """Return data for board"""
     result = defaultdict(list)
     result["colour"] = PLAYER_CODE[hashed >> HASH_LEN - CODE_LEN] # First entry
-
+    result["pieces"] = []
+    result["blocks"] = []
     """
     PART B: ( read exit states into result)
     """
@@ -129,9 +130,9 @@ def Z_data(hashed):
         hex_code = (hashed >> CODE_LEN*i) & 0b11
 
         """PART B: Will need changing to handle all colours"""
-        if PLAYER_CODE[hex_code] == result["colour"]:
+        if hex_code == 0b01:
             result["pieces"].append(coordinate)
-        elif PLAYER_CODE[hex_code] != "none":
+        elif hex_code == 0b10:
             result["blocks"].append(coordinate)
 
     return dict(result)

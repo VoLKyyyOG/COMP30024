@@ -34,6 +34,7 @@ def main():
         print('# Data input:', data)
 
     # Print current state
+    print(f"# Check hash accuracy: {Z_data(Z_hash(data))}")
     print_board(debug(data), debug=False)
 
     # Implementing IDA*

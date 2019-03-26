@@ -20,7 +20,6 @@ from queue import PriorityQueue as PQ
 from classes import *
 from moves import *
 from print_debug import *
-from transposition import *
 
 ########################## GLOBALS ###########################
 INF = float('inf')
@@ -50,7 +49,7 @@ class Node:
     def create_children(self):
         if self.is_expanded:
             try:
-                assert len(self.children) == len(self.possible_actions)
+                pass #assert len(self.children) == len(self.possible_actions)
             except AssertionError:
                 print(f"Children: {[i.action_made for i in self.children]}")
                 print(f"Actions: {self.possible_actions}")
@@ -168,7 +167,7 @@ class IDA_Node(Node):
         """Overrides child creation call in Node class"""
         return IDA_Node(parent=self)
 
-def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
+def IDA(node, exit_h, TT, threshold, new_threshold, debug_flag=False):
     """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
 
     queue = PQ() # Gets item with lowest total_cost
@@ -178,6 +177,22 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
 
         # Initialize children, with trimming
         for child in node.children:
+            # Optimisation: don't expand duplicates
+
+            if True: # Flip this to toggle symmetry reduction with TT
+                if Z_hash(child.state) in TT:
+                    # Keep the child that is better evaluated
+                    #assert(Z_hash(Z_data(Z_hash(child.state))) == Z_hash(Z_data(Z_hash(TT[Z_hash(child.state)][0].state))))
+                    #assert(len(TT[Z_hash(child.state)]) == 1)
+                    if child.depth <= TT[Z_hash(child.state)][0].depth:
+                        TT[Z_hash(child.state)] = [child]
+                    else:
+                        IDA_Node.TRIM_TOTAL += 1
+                        IDA_Node.MEMORY_TOTAL -= 1
+                        continue
+                else: # First encounter
+                    TT[Z_hash(child.state)].append(child)
+
             # Evaluate heuristics, define possible_actions, append to queue
             child.exit_cost = exit_h(child)
             child.total_cost = child.depth + child.exit_cost
@@ -191,17 +206,17 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
     while not queue.empty():
         child = queue.get()
 
-        if child.total_cost > threshold:
+        if child.total_cost == child.depth:
+                # Made it to completion!
+                return child
+        elif child.total_cost > threshold:
             # we have expanded beyond the fringe! Check if cheaper than previous
             if child.total_cost < new_threshold[0]:
                 # Update threshold
                 new_threshold[0] = child.total_cost
-        elif child.total_cost == child.depth:
-                # Made it to completion!
-                return child
         else:
             # We haven't hit the fringe yet, recursion down tree
-            root = IDA(child, exit_h, threshold, new_threshold)
+            root = IDA(child, exit_h, TT, threshold, new_threshold)
 
             if root is not None: # I found a solution below me, echo it upwards
                 return root
@@ -220,13 +235,14 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 15, d
         print(str(initial_node))
         print_board(debug(initial_node.state))
 
+    TT = defaultdict(list)
     root = None
     while root is None and threshold < max_threshold:
         new_threshold = [INF] # So that IDA() can manipulate it
         # Perform IDA* down the tree to reach nodes just beyond threshold
-        root = IDA(initial_node, exit_h, threshold, new_threshold)
+        root = IDA(initial_node, exit_h, TT, threshold, new_threshold)
         if root is None: # Update threshold, the goal hasn't been found
             threshold = new_threshold[0]
         #if debug_flag:
-            print(f"Threshold ({threshold}), new_threshold ({new_threshold[0]})")
+            print(f"# Threshold ({threshold}), new_threshold ({new_threshold[0]}), Generated ({IDA_Node.COUNT_TOTAL})")
     return root
