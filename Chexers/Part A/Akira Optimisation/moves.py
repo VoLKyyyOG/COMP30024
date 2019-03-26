@@ -46,6 +46,7 @@ def possible_actions(state, debug_flag = False):
 
     # There at most 2 FORWARD, 1 LEFT, 1 RIGHT, and 2 BACKWARDS MOVES
     # Jumps are only preferred if they are FORWARD
+    # NEED TO ADD A WAY TO CHECK DIRECTION, THEN WHAT ACTION
 
 
     MAX_MOVES = 2 # BEST CASE 2 FORWARDS, WORST CASE 2 BACKWARDS
@@ -55,10 +56,12 @@ def possible_actions(state, debug_flag = False):
         
         # Always check if EXIT possible
         possible_exit = exit_action(piece, state, debug_flag)
-        if possible_exit: # If so, ONLY do this action
-            print("Found an exit\n")
+        if possible_exit: # If so, ONLY do this action (PRIORITISE EXIT for Part A at least)
             result.append((piece, EXIT, None))
-            break
+            print("\n\nEXIT MOVE YES\n\n")
+            print(result)
+            
+            return result
 
         # Next, we prefer jump moves so check these 
         possible_jumps = jump(piece, state)
@@ -74,10 +77,11 @@ def possible_actions(state, debug_flag = False):
         
         # Only check a max of MAX_MOVES moves. This should allow going forward, sideways or backwards
         if no_moves == MAX_MOVES:
-            print("Max moves reached\n")
             break
         
         no_moves += 1
+
+        print(result)
 
     return result
 
