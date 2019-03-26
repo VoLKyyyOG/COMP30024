@@ -35,6 +35,7 @@ def main():
 
     # Print current state
     print_board(debug(data), debug=False)
+    print(f"# Hash: {str(bin(Z_hash(data)))}")
 
     # Implementing IDA*
     optimal_solution = IDA_control_loop(data, debug_flag=DEBUG_FLAG)
