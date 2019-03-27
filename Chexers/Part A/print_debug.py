@@ -17,7 +17,7 @@ def debug(data):
         board_dict[i] = 'B'
     return board_dict
 
-def print_board(board_dict, message="", debug=False):
+def print_board(board_dict, message="", debug=True):
     """
     Helper function to print a drawing of a hexagonal board's contents.
 
