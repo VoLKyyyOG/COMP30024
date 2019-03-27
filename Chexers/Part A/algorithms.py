@@ -172,10 +172,6 @@ class IDA_Node(Node):
 
 def IDA(node, exit_h, TT, threshold, new_threshold, debug_flag=False):
     """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
-    if TT.get(hash(node), False) and node.depth < TT[hash(node)][0].depth:
-        TT[hash(node)].remove(TT[hash(node)][0])
-        TT[hash(node)].append(node)
-        return None
 
     queue = PQ() # Gets item with lowest total_cost
 
@@ -184,33 +180,17 @@ def IDA(node, exit_h, TT, threshold, new_threshold, debug_flag=False):
 
         # Initialize children, with trimming
         for child in node.children:
-            if TT.get(hash(child), False):
-                #print(f"I am {object.__str__(child)}, depth {child.depth}")
-                #print(", ".join([f"{TT[i]}" for i in TT.keys()]))
-                try:
-                    assert(hash(child)==hash(TT[hash(child)][0]))
-                except:
-                    print(f"ASSERTION: {id(child)}, {id(TT[hash(child)][0])}")
-                if child.depth <= TT[hash(child)][0].depth:
-                    pass
+            my_hash = Z_hash(child.state)
+            if my_hash in TT:
+                if child.depth < TT[my_hash][0].depth:
+                    TT[my_hash] = [child]
                 else:
                     IDA_Node.TRIM_TOTAL += 1
-                    IDA_Node.MEMORY_TOTAL -= 1
+                    IDA_Node.MEMORY_TOTAL -= getsizeof(IDA_Node)
                     continue
-            else: # First encounter
-                try:
-                    TT[hash(child)].append(child)
-                    assert(len(TT[hash(child)]) > 0)
-                except AssertionError:
-                    print(child)
-                    print(f"Hash: {hash(child), }")
-                    print_board(debug(child.state))
-                    ptr = child
-                    print("MOVES: ", end="")
-                    while (ptr):
-                        print(f"{child.action_made}", end="")
-                        ptr = child.parent
-                    print(TT[hash(child)])
+            else:
+                TT[my_hash].append(child)
+
             # Evaluate heuristics, define possible_actions, append to queue
             child.exit_cost = exit_h(child)
             child.total_cost = child.depth + child.exit_cost
@@ -250,7 +230,7 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 25, d
     initial_node = create_IDA_root(initial_state)
     initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
     TT = defaultdict(list)
-    TT[hash(initial_node)].append(initial_node)
+    TT[Z_hash(initial_node.state)].append(initial_node)
     #if debug_flag:
     #    print(str(initial_node))
     #    print_board(debug(initial_node.state), debug=True)

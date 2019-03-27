@@ -45,7 +45,7 @@ def main():
     end = time.time()
     time_taken = end - start
 
-    print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} trimmed and ~{IDA_Node.MEMORY_TOTAL} bytes used.')
+    print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed and ~{IDA_Node.MEMORY_TOTAL} bytes used.')
     print(f'# Depth analysis: ')
     print(f'# Depth: ' + " | ".join([f"{x:7d}" for x in range(10)]))
     print(f'# Count: ' + " | ".join(map(lambda x: f"{x:7d}", IDA_Node.COUNT_BY_DEPTH[:10])))
