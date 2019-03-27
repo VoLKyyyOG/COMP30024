@@ -8,9 +8,10 @@ Currently formatted for Part A
 ########################## IMPORTS ###########################
 # Standard modules
 from collections import defaultdict
+from copy import copy
 
 # User-defined files
-from classes import Vector
+from classes import Vector, PLAYER_CODE
 from print_debug import *
 
 ########################## GLOBALS ###########################
@@ -32,13 +33,61 @@ VALID_COORDINATES = [[-3, 0], [-3, 1], [-3, 2], [-3, 3],
 
 POSSIBLE_DIRECTIONS = [[0,1],[1,0],[1,-1],[0,-1],[-1,0],[-1,1]]
 
+FORWARD_DIRECTIONS = {
+    "red" : [[1,-1],[1,0]],
+    "green" : [[-1,1],[0,1]],
+    "blue" : [[-1,0],[0,-1]]
+}
+
 # As point indices range from -3 to 3
 MAX_COORDINATE_VAL = 3
 
 # action_flags for use in action tuples
-MOVE, JUMP, EXIT = 0,1,2
+MOVE, JUMP, EXIT = 0, 1, 2
 
 #################### CLASSES & FUNCTIONS #####################
+
+def jump_optimal(p1, p2, player, state):
+    """Checks if two pieces could jumphop and returns convergence point"""
+    pass
+
+def get_next(current, occupied, direction):
+    """If can move/jump in given direction, returns next possible point"""
+    point = Vector.add(current, direction)
+    if point in VALID_COORDINATES and point not in occupied:
+        return point    # Reachable by move
+    else: # Maybe you can jump over it
+        point = Vector.add(point, direction)
+        if point in VALID_COORDINATES and point not in occupied:
+            return point    # Jumpable
+    return None     # No eligible position
+
+def sight(piece, player, occupied):
+    """Finds set of all positions optimally reachable by piece"""
+    u, v = FORWARD_DIRECTIONS[player]
+    sight_set = set()
+    if not piece or piece not in VALID_COORDINATES:
+        return sight_set
+    # Find eligible spots in u, v direction
+    next_u, next_v = (get_next(copy(piece), occupied, x) for x in (u,v))
+    if next_u: sight_set.add(tuple(next_u))
+    if next_v: sight_set.add(tuple(next_v))
+
+    sight_set = sight_set.union(sight(next_u, player, occupied))
+    sight_set = sight_set.union(sight(next_v, player, occupied))
+    return sight_set
+
+def within_sight(position, dest, player):
+    """Calculates whether a destination is reachable by directly moving 'forward' towards it"""
+    # Idea: movement without moving sideways or backwards is most optimal.
+    # If the two 'forward' directions towards a destination are u and v,
+    # Then you want two scalars a, b such that dest = au + bv.
+    # If a or b are negative, then you had to move back/sideways
+    # Else, you only moved a times 'left-forward' and b times 'right-forward' -- optimal!
+    u, v = FORWARD_DIRECTIONS[player]
+    displacement = Vector.sub(dest, position)
+    scalars = Vector.solve(u,v,displacement)
+    return (scalars[0] >= 0 and scalars[1] >= 0)
 
 def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""

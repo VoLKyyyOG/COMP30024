@@ -35,17 +35,26 @@ def main():
         print('# Data input:', data)
 
     # Print current state
-    print(f"# Check hash accuracy: {Z_data(Z_hash(data))}")
     print_board(debug(data), debug=False)
 
+    '''from moves import set_of_sight, sight
+    print("TEST ALT")
+    for piece in data['pieces']:
+        print(f"{piece} - {sight(piece, data['colour'], data['blocks'] + data['pieces'])}")
+    print("TEST OP")
+    for piece in data['pieces']:
+        print(f"{piece} - {set_of_sight(piece, data['colour'], data['blocks'] + data['pieces'])}")
+    return'''
+
     # Implementing IDA*
-    optimal_solution = IDA_control_loop(data, debug_flag=False)
+    mega_h = lambda x: jump_heuristic(x) + forced_side_heuristic(x)
+    optimal_solution = IDA_control_loop(data, exit_h=mega_h, debug_flag=False)
 
     # END TIME (FOUND SOLUTION)
     end = time.time()
     time_taken = end - start
 
-    print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed and ~{IDA_Node.MEMORY_TOTAL} bytes used.')
+    print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.F_SIDE}, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed and ~{IDA_Node.MEMORY_TOTAL} bytes used.')
     print(f'# Depth analysis: ')
     print(f'# Depth: ' + " | ".join([f"{x:7d}" for x in range(10)]))
     print(f'# Count: ' + " | ".join(map(lambda x: f"{x:7d}", IDA_Node.COUNT_BY_DEPTH[:10])))
@@ -62,6 +71,8 @@ def main():
         for move in path[::-1]:
             if (move.action_made is not None):
                 piece, action, dest = move.action_made
+                piece = tuple(piece)
+                if dest: dest = tuple(dest)
                 if (action == MOVE):
                     print(f'MOVE from {piece} to {dest}.')
                 elif (action == JUMP):

@@ -44,6 +44,15 @@ class Vector:
     """Facilitates operations on axial/cubic hexagonal coordinates"""
 
     @staticmethod
+    def solve(v_1, v_2, v_target):
+        """For the matrix equation Ay = target, calculates y
+            Assumed A is 2x2 with columns v_1 and v_2"""
+        u, v, x = v_1, v_2, v_target
+        det_uv = float(u[0]*v[1]-u[1]*v[0])
+        assert(abs(det_uv) > 0.0001)
+        return [int((v[1]*x[0] - v[0]*x[1]) / det_uv), int((-u[1]*x[0] + u[0]*x[1]) / det_uv)]
+
+    @staticmethod
     def add(list_1, list_2):
         """Allows for "vector_1 + vector_2"""
         return [list_1[0] + list_2[0], list_1[1] + list_2[1]]
