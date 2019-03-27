@@ -10,7 +10,7 @@ Currently formatted for Part A
 from collections import defaultdict
 
 # User-defined files
-from classes import *
+from classes import Vector
 from print_debug import *
 
 ########################## GLOBALS ###########################
@@ -77,6 +77,7 @@ def move(coordinate, state):
             if adjacent_hex not in occupied: # Then it's free for the taking
                 possible_moves.append(adjacent_hex)
 
+    possible_moves.sort()
     return possible_moves
 
 def jump(coordinate, state):
@@ -93,6 +94,7 @@ def jump(coordinate, state):
                 if target_hex not in occupied: # Then actual place to land
                     possible_jumps.append(target_hex)
 
+    possible_jumps.sort()
     return possible_jumps
 
 # Determines if exit action possible

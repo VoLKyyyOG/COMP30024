@@ -16,6 +16,7 @@ import time
 # User-defined files
 from print_debug import *
 from algorithms import *
+from classes import *
 
 ########################## GLOBALS ###########################
 BANNER = '*' * 60 + '\n'
@@ -26,7 +27,7 @@ BANNER = '*' * 60 + '\n'
 start = time.time()
 
 def main():
-    DEBUG_FLAG = False # FOR DEBUGGING
+    DEBUG_FLAG = True # FOR DEBUGGING
 
     # Read argv input for initial state
     with open(argv[1]) as file:
@@ -38,7 +39,7 @@ def main():
     print_board(debug(data), debug=False)
 
     # Implementing IDA*
-    optimal_solution = IDA_control_loop(data, debug_flag=True)
+    optimal_solution = IDA_control_loop(data, debug_flag=False)
 
     # END TIME (FOUND SOLUTION)
     end = time.time()

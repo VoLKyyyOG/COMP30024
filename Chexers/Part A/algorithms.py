@@ -15,13 +15,12 @@ from math import ceil
 from sys import getsizeof
 from copy import deepcopy
 from queue import PriorityQueue as PQ
+from collections import defaultdict
 
 # User-defined files
-from classes import *
-from moves import *
 from print_debug import *
-from transposition import *
-
+from moves import MAX_COORDINATE_VAL, MOVE, JUMP, EXIT, possible_actions
+from classes import *
 ########################## GLOBALS ###########################
 INF = float('inf')
 
@@ -69,6 +68,7 @@ class Node:
         if action_flag != EXIT:
             self.state["pieces"].remove(piece)
             self.state["pieces"].append(dest)
+            self.state["pieces"].sort()
             """PART B: CONSIDER ORDERING & Must evaluate capturing here"""
             self.action_made = action
         elif action_flag == EXIT:
@@ -100,10 +100,13 @@ class Node:
 
     def __str__(self):
         """Defines string format for use in debugging"""
-        return f"State: {self.state}\nDepth {self.depth}" \
+        return f"# State: {self.state}\n# Depth {self.depth}" \
         + f", Game Status {self.game_status}" \
-        + f", Expanded {self.is_expanded}, Action {self.action_made}\n" \
-        + f"Actions {self.possible_actions}\nChildren {self.children}"
+        + f", Expanded {self.is_expanded}, Action {self.action_made}\n# " \
+        + f"Actions {self.possible_actions}\n# Children {self.children}"
+
+    def __hash__(self):
+        return hash(self.state.values())
 
 ######################## HEURISTICS ##########################
 
@@ -124,7 +127,6 @@ def jump_heuristic(node):
         # total += ceil(move_distance / 2.0) + 1
 
     # return total
-
     return sum(ceil((MAX_COORDINATE_VAL - Vector.get_cubic(piece)[PLAYER_CODE[node.player]]) / 2) + 1 for piece in node.state["pieces"])
 
 ########################### IDA* #############################
@@ -157,7 +159,7 @@ class IDA_Node(Node):
     def __str__(self):
         """Appends additional IDA information to standard Node str format"""
         cur_str = super().__str__()
-        cur_str += f"\nExit ({self.exit_cost}) + Depth = {self.total_cost}\n"
+        cur_str += f"\n # Exit ({self.exit_cost}) + Depth = {self.total_cost}"
         return cur_str
 
     def __lt__(self, other):
@@ -168,16 +170,47 @@ class IDA_Node(Node):
         """Overrides child creation call in Node class"""
         return IDA_Node(parent=self)
 
-def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
+def IDA(node, exit_h, TT, threshold, new_threshold, debug_flag=False):
     """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
+    if TT.get(hash(node), False) and node.depth < TT[hash(node)][0].depth:
+        TT[hash(node)].remove(TT[hash(node)][0])
+        TT[hash(node)].append(node)
+        return None
 
     queue = PQ() # Gets item with lowest total_cost
 
-    if (len(node.children) == 0):
+    if not node.is_expanded:
         node.create_children()
 
         # Initialize children, with trimming
         for child in node.children:
+            if TT.get(hash(child), False):
+                #print(f"I am {object.__str__(child)}, depth {child.depth}")
+                #print(", ".join([f"{TT[i]}" for i in TT.keys()]))
+                try:
+                    assert(hash(child)==hash(TT[hash(child)][0]))
+                except:
+                    print(f"ASSERTION: {id(child)}, {id(TT[hash(child)][0])}")
+                if child.depth <= TT[hash(child)][0].depth:
+                    pass
+                else:
+                    IDA_Node.TRIM_TOTAL += 1
+                    IDA_Node.MEMORY_TOTAL -= 1
+                    continue
+            else: # First encounter
+                try:
+                    TT[hash(child)].append(child)
+                    assert(len(TT[hash(child)]) > 0)
+                except AssertionError:
+                    print(child)
+                    print(f"Hash: {hash(child), }")
+                    print_board(debug(child.state))
+                    ptr = child
+                    print("MOVES: ", end="")
+                    while (ptr):
+                        print(f"{child.action_made}", end="")
+                        ptr = child.parent
+                    print(TT[hash(child)])
             # Evaluate heuristics, define possible_actions, append to queue
             child.exit_cost = exit_h(child)
             child.total_cost = child.depth + child.exit_cost
@@ -201,7 +234,7 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
                 return child
         else:
             # We haven't hit the fringe yet, recursion down tree
-            root = IDA(child, exit_h, threshold, new_threshold)
+            root = IDA(child, exit_h, TT, threshold, new_threshold)
 
             if root is not None: # I found a solution below me, echo it upwards
                 return root
@@ -210,23 +243,25 @@ def IDA(node, exit_h, threshold, new_threshold, debug_flag=False):
     return None
 
 """Made debug_flag=True for now"""
-def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 15, debug_flag=True):
+def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 25, debug_flag=True):
     """Runs IDA*. Must use a heuristic that works with Nodes and returns 0 @ goal"""
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
     initial_node = create_IDA_root(initial_state)
     initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
-    if debug_flag:
-        print(str(initial_node))
-        print_board(debug(initial_node.state), debug=True)
+    TT = defaultdict(list)
+    TT[hash(initial_node)].append(initial_node)
+    #if debug_flag:
+    #    print(str(initial_node))
+    #    print_board(debug(initial_node.state), debug=True)
 
     root = None
     while root is None and threshold < max_threshold:
         new_threshold = [INF] # So that IDA() can manipulate it
         # Perform IDA* down the tree to reach nodes just beyond threshold
-        root = IDA(initial_node, exit_h, threshold, new_threshold)
+        root = IDA(initial_node, exit_h, TT, threshold, new_threshold)
         if root is None: # Update threshold, the goal hasn't been found
             threshold = new_threshold[0]
         #if debug_flag:
-            print(f"Threshold ({threshold}), new_threshold ({new_threshold[0]})")
+            print(f"Threshold ({threshold}), new_threshold ({new_threshold[0]}), generated ({IDA_Node.COUNT_TOTAL})")
     return root
