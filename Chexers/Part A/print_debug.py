@@ -6,7 +6,10 @@ Useful functions for debugging code during project work.
 
 #################### CLASSES & FUNCTIONS #####################
 
-def convert(state):
+def convert_to_tuples(raw_state):
+    """Converts from list coordinates to tuple coords"""
+    from copy import deepcopy
+    state = deepcopy(raw_state)
     state['pieces'] = [tuple(i) for i in state['pieces']]
     state['blocks'] = [tuple(i) for i in state['blocks']]
     return state
@@ -14,11 +17,9 @@ def convert(state):
 def debug(data):
     """Creates a dictionary of board pieces (keys) with string flag (value)"""
     board_dict = {}
-    player_pieces = [tuple(i) for i in data['pieces']]
-    blocks = [tuple(i) for i in data['blocks']]
-    for i in player_pieces:
+    for i in data['pieces']:
         board_dict[i] = data['colour']
-    for i in blocks:
+    for i in data['blocks']:
         board_dict[i] = '###'
     return board_dict
 

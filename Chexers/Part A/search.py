@@ -34,7 +34,7 @@ def main():
         data = load(file)
         print('# Data input:', data)
 
-    data = convert(data)
+    data = convert_to_tuples(data)
 
     # Print current state
     print_board(debug(data), debug=False)

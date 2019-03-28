@@ -104,9 +104,6 @@ class Node:
         + f", Expanded {self.is_expanded}, Action {self.action_made}\n# " \
         + f"Actions {self.possible_actions}\n# Children {self.children}"
 
-    def __hash__(self):
-        return hash(self.state.values())
-
 ######################## HEURISTICS ##########################
 
 '''DEBUGGING HEURISTICS
