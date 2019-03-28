@@ -284,6 +284,7 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 35, d
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
     initial_node = create_IDA_root(initial_state)
+    print(f"# Initial valuation: (FS) {forced_side_heuristic(initial_node)} + (Dj) {dijkstra_heuristic(initial_node)} + (D) {initial_node.depth} = {initial_node.total_cost}")
     initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
     TT = defaultdict(list)
     TT[Z_hash(initial_node.state)].append(initial_node)
