@@ -41,8 +41,8 @@ def main():
     print_board(dijkstra_board(data), debug=False)
 
     # Implementing IDA*
-    mega_h = lambda x: dijkstra_heuristic(x) + forced_side_heuristic(x)
-    optimal_solution = IDA_control_loop(data, exit_h=mega_h, debug_flag=False)
+    chosen_heuristics = [dijkstra_heuristic]
+    optimal_solution = IDA_control_loop(data, heuristics=chosen_heuristics, debug_flag=False)
 
     # END TIME (FOUND SOLUTION)
     end = time.time()
