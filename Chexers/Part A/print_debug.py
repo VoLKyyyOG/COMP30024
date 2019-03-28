@@ -6,6 +6,11 @@ Useful functions for debugging code during project work.
 
 #################### CLASSES & FUNCTIONS #####################
 
+def convert(state):
+    state['pieces'] = [tuple(i) for i in state['pieces']]
+    state['blocks'] = [tuple(i) for i in state['blocks']]
+    return state
+
 def debug(data):
     """Creates a dictionary of board pieces (keys) with string flag (value)"""
     board_dict = {}
@@ -14,7 +19,7 @@ def debug(data):
     for i in player_pieces:
         board_dict[i] = data['colour']
     for i in blocks:
-        board_dict[i] = 'B'
+        board_dict[i] = '###'
     return board_dict
 
 def print_board(board_dict, message="", debug=True):

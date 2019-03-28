@@ -34,20 +34,14 @@ def main():
         data = load(file)
         print('# Data input:', data)
 
+    data = convert(data)
+
     # Print current state
     print_board(debug(data), debug=False)
-
-    '''from moves import set_of_sight, sight
-    print("TEST ALT")
-    for piece in data['pieces']:
-        print(f"{piece} - {sight(piece, data['colour'], data['blocks'] + data['pieces'])}")
-    print("TEST OP")
-    for piece in data['pieces']:
-        print(f"{piece} - {set_of_sight(piece, data['colour'], data['blocks'] + data['pieces'])}")
-    return'''
+    print_board(dijkstra_board(data), debug=False)
 
     # Implementing IDA*
-    mega_h = lambda x: jump_heuristic(x) + forced_side_heuristic(x)
+    mega_h = lambda x: dijkstra_heuristic(x) + forced_side_heuristic(x)
     optimal_solution = IDA_control_loop(data, exit_h=mega_h, debug_flag=False)
 
     # END TIME (FOUND SOLUTION)
@@ -71,8 +65,6 @@ def main():
         for move in path[::-1]:
             if (move.action_made is not None):
                 piece, action, dest = move.action_made
-                piece = tuple(piece)
-                if dest: dest = tuple(dest)
                 if (action == MOVE):
                     print(f'MOVE from {piece} to {dest}.')
                 elif (action == JUMP):

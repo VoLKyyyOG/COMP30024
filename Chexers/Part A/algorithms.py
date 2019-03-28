@@ -22,7 +22,6 @@ from print_debug import *
 from moves import *
 from classes import *
 ########################## GLOBALS ###########################
-INF = float('inf')
 
 ###################### NODE BASE CLASS #######################
 
@@ -116,9 +115,9 @@ class Node:
     occupied = state["pieces"] + state["blocks"]
     goal_sight = lambda y: goals.intersection(y)
     return sum([len(goal_sight(sight(x, player, occupied))) == 0 for x in pieces])
-    #return [goal_sight(sight(x, player, occupied)) for x in pieces]
+    #return [goal_sight(sight(x, player, occupied)) for x in pieces]'''
 
-state_2 = {
+'''state_2 = {
     "colour": "green",
     "pieces": [[1, -2], [-2, 1]],
     "blocks": [[-3, 0],[-3,2], [-3, 1], [-2, -1], [-2, 2], [-2, 3], [-1, -2], [-1, -1],
@@ -126,11 +125,24 @@ state_2 = {
                 [0, 2], [0, 3], [1, -3], [1, -1], [1, 0], [2, -3], [2, 1],
                 [3, -3], [3, -2], [3, 0]]
 }
-states = [state_2]
-for state in states:
-    print_board(debug(state))
-    print(f"For State: {forced_side_heuristic(state, state['colour'])}")
-'''
+
+def allow_node(f):
+    def apply_func(*args):
+        try:
+            return f(args)
+        except:
+            if len(args) > 1:
+                return f(args[0].state, args[1:])
+            else:
+                return f(args[0].state)
+    return apply_func'''
+
+def dijkstra_heuristic(node):
+    return sum([dijkstra_board(node.state)[i] for i in node.state['pieces']])
+
+#print(f"Test dijkstra: {dijkstra_heuristic(convert(state_2))}")
+#print_board(debug(state_2))
+#print_board(dijkstra_board(convert(state_2)))
 
 def forced_side_heuristic(node):
     """Totals no. pieces that don't have any exit in line of sight"""
@@ -185,7 +197,7 @@ class IDA_Node(Node):
         self.total_cost = self.exit_cost = 0
         IDA_Node.COUNT_TOTAL += 1
         IDA_Node.MEMORY_TOTAL += getsizeof(self)
-        IDA_Node.COUNT_BY_DEPTH[self.depth] += 1
+        #IDA_Node.COUNT_BY_DEPTH[self.depth] += 1
 
     def __str__(self):
         """Appends additional IDA information to standard Node str format"""
@@ -267,7 +279,7 @@ def IDA(node, exit_h, TT, threshold, new_threshold, debug_flag=False):
     return None
 
 """Made debug_flag=True for now"""
-def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 25, debug_flag=True):
+def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 35, debug_flag=True):
     """Runs IDA*. Must use a heuristic that works with Nodes and returns 0 @ goal"""
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
@@ -275,9 +287,6 @@ def IDA_control_loop(initial_state, exit_h=jump_heuristic, max_threshold = 25, d
     initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
     TT = defaultdict(list)
     TT[Z_hash(initial_node.state)].append(initial_node)
-    #if debug_flag:
-    #    print(str(initial_node))
-    #    print_board(debug(initial_node.state), debug=True)
 
     root = None
     while root is None and threshold < max_threshold:
