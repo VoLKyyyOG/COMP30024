@@ -4,7 +4,7 @@ COMP300027 - Machine Learning, The University of Melbourne
 LSM Notes: https://www.overleaf.com/1157211432bhswsxwjccmk 
 
 ## Lecture 2: Basics of Machine Learning
-##### Some Terminology
+#### Some Terminology
 - Instances (exemplars) are the rows of a dataset
 - Attributes (features) are the columns of a dataset
 - Concepts (labels or classes) are things we aim to learn from the dataset
@@ -12,32 +12,32 @@ LSM Notes: https://www.overleaf.com/1157211432bhswsxwjccmk
 - Ordinal Quantities have an implied ordering on the values (`cold < mild < hot`)
 - Continuous Quantities are real-valued attributes with a defined zero point and no explicit upper bound
 
-##### Methods
+#### Methods
 - **Supervised** methods have prior knowledge to a closed set of classes. Essentially "feed it" data and hope it can train itself to predict it.
 - **Unsupervised** methods will dynamically discover "classes". These don't require labels and will train itself to categorize instances (usually mathematically).
 
-##### Classification
+#### Classification
 - The learning algorithm is provided with a set of classified **training data**
 - Uses the Split -> Test -> Train method to test for accuracy
 - A **supervised** algorithm
 - Works with *discrete* or *categorical* data
 
-##### Clustering
+#### Clustering
 - Finds groups of items that are similar 
 - Works purely on a distance metric and therefore *does not* require a label
 - Performance is subjective and is problematic when evaluating
 - An **unsupervised** algorithm
 
-##### Regression
+#### Regression
 - Technically a type of *Classification Learning*, but works with continuous data
 - A **supervised** algorithm
 
-##### Association Learning
+#### Association Learning
 - Detects patterns, associations or correlations among a set of items or objects
 - Any kind of association is considered interesting with no "care" for what we want to predict
 - An **unsupervised** algorithm
 
-##### Values
+#### Values
 - **Missing Values** can be caused by:
     - Malfunction equipment
     - Changes in experimental design
@@ -49,17 +49,17 @@ LSM Notes: https://www.overleaf.com/1157211432bhswsxwjccmk
     - Deliberately false data to protect their own privacy
 
 ## Lecture 3: Revision of Probability Theory
-##### Bayes Rule
+#### Bayes Rule
 $Pr(A|B) = \frac{Pr(A\cap B)}{Pr(B)} = \frac{Pr(B|A)Pr(A)}{Pr(B)}$
 - $Pr(A)$, the prior, is the initial degree of belief in $A$
 - $Pr(A|B)$, the posterior, is the degree of belief having counted for B
 
-##### Some distributions you should know
+#### Some distributions you should know
 - Bernoulli
 - Binomial
 - Multinomial
 
-##### Entropy (Information Theory)
+#### Entropy (Information Theory)
 **Entropy**: a measure of *unpredictability* on the information required to predict an event.  
 The entropy (in *bits*) of a discrete r.v $X$ is defined as:  
 
@@ -67,7 +67,7 @@ $H(X) = -\sum^n_{i=1}Pr(x_i)\log_2(Pr(x_i))$ where $H(X) \in [0, \log_2(n)]$.
 - A **high** entropy value means $X$ is unpredictable. Each outcome gives *one bit* of information
 - A **low** entropy value means $X$ is more predictable. We don't learn anything once we see the outcome
 
-##### Entropy Example:
+#### Entropy Example:
 Let $Pr(X = Heads) = 0.9, Pr(X = Tails) = 0.1$. Then  
 
 $
@@ -76,7 +76,7 @@ H(X) = -[Pr(X = Heads)\log_2(Pr(X = Heads)) + Pr(X = Tails)\log_2(Pr(X = Tails))
 = 0.47
 $
 
-##### Estimating Probabilities (Frequentist Method)
+#### Estimating Probabilities (Frequentist Method)
 If we don't have the whole population, we can take a sample of it to estimate the relative distribution (MLE in stats). 
 
 $\hat{Pr}(X=x) = \frac{freq(x)}{\sum^k_{i=1}freq(x_k)} = \frac{freq(X)}{N}$
@@ -86,7 +86,7 @@ $\hat{Pr}(X=x,Y=y) = \frac{freq(x,y)}{N}$
 $\hat{Pr}(X=x|Y=y) = \frac{freq(x,y)}{N}$
 
 ## Lecture 4: Naive Bayes
-##### The Naive Bayes Implementation
+#### The Naive Bayes Implementation
 The Naive Bayes assumes that all probabilities are independent. 
 
 We have that for ever class $j$,
@@ -103,7 +103,7 @@ for every test instance:
     return the largest probability and find the corresponding class label
 ```
 
-##### Probabilistic Smoothing
+#### Probabilistic Smoothing
 If you note the formula before, then multiplying any probability of 0 results in 0. This means that unseen events become an "impossible" event, which is untrue.
 
 **Using epsilon:**  
@@ -116,7 +116,7 @@ Laplace smoothing essentially gives unseen events a count of 1. Then, all counts
 Then for every class $j$, and event $i$,  
 $\hat{Pr}(x_i | c_j) = \frac{1 + freq(x_i, c_j)}{V + freq(c_j)}$
 
-##### Missing Values
+#### Missing Values
 
 - If a value is missing in a test instance, it is possible to just simply ignore that feature for the purposes of classification.  
 - If a value is missing in a training instance, then it is possible to simply have it no contribute to the attribute-value counts/probability estimates for that feature. 
@@ -133,7 +133,7 @@ $\textrm{Accuracy} = \frac{\textrm{Number of correctly labelled test instances}}
 
 Quantifies how frequently the classifier is correct, with respect to a fixed dataset with known labels. 
 
-##### Strategies
+#### Strategies
 
 Two main different strategies to evaluate your model.  
 
@@ -191,10 +191,18 @@ Two main different strategies to evaluate your model.
 - Stratification assumes that the **class distribution** of unseen instances will share the same distribution of see ninstances
   - Class distribution is used here to extend definitions from continuous domain to discrete domain 
 
-##### Determining if a Classifier is Good
-For a **two class* problem, we can assume:
-- An *Interesting Class* I
-- An *Uninteresting Class* U
+#### Determining if a Classifier is Good
+- (FN) False Negatives is when there is a wrong rejection (Actual `A` with prediction `None`)
+- (FP) False Positive is when there is a wrong prediction (Actual `A` with prediction `B`)
+- (TN) True Negatives is when there is correct rejection (Actual `None` with prediction `None`)
+- (TP )True Positive is when there is a correct prediction (Actual `A` with prediction `A`)
+
+
+For a *two class* problem, we can assume:
+- An *Interesting Class* I (Actual = Predicted)
+- An *Uninteresting Class* U (Wrong Actual = Wrong Prediction)
+
+We want **TRUE** negatives and positives (correctly predicted).
 
 A classifier may then classify:
 - An Interesting Instance as I if it is True Positive (TP)
@@ -202,20 +210,25 @@ A classifier may then classify:
 - An Uninteresting Instance as I if it is False Positive (FP)
 - An Uninteresting Instance as U if it is True Negative (TN)
 
-##### Classification Accuracy
+#### Classification Accuracy
 Classification Accuracy is the proportion of instances for which we have correctly predicted the label, given as  
 
 $\textrm{Classification Accuracy} = \frac{TP + TN}{TP + FP + FN + TN}$
 
-##### Error Rate
+#### Error Rate
 An Error Rate can also be used, where $ER = 1 - \textrm{Classification Accuracy}$
 
-##### Precision and Recall
-Given with respect to the **interesting class=** only
-- Precision: How often are we correct, when we predict that an instance is interesting
+#### Precision and Recall
+- Precision: How often are we correct when we predict (Cancer Patients: how many we predicted to have cancer correctly / how many we predicted to have cancer overall)
+
   - $\textrm{Precision} = \frac{TP}{TP + FP}$
-- Recall: What proportion of the truly interesting instances have we correctly identified as interesting
+
+    
+
+- Recall: What proportion of the predictions have we correctly predicted (Cancer Patients: how many we predicted to have cancer correctly / actual number of patients with cancer)
+
   - $\textrm{Recall} = \frac{TP}{TP + FN}$
+
 
 High precision gives low recall, and high recall gives low precision. But, we want both precision and recall to be high. A popular metric that evaluates this is called the **F-Score**.
 
@@ -223,7 +236,7 @@ $F_\beta = \frac{(1+\beta^2)2PR}{\beta^2P + R}$
 
 $F_1 = \frac{2PR}{P + R}$
 
-##### Baseline vs Benchmark
+#### Baseline vs Benchmark
 A **Baseline** is a naive method which we would expect any reasonably well-developed method to better it.
 - Important in establishing whether any proposed method is doing better than "dumb and simple"
 - Valuable in getting a sense for the intrinsic difficulty of a given task
@@ -231,7 +244,7 @@ A **Baseline** is a naive method which we would expect any reasonably well-devel
 
 A **Benchmark** is an established rival technique which we are pitching our method against (does our model perform better)
 
-##### Types of Baseline
+#### Types of Baseline
 **Random Baseline:**  
 - Method 1: randomly assign a class to each test instance
 - Method 2: randomly assign a class $c_k$ to each test instance, weight the class assignment according to $Pr(c_k)$
@@ -244,15 +257,17 @@ A **Benchmark** is an established rival technique which we are pitching our meth
 **One-R:**
 Creates a single rule for each attribute in the training data, then selects the rule with the **smallest error rate** as its "one rule"
 - Method: create a *decision stump* for each attribute with branches for each value, then populate the leaf with the majority class at that leaf. Then, select the decision stump which leads to the lowest error rate over the training data  
-  
-```python
+- Out of the training instances, how many `attribute value` correspond to `label`. Then, pick the `attribute` with the smallest error rate.  
+
+```
 for each attribute:
     for each value of the attribute:
-        count the class frequency
-        find the most frequent class
-        assing the class to the rule
-    calculate the error rate of the rules
-choose the attribute whose rules produce the smallest error rate
+        count class frequency corresponding to value.
+        find most frequent class corresponding to value.
+        set correct = most frequent class label corresponding to value.
+        error rate is number of "other" classes.
+    calculate total error rate of the attribute
+choose the attribute whose with the smallest error rate
 ```
 
 - Advantages:
@@ -264,6 +279,7 @@ choose the attribute whose rules produce the smallest error rate
 
 ## Lecture 6: Decision Trees (ID3)
 - Basic method: construct decision trees in recursive divide-and-conquer fashion
+- We want the smallest tree (minimizes the errors)
 ```python
 def ID3(root):
     if all instances at root have same class:
@@ -275,35 +291,35 @@ def ID3(root):
             ID3(leaf)
 ```
 
-##### Information Gain
+#### Information Gain
 The expected *reduction* in entropy caused by knowing the value of an attribute.  
 Compare:
 - The entropy before splitting the tree using the attribute's values
 - The weighted average of the entropy over the children after the split (known as **Mean Information**)  
-- 
+
 If the entropy *decreases*, then we have a better tree (more predictable)
 
-##### Mean Information
+#### Mean Information
 We calculate the mean information for a tree stump with $m$ attribute values as:  
 
 $\textrm{Mean Info}(x_1,x_2,\dots,x_m) = \sum^m_{i = 1}Pr(x_i)H(x_i)$
 
 where $H(x_i)$ is the entropy of the class distribution for the instances at node $x_i$.
 
-##### Analysis of Information Gain
+#### Analysis of Information Gain
 Information gain tends to prefer highly-branching attributes
 - A subset of instances is more likely to be homogeneous (all of a single class) if there are only a few instances
 - Attributes with many values will have fewer instances at each child node
 
 These factors may result in overfitting or fragmentation
 
-##### Gain Ratio
+#### Gain Ratio
 - Gain Ratio (GR) reduces the bias for information gain towards highly branching attributes by normalizing relative to the split information
 - Split Info (SI) (or called Intrinsic Value) is the entropy of a given split (evenness of the distribution of instances to attribute values)
 
 $GR(R_A | R) = \frac{H(R) - \sum^m_{i=1}Pr(x_i)H(x_i)}{-\sum^m_{i=1}Pr(x_i)log_2(Pr(x_i))}$
 
-##### Stopping Criteria
+#### Stopping Criteria
 ID3 is defined in a way such that:
 - The Info Gain / Gain Ratio allows us to choose the seemingly better attribute at a given node
 - It is an approximate indication of how much absolute improvement we expect from partitioning the data according the values of a given attribute
@@ -311,12 +327,106 @@ ID3 is defined in a way such that:
 - A typical modification of ID3 is to choose the best attribute given it is greater than some threshold $\tau$
 - Can be pruned to drop undesirable branches with close to no Info Gain / Gain Ratio improvements 
 
-##### ID3 Decision Tree Analysis
+#### ID3 Decision Tree Analysis
 - Highly regarded among basic supervised learners
 - Fast train and classification
-- Suspectible to the effects of irrelevant features
+- Susceptible to the effects of irrelevant features
 - Alternative Decision Trees:
   - **Oblivious Decision Trees** require the same attribute at every node in a layer
   - **Random Trees** only use samples of the possible attributes at any given node
-    - Helps to account for irrelvant attributes
+    - Helps to account for irrelevant attributes
     - Basis for a better Decision Tree variant called the **Random Forest**
+
+## Lecture 7: Instance Based Learning (IBL)
+#### Similarity
+**Jaccard Similarity:**  
+
+$sim_J(A, B) = \frac{|A\cap B|}{|A\cup B|}$
+
+**Dice Coefficient:**  
+
+$sim_D(A , B) = \frac{2|A\cap B|}{|A| + |B|}$
+
+#### Feature Vectors
+- A feature vector is an n-dimensional vector of features that represent some object
+- A feature or attribute is any distinct aspect, quality, or characteristic of that object
+
+A vector locates an instance as a point in an orthogonal n-space. The angle of the vector in that n-space is determined by the relative weight of each term (m-attributes).
+- Similarity:
+    - A numerical measure of how similar two vectors are
+    - Higher measure for closer similarity
+    - Often falls between [0, 1]
+- Dissimilarity:
+    - A numerical measure of how different two vectors are
+    - Lower measure for **closer** similarity (higher measure for **more** difference)
+    - Minimum (or close to no) dissimilarity is often 0, with a varying upper limit
+
+#### Distance Metrics
+**Euclidean Distance:**  
+- Given two items $A$ and $B$, and their feature vectors $\mathbf{a}$ and $\mathbf{b}$, we can calculate their distance $d$ in Euclidean space:
+
+$d(A, B) = \sqrt{\sum^n_{i=1}(a_i - b_i)^2}$
+
+**Manhattan Distance:**  
+- Also know as $L_1$ distance (same as AI)
+- Given two items $A$ and $B$, and their feature vectors $\mathbf{a}$ and $\mathbf{b}$, we can calculate their similarity via their distance $d$ based on the absolute differences of their cartesian coordinates:
+
+$d(A, B) = \sum^n_{i=1}|a_i - b_i|$
+
+**Cosine Similarity:**  
+- Given two items $P$ and $Q$, and their feature vectors $\mathbf{p}$ and $\mathbf{q}$, we can calculate their similarity via their **vector cosine**:
+
+$cos(P,Q) = \frac{\mathbf{p}\cdot \mathbf{q}}{|\mathbf{p}||\mathbf{q}|} = \frac{\sum^n_{i=1}p_iq_i}{\sqrt{\sum^n_{i=1}p^2_i}\sqrt{\sum^n_{i=1}q^2_i}}$
+
+#### Nearest Neighbour
+The nearest neighbour is defined as the closest object from your object, using a specified distance metric.
+
+In classification, we give class assignments of existing data points, and classify them according to $k$ nearest neighbours.
+
+**1-NN:**
+- Classify the test input according to the class of the *closest* training instance
+
+**$K$-NN:** 
+- Classify the test input according to the *majority* class (or mode class) of the $K$ nearest training instances
+
+**Weighted $K$-NN:**
+- Classify the test input according to the weighted accumulative class of the $K$ nearest training instances, where weights are based on similarity of the input to each of the $K$ neighbours
+
+**Offset-Weighted $K$_NN:**
+- Classify the test input according to the weighted accumulative class of the $K$ nearest training instances, where weights are based on similarity of the input to each of the $K$ neighbours, factoring in an offset for the prior expectation of a test input being a member of that class
+
+#### Weight Strategies
+These are the notable strategies for weighing:
+- Give each neighbour equal weight (classify according to the **majority class** of set of neighbours)
+- Weight the vote of each instance by its **inverse linear distance** from the test instance:
+    $w_j = \frac{d_k - d_j}{d_k - d_1}$ if $d_j \neq d_1$ else $w_j = 1$, where $d_1$ is the nearest neighbour, and $d_k$ is the furthest neighbour
+- Weight the vote of each instance by its **inverse distance** from the **test instance**:
+    $w_j = \frac{1}{d_j + \epsilon}$
+
+#### Ties for $K$-NN
+In the case that we have an equal number of *votes* for a given instance we are trying to predict, we need a tie breaking mechanism:
+- We can randomly break the tie by selecting a random class
+- We can also take the class with the highest **prior** probability
+- Or we can see if the addition of the $k+1$th instance breaks the tie
+
+#### Choosing $K$
+- Smaller values of $k$ tend to lead to lower classifier performance due to noise and overfitting
+- Larger values of $k$ tend to drive the classifier performance toward a Zero-R performance 
+- Use an odd value of $k$ to break ties 
+
+#### Analysis of $K$-NN
+A typical implementation involves a **brute-force computation** of distances between a test instance, and to every other training instance.
+- For $N$ training instances, and $D$ dimensions, we end up with $O(DN)$ performance
+- Although fast for small datasets, the method becomes infeasible as $N$ grows
+
+Why is $k$-NN so slow?
+- The model built by NB or a DT is generally much smaller than the number of training instances in the dataset:
+    (Let $C$ be the number of classes, and $D$ the number of attributes:)
+    - **Predicting** a test instance requires $O(CD)$ calculations for NB, and $O(D)$ node traversals for a DT
+- The model built by $K$-NN$ is the dataset itself:
+    - $k$-NN is lazy (everything is done at run time)
+    - The time we save in training is lost if we have to make **several** predictions
+    - Expensive index accessing
+    - Prone to bias with an arbitrary $K$ value
+
+# Lecture 8:
