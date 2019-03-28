@@ -265,10 +265,14 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
 
 def UCS(initial_state, exit_h=jump_heuristic, debug_flag=True):
     """Runs UCS that works with nodes"""
-    initial_node = create_UCS_root(initial_state)
+    initial_node = IDA_Node.create_root(initial_state)
+    initial_node.total_cost = initial_node.exit_cost = apply_heuristics(heuristics, initial_node)
     print(f"# Initial valuation: (FS) {forced_side_heuristic(initial_node)} + (Dj) {dijkstra_heuristic(initial_node)} + (D) {initial_node.depth} = {initial_node.total_cost}")
-    initial_node.total_cost = initial_node.exit_cost = threshold = exit_h(initial_node)
-    pass
+    TT = defaultdict(list)
+    TT[Z_hash(initial_node.state)].append(initial_node)
+
+    # Fringe Set
+    unexpanded = PQ()
 
 """Made debug_flag=True for now"""
 def IDA_control_loop(initial_state, heuristics=[jump_heuristic], max_threshold = 35, debug_flag=True):
