@@ -19,7 +19,7 @@ from collections import defaultdict
 
 # User-defined files
 from print_debug import *
-from moves import MAX_COORDINATE_VAL, MOVE, JUMP, EXIT, possible_actions
+from moves import *
 from classes import *
 ########################## GLOBALS ###########################
 INF = float('inf')
@@ -109,6 +109,37 @@ class Node:
         return hash(self.state.values())
 
 ######################## HEURISTICS ##########################
+'''def forced_side_heuristic(state, player):
+    """Totals no. pieces that don't have any exit in line of sight"""
+    goals = set((tuple(x) for x in GOAL[player]))
+    pieces = (x for x in state["pieces"] if tuple(x) not in goals)
+    occupied = state["pieces"] + state["blocks"]
+    goal_sight = lambda y: goals.intersection(y)
+    return sum([len(goal_sight(sight(x, player, occupied))) == 0 for x in pieces])
+    #return [goal_sight(sight(x, player, occupied)) for x in pieces]
+
+state_2 = {
+    "colour": "green",
+    "pieces": [[1, -2], [-2, 1]],
+    "blocks": [[-3, 0],[-3,2], [-3, 1], [-2, -1], [-2, 2], [-2, 3], [-1, -2], [-1, -1],
+                [-1, 0], [-1, 2], [-1, 3], [0, -3], [0, -1], [0, 0], [0, 1],
+                [0, 2], [0, 3], [1, -3], [1, -1], [1, 0], [2, -3], [2, 1],
+                [3, -3], [3, -2], [3, 0]]
+}
+states = [state_2]
+for state in states:
+    print_board(debug(state))
+    print(f"For State: {forced_side_heuristic(state, state['colour'])}")
+'''
+
+def forced_side_heuristic(node):
+    """Totals no. pieces that don't have any exit in line of sight"""
+    IDA_Node.F_SIDE += 1
+    goals = set((tuple(x) for x in GOAL[node.player]))
+    pieces = (x for x in node.state["pieces"] if tuple(x) not in goals)
+    occupied = node.state["pieces"] + node.state["blocks"]
+    goal_sight = lambda y: goals.intersection(y)
+    return sum([len(goal_sight(sight(x, node.player, occupied))) == 0 for x in pieces])
 
 def jump_heuristic(node):
     """Admissible Heuristic for a relaxed problem that allows jumping
@@ -127,7 +158,7 @@ def jump_heuristic(node):
         # total += ceil(move_distance / 2.0) + 1
 
     # return total
-    return sum(ceil((MAX_COORDINATE_VAL - Vector.get_cubic(piece)[PLAYER_CODE[node.player]]) / 2) + 1 for piece in node.state["pieces"])
+    return sum(ceil((MAX_COORDINATE_VAL - Vector.get_cubic(piece)[PLAYER_CODE[node.player]])/2)+1 for piece in node.state["pieces"])
 
 ########################### IDA* #############################
 
@@ -142,7 +173,7 @@ def create_IDA_root(initial_state):
 
 class IDA_Node(Node):
     """IDA* Node definition with inbuilt attributes for heuristic/total cost"""
-    COUNT_TOTAL = TRIM_TOTAL = MEMORY_TOTAL = 0
+    COUNT_TOTAL = TRIM_TOTAL = MEMORY_TOTAL = F_SIDE = 0
     COUNT_BY_DEPTH = [0] * 20
 
     def __init__(self, parent):
@@ -170,6 +201,17 @@ class IDA_Node(Node):
         """Overrides child creation call in Node class"""
         return IDA_Node(parent=self)
 
+    def kill_tree(self):
+        # Kill subtrees
+        for child in self.children[::-1]:
+            kill_tree(child)
+        # Remove node from parent's collections
+        if self.parent:
+            self.parent.children.remove(self)
+        # Kill this
+        IDA_Node.TRIM_TOTAL += 1
+        del(self)
+
 def IDA(node, exit_h, TT, threshold, new_threshold, debug_flag=False):
     """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
 
@@ -183,6 +225,8 @@ def IDA(node, exit_h, TT, threshold, new_threshold, debug_flag=False):
             my_hash = Z_hash(child.state)
             if my_hash in TT:
                 if child.depth < TT[my_hash][0].depth:
+                    # Kill previous
+                    #TT[my_hash][0].kill_tree()
                     TT[my_hash] = [child]
                 else:
                     IDA_Node.TRIM_TOTAL += 1
