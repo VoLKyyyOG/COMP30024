@@ -56,7 +56,7 @@ class Vector:
     def add(list_1, list_2):
         """Allows for "vector_1 + vector_2"""
         return (list_1[0] + list_2[0], list_1[1] + list_2[1])
-        
+
     @staticmethod
     def sub(list_1, list_2):
         """Allows for "vector_1 - vector_2"""
@@ -145,3 +145,8 @@ def Z_data(hashed):
             result["blocks"].append(coordinate)
 
     return dict(result)
+
+if __name__ == "__main__":
+    state_1 = {'colour': 'blue', 'pieces': [(-3, 1), (-3, 3), (-1, 0), (2, 0)], 'blocks': [(-2, 3), (-2, -1), (1, -2), (3, -1), (-2, 1)]}
+    state_2 = {'colour': 'blue', 'pieces': [(-3, 0), (-3, 1), (-3, 3), (-1, 0)], 'blocks': [(-2, 3), (-2, -1), (1, -2), (3, -1), (-2, 1)]}
+    print(f"{bin(Z_hash(state_1))}\n{bin(Z_hash(state_2))}")
