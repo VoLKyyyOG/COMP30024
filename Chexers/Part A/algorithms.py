@@ -97,6 +97,9 @@ class Node:
         """Creates new Node instance"""
         return Node(parent=self)
 
+    def __hash__(self):
+        return Z_hash(self.state)
+
     def __str__(self):
         """Defines string format for use in debugging"""
         return f"# State: {self.state}\n# Depth {self.depth}" \
@@ -127,6 +130,10 @@ def apply_heuristics(heuristics, node):
 def dijkstra_heuristic(node):
     """Calculates worst-case cost in relaxed problem with free jumping"""
     return sum([dijkstra_board(node.state)[i] for i in node.state['pieces']])
+
+def forced_move_heuristic(node):
+    """Given dijkstra's evaluation, determines where free jumps could never occur
+    If JPC = Total_action_cost_to_best_JP, evaluates as JPC[real] - JPC[relaxed]"""
 
 def forced_side_heuristic(node):
     """Totals no. pieces that don't have any exit in line of sight
@@ -220,9 +227,11 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
 
         # Initialize children, with trimming
         for child in node.children:
-            my_hash = Z_hash(child.state)
-            if my_hash in TT:
+            #assert(hash(child) == Z_hash(child.state))
+            my_hash = Z_hash(child.state)#Z_hash(child.state)
+            if my_hash in TT.keys():
                 if child.depth < TT[my_hash][0].depth:
+                    #USE THIS TO CHECK HASHING: assert(Z_hash(child.state) == Z_hash(TT[my_hash][0].state))
                     # Kill previous NEEDS DEBUGGING
                     #TT[my_hash][0].kill_tree()
                     TT[my_hash] = [child]

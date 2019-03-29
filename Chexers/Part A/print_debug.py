@@ -23,7 +23,7 @@ def debug(data):
         board_dict[i] = '###'
     return board_dict
 
-def print_board(board_dict, message="", debug=True):
+def print_board(board_dict, message="", debug=True, number_hexes=False):
     """
     Helper function to print a drawing of a hexagonal board's contents.
 
@@ -90,6 +90,32 @@ def print_board(board_dict, message="", debug=True):
 #             | -3, 3 | -2, 3 | -1, 3 |  0, 3 |   |  q, r |
 #              `-._,-' `-._,-' `-._,-' `-._,-'     `-._,-'"""
 
+    if number_hexes:
+        template = """# {0}
+    #              , ' ` ._, ' ` ._, ' ` ._, ' ` .
+    #             |  16   |  23   |  29   |  34   |
+    #             |       |       |       |       |
+    #          , ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` .
+    #         |  10   |  17   |  24   |  30   |  35   |
+    #         |       |       |       |       |       |
+    #      , ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` .
+    #     |   5   |  11   |  18   |  25   |  31   |  36   |
+    #     |       |       |       |       |       |       |
+    #  , ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` .
+    # |   1   |   6   |  12   |  19   |  26   |  32   |  37   |
+    # |       |       |       |       |       |       |       |
+    #  ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` ._, '
+    #     |   2   |   7   |  13   |  20   |  27   |  33   |
+    #     |       |       |       |       |       |       |
+    #      ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` ._, '
+    #         |   3   |   8   |  14   |  21   |  28   |
+    #         |       |       |       |       |       | key
+    #          ` ._, ' ` ._, ' ` ._, ' ` ._, ' ` ._, ' , ' ` .
+    #             |   4   |   9   |  15   |  22   |   | input |
+    #             |       |       |       |       |   |  q, r |
+    #              ` ._, ' ` ._, ' ` ._, ' ` ._, '     ` ._, '"""
+        print(template)
+        return
     # prepare the provided board contents as strings, formatted to size.
     ran = range(-3, +3+1)
     cells = []
