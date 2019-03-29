@@ -192,10 +192,10 @@ Two main different strategies to evaluate your model.
   - Class distribution is used here to extend definitions from continuous domain to discrete domain 
 
 #### Determining if a Classifier is Good
-- (FN) False Negatives is when there is a wrong rejection (Actual `A` with prediction `None`)
-- (FP) False Positive is when there is a wrong prediction (Actual `A` with prediction `B`)
-- (TN) True Negatives is when there is correct rejection (Actual `None` with prediction `None`)
-- (TP )True Positive is when there is a correct prediction (Actual `A` with prediction `A`)
+- (FN) False Negatives is when there is a wrong rejection (Actual label is `A` with wrong prediction `None`)
+- (FP) False Positive is when there is a wrong prediction (Actual label is `A` with wrong prediction `B`)
+- (TN) True Negatives is when there is correct rejection (Actual label is `None` with correct prediction `None`)
+- (TP )True Positive is when there is a correct prediction (Actual label is `A` with correct prediction `A`)
 
 
 For a *two class* problem, we can assume:
@@ -219,13 +219,14 @@ $\textrm{Classification Accuracy} = \frac{TP + TN}{TP + FP + FN + TN}$
 An Error Rate can also be used, where $ER = 1 - \textrm{Classification Accuracy}$
 
 #### Precision and Recall
-- Precision: How often are we correct when we predict (Cancer Patients: how many we predicted to have cancer correctly / how many we predicted to have cancer overall)
+- Precision: How often are we correct when we predict 
+- (Cancer Patients: how many we predicted to have cancer correctly / how many we predicted to have cancer overall)
 
-  - $\textrm{Precision} = \frac{TP}{TP + FP}$
+  
+    $\textrm{Precision} = \frac{TP}{TP + FP}$
 
-    
-
-- Recall: What proportion of the predictions have we correctly predicted (Cancer Patients: how many we predicted to have cancer correctly / actual number of patients with cancer)
+- Recall: What proportion of the predictions have we correctly predicted 
+- (Cancer Patients: how many we predicted to have cancer correctly / actual number of patients with cancer)
 
   - $\textrm{Recall} = \frac{TP}{TP + FN}$
 
@@ -429,4 +430,90 @@ Why is $k$-NN so slow?
     - Expensive index accessing
     - Prone to bias with an arbitrary $K$ value
 
-# Lecture 8:
+# Lecture 8: Support Vector Machines (SVM):
+#### Nearest Prototype Classification
+- A parametric variance of the NN classification
+- Instead of $k$-NN, we calculate the centroid of each class and use that to classify each test
+
+#### SVM
+A support vector machine is a non-probabilistic binary linear classifier.
+- A linear hyperplane-based classifier for a two-class classification problem
+- The particular hyperplane it selects is the **_maximum margin_** hyperplane
+- A kernel function can be used to allow the SVM to find a non-linear separating boundary between two classes (transform data so that we can find a separating boundary)
+
+#### Linear Classifiers
+A separating hyperplane in $D$ dimensions can be defined by a normal $\mathbf{w} = <w_1,w_2,\dots,w_m>$ and intercept point $b = <x_1,x_2,\dots,x_m>$. 
+
+The hyperplane equation is given as:
+
+$\mathbf{w}\cdot \mathbf{x} + b = 0$
+
+A linear classifier takes the form of (line in 2D, plane in 3D):
+
+$f(x) = \mathbf{w}^T\mathbf{x} + b$
+
+Given that a hyperplane exists, there are infinite number of solutions.
+
+#### Margins
+**Maximum Margin:**  
+How can we rate the different decision boundaries to work out which is the "best"?
+- For a given training set, we would like to find a decision boundary that allows us to make all correct and confident predictions on the training examples
+- Some methods find a separating hyperplane, but not the optimal one (solution found but is it optimal?). SVM do find the optimal solution.
+    - SVM maximizes the distance the hyperplane and the "difficult fringe points" which are close to the decision boundary
+    - If there are no points near the decision surface, then there are no very uncertain classification decisions
+
+**Soft Margin:**  
+A possibly large margin solution is better even though constraints are being violated. This is the trade-off between the margin, and the number of mistakes on the training data. 
+
+#### SVM-based Classification
+- Associate one class as positive (+1), and one as negative (-1)
+- Find the best hyperplane$\mathbf{w}$ and $b$, which maximise the margin between the positive and negative training instances (this is the **model**)
+- To make a prediction for a test instance $\mathbf{t} = <t_1,t_2,\dots,t_m>$:
+    - $f(t) = \mathbf{w}^\mathbf{t} + b
+    - Find $sign(f(t))$
+    - Assign `?` to instances within the margin
+
+#### Learning the SVM
+For smaller training sets, we can use a naive training approach:
+- Pick a plane $\mathbf{w}$ and $b$
+- Find the worst classified sample $y_i$ (this is the expensive step for large datasets)
+- Move plane $\mathbf{w}$ and/or $b$ to imrpove the classification of $y_i$
+- Repeat until the algorithm converges to a solution
+
+#### Kernel Function
+To obtain a non-linear classifier, we can transform our data by applying a mapping function $\Phi$(i.e. log transform), and then apply a linear classifier to the new feature vectors.
+
+#### Support Vectors
+The objective is to find the data points that act as the **boundaries** of the two classes.
+- These are referred to as the `support vectors` (although they are points that lie on the margin)
+- They constrain the margin between the two classes
+
+#### Optimisations
+- We want to choose a plane $\mathbf{w}$ so that the margin $\frac{2}{||\mathbf{w}||}$ is maximised, given that all the points are on the correct side of the seperating hyperplane $y_k(\mathbf{w}^Tx_k + b) - 1 \geq 0$
+- Since the partial derivatives to maximise $\frac{2}{||\mathbf{w}||}$ is inconvenient, we can instead minimise $\frac{1}{2}||\mathbf{w}||^2$
+
+#### "Slack" (Allowing Soft Margins)
+We can consider the case when the two classes are not (completely) linearly separable. We can introduce slack variables $\xi$ that allow a few points to be on the "wrong side" of the hyperplane at some cost $C$.
+
+#### Constrained Optimisation Problems
+Current state-of-the-art for solving constrained optimisation problems use the method of **Lagrange multipliers**, where we introduce a constant value $\alpha_k$ for each constraint.
+
+The classification function then becomes:
+
+$f(\mathbf{t}) = \sum^m_{i=1}\alpha_iy_i\mathbf{x}_i^T\mathbf{t} + b$
+
+$b = y_j(1 - \xi_j) - \sum^m_{i=1}\alpha_iy_i\mathbf{x}_i^T\mathbf{x}_j
+
+Most of the Lagrange Multipliers $\alpha_k$ are 0, where the non-zero correspond to **support vectors**
+
+#### Multiple Class SVM
+Since SVM's are inherently two-class classifiers, most common approaches to extending to multiple classes include:
+- One Verses All: classification chooses one class which classifies test data points with the greatest margin
+- One Verses One: classification which chooses class selected by the most number of classifiers
+
+#### SVM Analysis
+- SVM's are a high-accuracy *margin classifier*
+- Learning a model means finding the best separating hyperplane
+- Classification is built on projection of a point onto a hyperplane normal
+- SVM's have several parameters that need to be optimised and may be slow
+- SVM's can be applied to non-linear data by using an appropriate *kernel function*
