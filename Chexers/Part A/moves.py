@@ -103,8 +103,8 @@ def within_sight(position, dest, player):
     scalars = Vector.solve(u,v,displacement)
     return (scalars[0] >= 0 and scalars[1] >= 0)
 
-@trackit
-def apply_action(old_state, action):
+# DO NOT USE
+def no_node_apply_action(old_state, action):
     """Applies action to passed state"""
     piece, action_flag, dest = action
     state = deepcopy(old_state)
@@ -115,6 +115,7 @@ def apply_action(old_state, action):
         """PART B: CONSIDER ORDERING & Must evaluate capturing here"""
     return state
 
+@trackit
 def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""
     result = list()
@@ -126,16 +127,16 @@ def possible_actions(state, debug_flag = False):
 
 
     for piece in state["pieces"]:
-        possible_moves = move(piece, state)
-        possible_jumps = jump(piece, state)
-        '''for action_type, flag in [(possible_moves, MOVE), (possible_jumps, JUMP)]:
+        '''possible_moves =
+        possible_jumps =
+        for action_type, flag in [(possible_moves, MOVE), (possible_jumps, JUMP)]:
             for dest in action_type:
                 if dest not in sight(piece, state['colour'], state['pieces'] + state['blocks']):
                     result.append((piece, flag, dest))
                     action_type.remove(dest)'''
 
-        result.extend([(piece, MOVE, dest) for dest in possible_moves])
-        result.extend([(piece, JUMP, dest) for dest in possible_jumps])
+        result.extend([(piece, MOVE, dest) for dest in move(piece, state)])
+        result.extend([(piece, JUMP, dest) for dest in jump(piece, state)])
 
     return result
 

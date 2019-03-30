@@ -9,8 +9,6 @@ Implements algorithms for use in game exploration, NOT actual agent logic.
 # Standard modules
 from queue import PriorityQueue as PQ
 from collections import defaultdict
-import json
-from hashlib import sha1
 
 # User-defined files
 from moves import *
@@ -33,13 +31,25 @@ class Node:
         self.children = list() # Stores addresses of children
 
     @trackit
+    def apply_action(self, action):
+        """Applies action to passed node, updates attributes.
+        NOTE: state is usually the parents', as self still being defined"""
+        assert not self.is_expanded
+        piece, action_flag, dest = action
+        self.state["pieces"].remove(piece)
+        if action_flag != EXIT:
+            self.state["pieces"].append(dest)
+            self.state["pieces"].sort()
+        self.action_made = action
+
+    @trackit
     def create_children(self):
         """Given a list of action tuples, create new children."""
         if not self.is_expanded:
             for action in possible_actions(self.state):
                 new_child = self.new_child()
-                new_child.state = apply_action(self.state, action) # The killer
-                new_child.action_made = action
+                new_child.state = deepcopy(self.state)
+                new_child.apply_action(action) # The killer
                 self.children.append(new_child)
             self.is_expanded = True
 

@@ -49,13 +49,13 @@ def main():
 
     timing_info(time_taken, TIME_LOG, COUNT_LOG)
 
-    print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed.')
+    print(f'# {BANNER}# {argv[1]} - {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed.')
 
     if (optimal_solution is not None):
         print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves:\n#')
         path = list()
         node_temp = optimal_solution
-        
+
         # Re-assemble path taken
         while (node_temp is not None):
             path.append(node_temp)
