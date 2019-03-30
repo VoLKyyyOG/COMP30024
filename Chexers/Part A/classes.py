@@ -55,17 +55,21 @@ def memoize(method):
         return memo[0]
     return helper
 
+ENABLE_TRACKING = True
 """ADAPTED FROM https://medium.com/pythonhive/python-decorator-to-measure-the-execution-time-of-methods-fa04cb6bb36d"""
 def trackit(method):
     """@trackit allows tracking of runtime and execution of functions"""
     def timed_and_counted(*args, **kwargs):
-        t_start = time.time()
-        result = method(*args, **kwargs)
-        t_end = time.time()
-        name = method.__name__.upper()
-        TIME_LOG[name] += (t_end - t_start) * 1000
-        COUNT_LOG[name] += 1
-        return result
+        if ENABLE_TRACKING:
+            t_start = time.time()
+            result = method(*args, **kwargs)
+            t_end = time.time()
+            name = method.__name__.upper()
+            TIME_LOG[name] += (t_end - t_start) * 1000
+            COUNT_LOG[name] += 1
+            return result
+        else:
+            return method(*args, **kwargs)
     return timed_and_counted
 
 @trackit
@@ -74,6 +78,7 @@ def time_100_ms():
     time.sleep(0.1)
 
 def timing_info(time_taken, TIME_LOG, COUNT_LOG):
+    if not ENABLE_TRACKING: return
     BANNER = '*' * 60 + '\n'
     time_100_ms()
     unit_time = TIME_LOG.pop("time_100_ms".upper()) / 100

@@ -31,7 +31,7 @@ def main():
     # Read argv input for initial state
     with open(argv[1]) as file:
         data = load(file)
-        print('# Data input:', data)
+        print('# 100%% Data input:', data)
 
     data = convert_to_tuples(data)
 
