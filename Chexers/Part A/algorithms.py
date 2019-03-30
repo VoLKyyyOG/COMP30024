@@ -35,9 +35,8 @@ class Node:
         if (parent is not None):
             self.state = deepcopy(self.parent.state) # Stores data
             self.depth = self.parent.depth + 1 # No. actions taken so far
-            self.player = self.get_player() # Identifies which color turn it was
         else: # Initial state
-            self.state = self.player = None
+            self.state = None
             self.depth = 0
         self.game_status = None # For now, is True if search ongoing
         self.possible_actions = None # Will store list of action-tuples
@@ -139,11 +138,11 @@ def forced_side_heuristic(node):
     """Totals no. pieces that don't have any exit in line of sight
     NO LONGER CONTRIBUTES TO ADMISSIBLE SOLUTION"""
     IDA_Node.F_SIDE += 1
-    goals = set((tuple(x) for x in GOAL[node.player]))
+    goals = set((tuple(x) for x in GOAL[node.player()]))
     pieces = (x for x in node.state["pieces"] if tuple(x) not in goals)
     occupied = node.state["pieces"] + node.state["blocks"]
     goal_sight = lambda y: goals.intersection(y)
-    return sum([len(goal_sight(sight(x, node.player, occupied))) == 0 for x in pieces])
+    return sum([len(goal_sight(sight(x, node.player(), occupied))) == 0 for x in pieces])
 
 def jump_heuristic(node):
     """Admissible Heuristic for a relaxed problem that allows jumping
@@ -162,7 +161,7 @@ def jump_heuristic(node):
         # total += ceil(move_distance / 2.0) + 1
 
     # return total
-    return sum(ceil((MAX_COORDINATE_VAL - Vector.get_cubic(piece)[PLAYER_CODE[node.player]])/2)+1 for piece in node.state["pieces"])
+    return sum(ceil((MAX_COORDINATE_VAL - Vector.get_cubic(piece)[PLAYER_CODE[node.player()]])/2)+1 for piece in node.state["pieces"])
 
 ########################### IDA* #############################
 
@@ -214,7 +213,6 @@ class IDA_Node(Node):
         root.state = deepcopy(initial_state)
         root.game_status = IDA_Node.get_status(root)
         root.possible_actions = possible_actions(root.state)
-        root.player = initial_state['colour']
         return root
 
 def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):

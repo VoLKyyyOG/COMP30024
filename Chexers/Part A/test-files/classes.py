@@ -30,13 +30,13 @@ PLAYER_CODE.update(dict(zip(PLAYER_CODE.values(), PLAYER_CODE.keys())))
 EXIT_CODE = list(range(3))
 
 """ # Copy from classes. DELETE IF MERGED"""
-VALID_COORDINATES = [[-3, 0], [-3, 1], [-3, 2], [-3, 3],
-                    [-2, -1], [-2, 0], [-2, 1], [-2, 2], [-2, 3],
-                    [-1, -2], [-1, -1], [-1, 0], [-1, 1], [-1, 2], [-1, 3],
-                    [0, -3], [0, -2], [0, -1], [0, 0], [0, 1], [0, 2], [0, 3],
-                    [1, -3], [1, -2], [1, -1], [1, 0], [1, 1], [1, 2],
-                    [2, -3], [2, -2], [2, -1], [2, 0], [2, 1],
-                    [3, -3], [3, -2], [3, -1], [3, 0]]
+VALID_COORDINATES = [(-3, 0), (-3, 1), (-3, 2), (-3, 3),
+                    (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-2, 3),
+                    (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-1, 3),
+                    (0, -3), (0, -2), (0, -1), (0, 0), (0, 1), (0, 2), (0, 3),
+                    (1, -3), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2),
+                    (2, -3), (2, -2), (2, -1), (2, 0), (2, 1),
+                    (3, -3), (3, -2), (3, -1), (3, 0)]
 
 #################### CLASSES & FUNCTIONS #####################
 
@@ -44,25 +44,34 @@ class Vector:
     """Facilitates operations on axial/cubic hexagonal coordinates"""
 
     @staticmethod
+    def solve(v_1, v_2, v_target):
+        """For the matrix equation Ay = target, calculates y
+            Assumed A is 2x2 with columns v_1 and v_2"""
+        u, v, x = v_1, v_2, v_target
+        det_uv = float(u[0]*v[1]-u[1]*v[0])
+        assert(abs(det_uv) > 0.0001)
+        return (int((v[1]*x[0] - v[0]*x[1]) / det_uv), int((-u[1]*x[0] + u[0]*x[1]) / det_uv))
+
+    @staticmethod
     def add(list_1, list_2):
         """Allows for "vector_1 + vector_2"""
-        return [list_1[0] + list_2[0], list_1[1] + list_2[1]]
+        return (list_1[0] + list_2[0], list_1[1] + list_2[1])
 
     @staticmethod
     def sub(list_1, list_2):
         """Allows for "vector_1 - vector_2"""
-        return [list_1[0] - list_2[0], list_1[1] - list_2[1]]
+        return (list_1[0] - list_2[0], list_1[1] - list_2[1])
 
     @staticmethod
     def mult(list_1, n):
         """Scalar multiplication of a (direction) vector"""
-        return [i*n for i in list_1]
+        return tuple([i*n for i in list_1])
 
     @staticmethod
     def get_cubic(list_1):
         """Converts axial coordinates to cubic form - assumes sum(cubic) = 0.
         Partly adapted from https://www.redblobgames.com/grids/hexagons/#neighbors-axial"""
-        return [list_1[0], list_1[1], -list_1[0]-list_1[1]]
+        return (list_1[0], list_1[1], -list_1[0]-list_1[1])
 
 ########################## HASHING ############################
 
@@ -117,7 +126,7 @@ def Z_hash(data):
 
 def Z_data(hashed):
     """Return data for board"""
-    result = defaultdict(list)
+    result = defaultdict(tuple)
     result["colour"] = PLAYER_CODE[hashed >> HASH_LEN - CODE_LEN] # First entry
     result["pieces"] = []
     result["blocks"] = []
@@ -136,3 +145,8 @@ def Z_data(hashed):
             result["blocks"].append(coordinate)
 
     return dict(result)
+
+if __name__ == "__main__":
+    state_1 = {'colour': 'blue', 'pieces': [(-3, 1), (-3, 3), (-1, 0), (2, 0)], 'blocks': [(-2, 3), (-2, -1), (1, -2), (3, -1), (-2, 1)]}
+    state_2 = {'colour': 'blue', 'pieces': [(-3, 0), (-3, 1), (-3, 3), (-1, 0)], 'blocks': [(-2, 3), (-2, -1), (1, -2), (3, -1), (-2, 1)]}
+    print(f"{bin(Z_hash(state_1))}\n{bin(Z_hash(state_2))}")
