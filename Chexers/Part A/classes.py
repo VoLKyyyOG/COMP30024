@@ -15,7 +15,6 @@ HASH_LEN = 82 # Bit length of any hash
 CODE_LEN = 2 # Bit length of each flag. Can be 0,1,2,3
 NUM_PLAYERS = 3
 
-# Bidirectional lookup for player bit code
 # Starts from 0 so that calculating heuristic values is a little smoother
 PLAYER_CODE = {
     "red": 0b00,
@@ -23,20 +22,18 @@ PLAYER_CODE = {
     "blue" : 0b10,
     "none" : 0b11
 }
-# For bidirectionality
-PLAYER_CODE.update(dict(zip(PLAYER_CODE.values(), PLAYER_CODE.keys())))
 
 # Exit code hashing scheme lookup
 EXIT_CODE = list(range(3))
 
 """ # Copy from classes. DELETE IF MERGED"""
-VALID_COORDINATES = [(-3, 0), (-3, 1), (-3, 2), (-3, 3),
+VALID_COORDINATES = ((-3, 0), (-3, 1), (-3, 2), (-3, 3),
                     (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-2, 3),
                     (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-1, 3),
                     (0, -3), (0, -2), (0, -1), (0, 0), (0, 1), (0, 2), (0, 3),
                     (1, -3), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2),
                     (2, -3), (2, -2), (2, -1), (2, 0), (2, 1),
-                    (3, -3), (3, -2), (3, -1), (3, 0)]
+                    (3, -3), (3, -2), (3, -1), (3, 0))
 
 #################### CLASSES & FUNCTIONS #####################
 
@@ -119,21 +116,20 @@ def Z_hash(data):
     # ith pair of 2-bits = ith location in VALID_COORDINATES
     # AGAIN, A TEMPORARY HASHING SCHEME FOR PART A
     for piece in data["blocks"]:
-        hashed = hashed ^ (0b10 << CODE_LEN * VALID_COORDINATES.index(piece))
+        hashed = hashed | (0b10 << CODE_LEN * VALID_COORDINATES.index(piece))
     for piece in data["pieces"]:
-        hashed = hashed ^ (0b01 << CODE_LEN * VALID_COORDINATES.index(piece))
+        hashed = hashed | (0b01 << CODE_LEN * VALID_COORDINATES.index(piece))
     return hashed
 
 def Z_data(hashed):
     """Return data for board"""
     result = defaultdict(tuple)
     result["colour"] = PLAYER_CODE[hashed >> HASH_LEN - CODE_LEN] # First entry
-    result["pieces"] = []
-    result["blocks"] = []
     """
     PART B: ( read exit states into result)
     """
 
+    hex_codes = [(hashed >> CODE_LEN*i) & 0b11 for i in NUM_HEXES]
     for i, coordinate in enumerate(VALID_COORDINATES):
         # ith coordinate = 2ith 2-bit combination in hash
         hex_code = (hashed >> CODE_LEN*i) & 0b11

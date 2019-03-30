@@ -8,7 +8,7 @@ Currently formatted for Part A
 ########################## IMPORTS ###########################
 # Standard modules
 from collections import defaultdict
-from copy import copy
+from copy import copy, deepcopy
 from queue import PriorityQueue as PQ
 
 # User-defined files
@@ -20,9 +20,9 @@ INF = float('inf')
 
 # Goals for each player
 GOAL = {
-    "red": ((3, -3), (3, -2), (3, -1), (3, 0)),
-    "blue": ((-3,0),(-2,-1),(-1,-2),(0,-3)),
-    "green": ((-3, 3), (-2, 3), (-1, 3), (0, 3))
+    "red": [(3, -3), (3, -2), (3, -1), (3, 0)],
+    "blue": [(-3,0),(-2,-1),(-1,-2),(0,-3)],
+    "green": [(-3, 3), (-2, 3), (-1, 3), (0, 3)]
 }
 
 # Game valid coordinate positions (taken from the test generator script)
@@ -88,9 +88,28 @@ def within_sight(position, dest, player):
     scalars = Vector.solve(u,v,displacement)
     return (scalars[0] >= 0 and scalars[1] >= 0)
 
+def apply_action(old_state, action):
+    """Applies action to passed state"""
+    piece, action_flag, dest = action
+    state = deepcopy(old_state)
+    if action_flag != EXIT:
+        state["pieces"].remove(piece)
+        state["pieces"].append(dest)
+        state["pieces"].sort()
+        """PART B: CONSIDER ORDERING & Must evaluate capturing here"""
+    elif action_flag == EXIT:
+        """PART B: Do NOT evaluate no. exits"""
+        state["pieces"].remove(piece)
+    return state
+
 def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""
     result = list()
+
+    '''Maybe one day this will be faster than the below
+    possible_exit = set(state["pieces"]).intersection(set(GOAL[state["colour"]]))
+    if possible_exit:
+        return [(possible_exit.pop(), EXIT, None)]'''
 
     for piece in state["pieces"]:
 
@@ -101,10 +120,16 @@ def possible_actions(state, debug_flag = False):
             return(result)
 
         possible_moves = move(piece, state)
-        result += [(piece, MOVE, dest) for dest in possible_moves]
-
         possible_jumps = jump(piece, state)
-        result += [(piece, JUMP, dest) for dest in possible_jumps]
+
+        '''for action_type, flag in [(possible_moves, MOVE), (possible_jumps, JUMP)]:
+            for dest in action_type:
+                if dest not in sight(piece, state['colour'], state['pieces'] + state['blocks']):
+                    result.append((piece, flag, dest))
+                    action_type.remove(dest)'''
+
+        result.extend([(piece, MOVE, dest) for dest in possible_moves])
+        result.extend([(piece, JUMP, dest) for dest in possible_jumps])
 
         if debug_flag:
             print(f"Player coordinate: {piece}\nMoves: {possible_moves}\n" + \

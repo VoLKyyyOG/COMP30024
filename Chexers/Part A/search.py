@@ -41,22 +41,17 @@ def main():
     print_board(dijkstra_board(data), debug=False)
 
     # Implementing IDA*
-    chosen_heuristics = [dijkstra_heuristic]
-    optimal_solution = IDA_control_loop(data, heuristics=chosen_heuristics, debug_flag=False)
+    used_heuristics = [dijkstra_heuristic]
+    optimal_solution = IDA_control_loop(data, heuristics=used_heuristics)
 
     # END TIME (FOUND SOLUTION)
     end = time.time()
     time_taken = end - start
 
-    print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.F_SIDE}, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed and ~{IDA_Node.MEMORY_TOTAL} bytes used.')
-    print(f'# Depth analysis: ')
-    print(f'# Depth: ' + " | ".join([f"{x:7d}" for x in range(10)]))
-    print(f'# Count: ' + " | ".join(map(lambda x: f"{x:7d}", IDA_Node.COUNT_BY_DEPTH[:10])))
-    print('# ' + '-' * 110 +  f'\n# Depth: ' + " | ".join([f"{x:7d}" for x in range(10, 20)]))
-    print(f'# Count: ' + " | ".join(map(lambda x: f"{x:7d}", IDA_Node.COUNT_BY_DEPTH[10:])))
+    print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed.')
 
     if (optimal_solution is not None):
-        print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves: ')
+        print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves:\n#')
         path = list()
         node_temp = optimal_solution
         while (node_temp is not None):
