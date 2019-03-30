@@ -85,7 +85,7 @@ def apply_heuristics(heuristics, node):
 
 def dijkstra_heuristic(node):
     """Calculates worst-case cost in relaxed problem with free jumping"""
-    return sum((dijkstra_board(node.state)[i] for i in node.state['pieces']))
+    return sum([dijkstra_board(node.state)[i] for i in node.state['pieces']])
 
 ########################### IDA* #############################
 
@@ -95,13 +95,12 @@ class IDA_Node(Node):
 
     def __init__(self, parent):
         super().__init__(parent)
-        self.exit_cost = 0 # Exit cost = cost to get from here to completion
         self.total_cost = 0 # Total cost factors in depth (total_cost = depth + exit_cost)
         IDA_Node.COUNT_TOTAL += 1
 
     def __str__(self):
         """Appends additional IDA information to standard Node str format"""
-        return super().__str__() + f"\n # Exit ({self.exit_cost}) + Depth = {self.total_cost}"
+        return super().__str__() + f"\n # Exit {self.total_cost - self.depth} + Depth {self.pdeth} = {self.total_cost}"
 
     def __lt__(self, other):
         """Allows (node < other_node) behavior, for use in PQ"""
@@ -157,8 +156,7 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
                 TT[my_hash].append(child)
 
             # Evaluate heuristics, append to queue
-            child.exit_cost = apply_heuristics(heuristics, child)
-            child.total_cost = child.depth + child.exit_cost
+            child.total_cost = child.depth + apply_heuristics(heuristics, child)
             queue.put(child)
     else:
         for child in node.children:
@@ -190,10 +188,10 @@ def IDA_control_loop(initial_state, heuristics=[dijkstra_heuristic], debug_flag=
     """Runs IDA*. Must use a heuristic that works with Nodes and returns goal if found"""
 
     initial_node = IDA_Node.create_root(initial_state)
-    initial_node.total_cost = initial_node.exit_cost = threshold = apply_heuristics(heuristics, initial_node)
+    initial_node.total_cost = threshold = apply_heuristics(heuristics, initial_node)
     print(f"#\n# Initial valuation: " + ", ".join([f"[{f.__name__}] {f(initial_node)}" for f in heuristics]) + f" + [Depth] {initial_node.depth} = {initial_node.total_cost}")
     TT = defaultdict(list)
-    TT[hash(initial_node)].append(initial_node)
+    TT[Z_hash(initial_node.state)].append(initial_node)
 
     root = None
     while root is None:
