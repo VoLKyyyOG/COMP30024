@@ -7,6 +7,7 @@ All common, multi-purpose classes go here.
 ########################## IMPORTS ###########################
 # Standard modules
 from collections import defaultdict
+import time
 
 ########################## GLOBALS ###########################
 NUM_EXIT_STATES = 4
@@ -15,6 +16,7 @@ HASH_LEN = 82 # Bit length of any hash
 CODE_LEN = 2 # Bit length of each flag. Can be 0,1,2,3
 NUM_PLAYERS = 3
 
+# Bidirectional lookup for player bit code
 # Starts from 0 so that calculating heuristic values is a little smoother
 PLAYER_CODE = {
     "red": 0b00,
@@ -22,6 +24,8 @@ PLAYER_CODE = {
     "blue" : 0b10,
     "none" : 0b11
 }
+# For bidirectionality
+PLAYER_CODE.update(dict(zip(PLAYER_CODE.values(), PLAYER_CODE.keys())))
 
 # Exit code hashing scheme lookup
 EXIT_CODE = list(range(3))
@@ -37,35 +41,37 @@ VALID_COORDINATES = ((-3, 0), (-3, 1), (-3, 2), (-3, 3),
 
 #################### CLASSES & FUNCTIONS #####################
 
+######################### DECORATORS #########################
+
 TIME_LOG = defaultdict(float)
 COUNT_LOG = defaultdict(int)
 
-def memoize(f):
+def memoize(method):
     """Caches result of a function to prevent recalculation under same input"""
     memo = []
-    def helper(x):
+    def helper(*args, **kwargs):
         if not len(memo):
-            memo.append(f(x))
+            memo.append(method(*args, *kwargs))
         return memo[0]
     return helper
 
 """ADAPTED FROM https://medium.com/pythonhive/python-decorator-to-measure-the-execution-time-of-methods-fa04cb6bb36d"""
-def timeit(method):
-    def timed(*args, **kw):
-        from time import time
-        t_start = time()
-        result = method(*args, **kw)
-        t_end = time()
+def trackit(method):
+    """@trackit allows tracking of runtime and execution of functions"""
+    def timed_and_counted(*args, **kwargs):
+        t_start = time.time()
+        result = method(*args, **kwargs)
+        t_end = time.time()
         name = method.__name__.upper()
         TIME_LOG[name] += (t_end - t_start) * 1000
         COUNT_LOG[name] += 1
         return result
-    return timed
+    return timed_and_counted
 
-@timeit
+@trackit
 def time_100_ms():
-    from time import sleep
-    sleep(0.1)
+    """Used to take unit time measurement"""
+    time.sleep(0.1)
 
 def timing_info(time_taken, TIME_LOG, COUNT_LOG):
     BANNER = '*' * 60 + '\n'
@@ -73,17 +79,19 @@ def timing_info(time_taken, TIME_LOG, COUNT_LOG):
     unit_time = TIME_LOG.pop("time_100_ms".upper()) / 100
 
     print(f"# {BANNER}# UNIT TIME FOR 1 MS: {unit_time:3f}\n#")
-    print("# " + f"{'FUNCTION NAME':19s}" + f"|| {'TIMES':37s}" + "|| COUNTS")
+    print("# " + f"{'FUNCTION NAME':19s}" + f"|| {'TIMES':40s}" + "|| COUNTS")
     print("# " + "-" * 100 + "\n# " + '\n# '.join((f"{key:18s} || {TIME_LOG[key] / 1000:7.3f} s" \
-        f"  {TIME_LOG[key] / unit_time:8.3f} units" + \
+        f"  {TIME_LOG[key] / unit_time:11.3f} units" + \
         f"  {TIME_LOG[key] / (time_taken * 10):5.1f} %   ||" + \
-        f"  Exec. {COUNT_LOG[key]:6d} times" + \
-        f"  {TIME_LOG[key] / (1000 * COUNT_LOG[key]):6.4f} s/exec." for key in sorted(TIME_LOG.keys()))))
+        f"  Exec. {COUNT_LOG[key]/1000:5.0f} k times" + \
+        f"  ~{TIME_LOG[key] *1000 / (unit_time*COUNT_LOG[key]):12.2f} units/kilo-exec." for key in sorted(TIME_LOG.keys()))))
     print(f"#\n# (Real) Time Elapsed {time_taken:.4f} seconds\n# (Unit) Time Elapsed {time_taken / unit_time:.4f} units")
     if (time_taken < 30):
         PASSED = True
     else:
         print("# F to Pay Respects.")
+
+########################## VECTORS ##########################
 
 class Vector:
     """Facilitates operations on axial/cubic hexagonal coordinates"""
@@ -98,26 +106,26 @@ class Vector:
         return (int((v[1]*x[0] - v[0]*x[1]) / det_uv), int((-u[1]*x[0] + u[0]*x[1]) / det_uv))
 
     @staticmethod
-    @timeit
+    @trackit
     def add(list_1, list_2):
         """Allows for "vector_1 + vector_2"""
         return (list_1[0] + list_2[0], list_1[1] + list_2[1])
 
     @staticmethod
-    @timeit
+    @trackit
     def sub(list_1, list_2):
         """Allows for "vector_1 - vector_2"""
         return (list_1[0] - list_2[0], list_1[1] - list_2[1])
 
 
     @staticmethod
-    @timeit
+    @trackit
     def mult(list_1, n):
         """Scalar multiplication of a (direction) vector"""
         return tuple([i*n for i in list_1])
 
     @staticmethod
-    @timeit
+    @trackit
     def get_cubic(list_1):
         """Converts axial coordinates to cubic form - assumes sum(cubic) = 0.
         Partly adapted from https://www.redblobgames.com/grids/hexagons/#neighbors-axial"""
@@ -135,7 +143,7 @@ Each of the 37 hexes has a 2-bit flag:
 
 """
 
-@timeit
+@trackit
 def Z_hash(data):
     """Hash the board state"""
     hashed = 0
@@ -175,16 +183,16 @@ def Z_hash(data):
         hashed = hashed | (0b01 << CODE_LEN * VALID_COORDINATES.index(piece))
     return hashed
 
-@timeit
+@trackit
 def Z_data(hashed):
     """Return data for board"""
-    result = defaultdict(tuple)
+    result = defaultdict(list)
     result["colour"] = PLAYER_CODE[hashed >> HASH_LEN - CODE_LEN] # First entry
     """
     PART B: ( read exit states into result)
     """
 
-    hex_codes = [(hashed >> CODE_LEN*i) & 0b11 for i in NUM_HEXES]
+    hex_codes = [(hashed >> CODE_LEN*i) & 0b11 for i in range(NUM_HEXES)]
     for i, coordinate in enumerate(VALID_COORDINATES):
         # ith coordinate = 2ith 2-bit combination in hash
         hex_code = (hashed >> CODE_LEN*i) & 0b11

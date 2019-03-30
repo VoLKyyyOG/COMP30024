@@ -9,6 +9,8 @@ Implements algorithms for use in game exploration, NOT actual agent logic.
 # Standard modules
 from queue import PriorityQueue as PQ
 from collections import defaultdict
+import json
+from hashlib import sha1
 
 # User-defined files
 from moves import *
@@ -30,7 +32,7 @@ class Node:
         self.state = None # Stores data
         self.children = list() # Stores addresses of children
 
-    @timeit
+    @trackit
     def create_children(self):
         """Given a list of action tuples, create new children."""
         if not self.is_expanded:
@@ -86,7 +88,6 @@ class IDA_Node(Node):
         self.exit_cost = 0 # Exit cost = cost to get from here to completion
         self.total_cost = 0 # Total cost factors in depth (total_cost = depth + exit_cost)
         IDA_Node.COUNT_TOTAL += 1
-        if (IDA_Node.COUNT_TOTAL % 10000 == 0): print ("-", end="")
 
     def __str__(self):
         """Appends additional IDA information to standard Node str format"""
@@ -96,17 +97,24 @@ class IDA_Node(Node):
         """Allows (node < other_node) behavior, for use in PQ"""
         return self.total_cost < other.total_cost
 
-    @timeit
+    @trackit
     def new_child(self):
         """Overrides child creation call in Node class"""
         return IDA_Node(parent=self)
 
-    @timeit
+    @trackit
     def update_depth(self, new_depth):
         """Update depths of all predecessors"""
         self.depth = new_depth
         for child in self.children:
             child.update_depth(new_depth + 1)
+
+    @trackit
+    def kill_tree(self):
+        for child in self.children[::-1]:
+            self.children.remove(child)
+            child.kill_tree()
+        del(self)
 
     @staticmethod
     def create_root(initial_state):
@@ -125,17 +133,18 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
         # Initialize children, with trimming
         for child in node.children:
             my_hash = Z_hash(child.state)
-            '''if my_hash in TT.keys() and child.depth < TT[my_hash][0].depth:
+            if my_hash in TT.keys() and child.depth <= TT[my_hash][0].depth:
                 IDA_Node.TRIM_TOTAL += 1
-                previous = TT[my_hash][0]
-                if (child.depth < previous.depth): previous.update_depth(child.depth)
+                TT[my_hash].pop().kill_tree()
+                TT[my_hash].append(child)
+                #if (child.depth < previous.depth): previous.update_depth(child.depth)
                 # Remove from parent's children
-                previous.parent.children.remove(previous)
-                node.children.append(previous)
-                previous.parent = node
+                #previous.parent.children.remove(previous)
+                #node.children.append(previous)
+                #previous.parent = node
                 continue
             else:
-                TT[my_hash].append(child)'''
+                TT[my_hash].append(child)
 
             # Evaluate heuristics, append to queue
             child.exit_cost = apply_heuristics(heuristics, child)
@@ -174,7 +183,7 @@ def IDA_control_loop(initial_state, heuristics=[dijkstra_heuristic], debug_flag=
     initial_node.total_cost = initial_node.exit_cost = threshold = apply_heuristics(heuristics, initial_node)
     print(f"#\n# Initial valuation: " + ", ".join([f"[{f.__name__}] {f(initial_node)}" for f in heuristics]) + f" + [Depth] {initial_node.depth} = {initial_node.total_cost}")
     TT = defaultdict(list)
-    TT[Z_hash(initial_node.state)].append(initial_node)
+    TT[hash(initial_node)].append(initial_node)
 
     root = None
     while root is None:

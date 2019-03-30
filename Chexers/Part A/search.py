@@ -11,7 +11,6 @@
 # Standard modules
 from json import load
 from sys import argv
-import time
 
 # User-defined files
 from print_debug import *
@@ -56,9 +55,12 @@ def main():
         print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves:\n#')
         path = list()
         node_temp = optimal_solution
+        
+        # Re-assemble path taken
         while (node_temp is not None):
             path.append(node_temp)
             node_temp = node_temp.parent
+
         for move in path[::-1]:
             if (move.action_made is not None):
                 piece, action, dest = move.action_made
