@@ -48,6 +48,8 @@ def main():
     end = time.time()
     time_taken = end - start
 
+    timing_info(time_taken, TIME_LOG, COUNT_LOG)
+
     print(f'# {BANNER}# {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed.')
 
     if (optimal_solution is not None):
@@ -68,12 +70,6 @@ def main():
                     print(f'EXIT from {piece}.')
     else:
         print(f'# ERROR: No solution found at this depth')
-
-    print(f"#\n#\n# (Real) Time Elapsed {time_taken:.6f}")
-    if (time_taken < 30):
-        PASSED = True
-    else:
-        print("# F to Pay Respects.")
 
 
 # when this module is executed, run the `main` function:

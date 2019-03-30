@@ -37,6 +37,54 @@ VALID_COORDINATES = ((-3, 0), (-3, 1), (-3, 2), (-3, 3),
 
 #################### CLASSES & FUNCTIONS #####################
 
+TIME_LOG = defaultdict(float)
+COUNT_LOG = defaultdict(int)
+
+def memoize(f):
+    """Caches result of a function to prevent recalculation under same input"""
+    memo = []
+    def helper(x):
+        if not len(memo):
+            memo.append(f(x))
+        return memo[0]
+    return helper
+
+"""ADAPTED FROM https://medium.com/pythonhive/python-decorator-to-measure-the-execution-time-of-methods-fa04cb6bb36d"""
+def timeit(method):
+    def timed(*args, **kw):
+        from time import time
+        t_start = time()
+        result = method(*args, **kw)
+        t_end = time()
+        name = method.__name__.upper()
+        TIME_LOG[name] += (t_end - t_start) * 1000
+        COUNT_LOG[name] += 1
+        return result
+    return timed
+
+@timeit
+def time_100_ms():
+    from time import sleep
+    sleep(0.1)
+
+def timing_info(time_taken, TIME_LOG, COUNT_LOG):
+    BANNER = '*' * 60 + '\n'
+    time_100_ms()
+    unit_time = TIME_LOG.pop("time_100_ms".upper()) / 100
+
+    print(f"# {BANNER}# UNIT TIME FOR 1 MS: {unit_time:3f}\n#")
+    print("# " + f"{'FUNCTION NAME':19s}" + f"|| {'TIMES':37s}" + "|| COUNTS")
+    print("# " + "-" * 100 + "\n# " + '\n# '.join((f"{key:18s} || {TIME_LOG[key] / 1000:7.3f} s" \
+        f"  {TIME_LOG[key] / unit_time:8.3f} units" + \
+        f"  {TIME_LOG[key] / (time_taken * 10):5.1f} %   ||" + \
+        f"  Exec. {COUNT_LOG[key]:6d} times" + \
+        f"  {TIME_LOG[key] / (1000 * COUNT_LOG[key]):6.4f} s/exec." for key in sorted(TIME_LOG.keys()))))
+    print(f"#\n# (Real) Time Elapsed {time_taken:.4f} seconds\n# (Unit) Time Elapsed {time_taken / unit_time:.4f} units")
+    if (time_taken < 30):
+        PASSED = True
+    else:
+        print("# F to Pay Respects.")
+
 class Vector:
     """Facilitates operations on axial/cubic hexagonal coordinates"""
 
@@ -50,21 +98,26 @@ class Vector:
         return (int((v[1]*x[0] - v[0]*x[1]) / det_uv), int((-u[1]*x[0] + u[0]*x[1]) / det_uv))
 
     @staticmethod
+    @timeit
     def add(list_1, list_2):
         """Allows for "vector_1 + vector_2"""
         return (list_1[0] + list_2[0], list_1[1] + list_2[1])
 
     @staticmethod
+    @timeit
     def sub(list_1, list_2):
         """Allows for "vector_1 - vector_2"""
         return (list_1[0] - list_2[0], list_1[1] - list_2[1])
 
+
     @staticmethod
+    @timeit
     def mult(list_1, n):
         """Scalar multiplication of a (direction) vector"""
         return tuple([i*n for i in list_1])
 
     @staticmethod
+    @timeit
     def get_cubic(list_1):
         """Converts axial coordinates to cubic form - assumes sum(cubic) = 0.
         Partly adapted from https://www.redblobgames.com/grids/hexagons/#neighbors-axial"""
@@ -82,6 +135,7 @@ Each of the 37 hexes has a 2-bit flag:
 
 """
 
+@timeit
 def Z_hash(data):
     """Hash the board state"""
     hashed = 0
@@ -121,6 +175,7 @@ def Z_hash(data):
         hashed = hashed | (0b01 << CODE_LEN * VALID_COORDINATES.index(piece))
     return hashed
 
+@timeit
 def Z_data(hashed):
     """Return data for board"""
     result = defaultdict(tuple)

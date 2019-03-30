@@ -12,7 +12,7 @@ from copy import copy, deepcopy
 from queue import PriorityQueue as PQ
 
 # User-defined files
-from classes import Vector, PLAYER_CODE
+from classes import *
 from print_debug import *
 
 ########################## GLOBALS ###########################
@@ -88,60 +88,49 @@ def within_sight(position, dest, player):
     scalars = Vector.solve(u,v,displacement)
     return (scalars[0] >= 0 and scalars[1] >= 0)
 
+@timeit
 def apply_action(old_state, action):
     """Applies action to passed state"""
     piece, action_flag, dest = action
     state = deepcopy(old_state)
+    state["pieces"].remove(piece)
     if action_flag != EXIT:
-        state["pieces"].remove(piece)
         state["pieces"].append(dest)
         state["pieces"].sort()
         """PART B: CONSIDER ORDERING & Must evaluate capturing here"""
-    elif action_flag == EXIT:
-        """PART B: Do NOT evaluate no. exits"""
-        state["pieces"].remove(piece)
     return state
 
+@timeit
 def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""
     result = list()
 
-    '''Maybe one day this will be faster than the below
-    possible_exit = set(state["pieces"]).intersection(set(GOAL[state["colour"]]))
+    # if a piece can exit, great! Do that immediately for Part A
+    possible_exit = [i for i in state["pieces"] if i in GOAL[state["colour"]]]
     if possible_exit:
-        return [(possible_exit.pop(), EXIT, None)]'''
+        return [(possible_exit[0], EXIT, None)]
 
     for piece in state["pieces"]:
-
-        # if a piece can exit, great! Do that immediately for Part A
-        possible_exit = exit_action(piece, state, debug_flag)
-        if possible_exit:
-            result.append((piece, EXIT, None))
-            return(result)
-
-        possible_moves = move(piece, state)
-        possible_jumps = jump(piece, state)
-
         '''for action_type, flag in [(possible_moves, MOVE), (possible_jumps, JUMP)]:
             for dest in action_type:
                 if dest not in sight(piece, state['colour'], state['pieces'] + state['blocks']):
                     result.append((piece, flag, dest))
                     action_type.remove(dest)'''
 
-        result.extend([(piece, MOVE, dest) for dest in possible_moves])
-        result.extend([(piece, JUMP, dest) for dest in possible_jumps])
-
-        if debug_flag:
-            print(f"Player coordinate: {piece}\nMoves: {possible_moves}\n" + \
-            f"Jumps: {possible_jumps}\nExits? : {possible_exit}\n{BANNER}")
+        result.extend([(piece, MOVE, dest) for dest in move(piece, state)])
+        result.extend([(piece, JUMP, dest) for dest in jump(piece, state)])
 
     return result
 
+@timeit
 def move(coordinate, state, relaxed=False):
     """Finds possible move actions given a coordinate"""
     # Non-movable pieces on board
-    occupied = state["blocks"]
-    if not relaxed: occupied = state["blocks"] + state["pieces"]
+    if relaxed:
+        occupied = state["blocks"]
+    else:
+        occupied = state["blocks"] + state["pieces"]
+
     possible_moves = list()
 
     for direction in POSSIBLE_DIRECTIONS:
@@ -151,13 +140,16 @@ def move(coordinate, state, relaxed=False):
             if adjacent_hex not in occupied: # Then it's free for the taking
                 possible_moves.append(adjacent_hex)
 
-    possible_moves.sort()
-    return possible_moves
+    return sorted(possible_moves)
 
+@timeit
 def jump(coordinate, state, relaxed=False):
     """Finds possible jump actions given a coordinate"""
-    occupied = state["blocks"]
-    if not relaxed: occupied = state["blocks"] + state["pieces"]
+    if relaxed:
+        occupied = state["blocks"]
+    else:
+        occupied = state["blocks"] + state["pieces"]
+
     possible_jumps = list()
 
     for direction in POSSIBLE_DIRECTIONS:
@@ -169,25 +161,15 @@ def jump(coordinate, state, relaxed=False):
                 if target_hex not in occupied: # Then actual place to land
                     possible_jumps.append(target_hex)
 
-    possible_jumps.sort()
-    return possible_jumps
+    return sorted(possible_jumps)
 
 # Determines if exit action possible
+@timeit
 def exit_action(coordinate, state, debug_flag=False):
-    possible_exit = coordinate in GOAL[state["colour"]]
-    if debug_flag:
-        print("Exit Action Possible? ", possible_exit)
-    return possible_exit
-
-def memoize(f):
-    memo = []
-    def helper(x):
-        if not len(memo):
-            memo.append(f(x))
-        return memo[0]
-    return helper
+    return coordinate in GOAL[state["colour"]]
 
 @memoize
+@timeit
 def dijkstra_board(state):
     print("#\n# Minimum cost evaluation: ")
     """Evaluates minimum cost to exit for each non-block position"""

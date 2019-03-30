@@ -30,12 +30,13 @@ class Node:
         self.state = None # Stores data
         self.children = list() # Stores addresses of children
 
+    @timeit
     def create_children(self):
         """Given a list of action tuples, create new children."""
         if not self.is_expanded:
             for action in possible_actions(self.state):
                 new_child = self.new_child()
-                new_child.state = apply_action(self.state, action)
+                new_child.state = apply_action(self.state, action) # The killer
                 new_child.action_made = action
                 self.children.append(new_child)
             self.is_expanded = True
@@ -44,7 +45,7 @@ class Node:
         """Determines if a win/loss/draw has occurred and by whom
         PART A: 0 is over, more than 1 is not over
         PART B: 1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW, -2 DUPLICATE"""
-        return (len(self.state["pieces"]) if self.state else True)
+        return (len(self.state["pieces"]) > 0 if self.state else True)
 
     def player(self):
         """Retrieves current player.
@@ -56,9 +57,6 @@ class Node:
     def new_child(self):
         """Creates new Node instance"""
         return Node(parent=self)
-
-    def __hash__(self):
-        return Z_hash(self.state)
 
     def __str__(self):
         """Defines string format for use in debugging"""
@@ -98,10 +96,12 @@ class IDA_Node(Node):
         """Allows (node < other_node) behavior, for use in PQ"""
         return self.total_cost < other.total_cost
 
+    @timeit
     def new_child(self):
         """Overrides child creation call in Node class"""
         return IDA_Node(parent=self)
 
+    @timeit
     def update_depth(self, new_depth):
         """Update depths of all predecessors"""
         self.depth = new_depth
@@ -116,10 +116,9 @@ class IDA_Node(Node):
         return root
 
 def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
-    """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
+    """Implements IDA*, using IDA_node.depth as g(n) and sum(heuristics) as h(n)"""
 
     queue = PQ() # Gets item with lowest total_cost
-
     if not node.is_expanded:
         node.create_children()
 
