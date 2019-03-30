@@ -164,7 +164,6 @@ def memoize(f):
 
 @memoize
 def dijkstra_board(state):
-    print("#\n# Minimum cost evaluation: ")
     """Evaluates minimum cost to exit for each non-block position"""
     # NOTE: The dijkstra board is CONSTANT (memoizable) iff blocks/colour don't change
     valid_goals = set(GOAL[state['colour']]).difference(set(state['blocks']))
