@@ -40,6 +40,54 @@ VALID_COORDINATES = [(-3, 0), (-3, 1), (-3, 2), (-3, 3),
 
 #################### CLASSES & FUNCTIONS #####################
 
+TIME_LOG = defaultdict(float)
+COUNT_LOG = defaultdict(int)
+
+def memoize(method):
+    """Caches result of a function to prevent recalculation under same input"""
+    memo = []
+    def helper(*args, **kwargs):
+        if not len(memo):
+            memo.append(method(*args, *kwargs))
+        return memo[0]
+    return helper
+
+"""ADAPTED FROM https://medium.com/pythonhive/python-decorator-to-measure-the-execution-time-of-methods-fa04cb6bb36d"""
+def trackit(method):
+    """@trackit allows tracking of runtime and execution of functions"""
+    def timed_and_counted(*args, **kwargs):
+        t_start = time.time()
+        result = method(*args, **kwargs)
+        t_end = time.time()
+        name = method.__name__.upper()
+        TIME_LOG[name] += (t_end - t_start) * 1000
+        COUNT_LOG[name] += 1
+        return result
+    return timed_and_counted
+
+@trackit
+def time_100_ms():
+    """Used to take unit time measurement"""
+    time.sleep(0.1)
+
+def timing_info(time_taken, TIME_LOG, COUNT_LOG):
+    BANNER = '*' * 60 + '\n'
+    time_100_ms()
+    unit_time = TIME_LOG.pop("time_100_ms".upper()) / 100
+
+    print(f"# {BANNER}# UNIT TIME FOR 1 MS: {unit_time:3f}\n#")
+    print("# " + f"{'FUNCTION NAME':19s}" + f"|| {'TIMES':40s}" + "|| COUNTS")
+    print("# " + "-" * 100 + "\n# " + '\n# '.join((f"{key:18s} || {TIME_LOG[key] / 1000:7.3f} s" \
+        f"  {TIME_LOG[key] / unit_time:11.3f} units" + \
+        f"  {TIME_LOG[key] / (time_taken * 10):5.1f} %   ||" + \
+        f"  Exec. {COUNT_LOG[key]/1000:5.0f} k times" + \
+        f"  ~{TIME_LOG[key] *1000 / (unit_time*COUNT_LOG[key]):12.2f} units/kilo-exec." for key in sorted(TIME_LOG.keys()))))
+    print(f"#\n# (Real) Time Elapsed {time_taken:.4f} seconds\n# (Unit) Time Elapsed {time_taken / unit_time:.4f} units")
+    if (time_taken < 30):
+        PASSED = True
+    else:
+        print("# F to Pay Respects.")
+
 class Vector:
     """Facilitates operations on axial/cubic hexagonal coordinates"""
 
