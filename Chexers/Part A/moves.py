@@ -12,7 +12,7 @@ from copy import copy
 from queue import PriorityQueue as PQ
 
 # User-defined files
-from classes import Vector, PLAYER_CODE
+from classes import *
 from print_debug import *
 
 ########################## GLOBALS ###########################
@@ -88,6 +88,7 @@ def within_sight(position, dest, player):
     scalars = Vector.solve(u,v,displacement)
     return (scalars[0] >= 0 and scalars[1] >= 0)
 
+@trackit
 def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""
     result = list()
@@ -112,6 +113,7 @@ def possible_actions(state, debug_flag = False):
 
     return result
 
+@trackit
 def move(coordinate, state, relaxed=False):
     """Finds possible move actions given a coordinate"""
     # Non-movable pieces on board
@@ -129,6 +131,7 @@ def move(coordinate, state, relaxed=False):
     possible_moves.sort()
     return possible_moves
 
+@trackit
 def jump(coordinate, state, relaxed=False):
     """Finds possible jump actions given a coordinate"""
     occupied = state["blocks"]
@@ -153,14 +156,6 @@ def exit_action(coordinate, state, debug_flag=False):
     if debug_flag:
         print("Exit Action Possible? ", possible_exit)
     return possible_exit
-
-def memoize(f):
-    memo = []
-    def helper(x):
-        if not len(memo):
-            memo.append(f(x))
-        return memo[0]
-    return helper
 
 @memoize
 def dijkstra_board(state):

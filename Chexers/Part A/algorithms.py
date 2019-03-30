@@ -44,6 +44,7 @@ class Node:
         self.action_made = None # Action that parent made to get here
         self.children = list() # Stores addresses of children
 
+    @trackit
     def create_children(self):
         if self.is_expanded:
             try:
@@ -58,6 +59,7 @@ class Node:
             self.children.append(new_child)
         self.is_expanded = True
 
+    @trackit
     def apply_action(self, action):
         """Applies action to passed node, updates attributes.
         NOTE: state is usually the parents', as self still being defined"""
@@ -108,60 +110,14 @@ class Node:
 
 ######################## HEURISTICS ##########################
 
-'''DEBUGGING HEURISTICS
-state_2 = {
-    "colour": "green",
-    "pieces": [[1, -2], [-2, 1]],
-    "blocks": [[-3, 0],[-3,2], [-3, 1], [-2, -1], [-2, 2], [-2, 3], [-1, -2], [-1, -1],
-                [-1, 0], [-1, 2], [-1, 3], [0, -3], [0, -1], [0, 0], [0, 1],
-                [0, 2], [0, 3], [1, -3], [1, -1], [1, 0], [2, -3], [2, 1],
-                [3, -3], [3, -2], [3, 0]]
-
-#print(f"Test dijkstra: {dijkstra_heuristic(convert(state_2))}")
-#print_board(debug(state_2))
-#print_board(dijkstra_board(convert(state_2)))
-}'''
-
 def apply_heuristics(heuristics, node):
     """Quick abstraction for applying a list of heuristics in a search problem"""
     return sum([f(node) for f in heuristics])
 
+@trackit
 def dijkstra_heuristic(node):
     """Calculates worst-case cost in relaxed problem with free jumping"""
     return sum([dijkstra_board(node.state)[i] for i in node.state['pieces']])
-
-def forced_move_heuristic(node):
-    """Given dijkstra's evaluation, determines where free jumps could never occur
-    If JPC = Total_action_cost_to_best_JP, evaluates as JPC[real] - JPC[relaxed]"""
-
-def forced_side_heuristic(node):
-    """Totals no. pieces that don't have any exit in line of sight
-    NO LONGER CONTRIBUTES TO ADMISSIBLE SOLUTION"""
-    IDA_Node.F_SIDE += 1
-    goals = set((tuple(x) for x in GOAL[node.player()]))
-    pieces = (x for x in node.state["pieces"] if tuple(x) not in goals)
-    occupied = node.state["pieces"] + node.state["blocks"]
-    goal_sight = lambda y: goals.intersection(y)
-    return sum([len(goal_sight(sight(x, node.player(), occupied))) == 0 for x in pieces])
-
-def jump_heuristic(node):
-    """Admissible Heuristic for a relaxed problem that allows jumping
-        over empty tiles (still needs empty landing zone)"""
-    """ NOTE: MUST UPDATE FOR PART B IF STATE STORAGE CHANGES """
-
-    # total = 0
-    # for piece in node.state["pieces"]:
-        # Distance of a piece to its exit (# rows between it and exit)
-        # Uses cubic coordinate form to efficiently isolate correct axis
-        # axis_to_use = PLAYER_CODE[node.player]
-        # move_distance = MAX_COORDINATE_VAL - Vector.get_cubic(piece)[axis_to_use]
-
-        # Max jumps to get off board; the best case. +1 to account for exit action
-        # The ceil() calculates minimum no. jumps to get to exit tile
-        # total += ceil(move_distance / 2.0) + 1
-
-    # return total
-    return sum(ceil((MAX_COORDINATE_VAL - Vector.get_cubic(piece)[PLAYER_CODE[node.player()]])/2)+1 for piece in node.state["pieces"])
 
 ########################### IDA* #############################
 
@@ -176,7 +132,7 @@ class IDA_Node(Node):
         # Additional functionality for IDA*
         # Exit cost = cost to get from here to completion
         # Total cost factors in depth (total_cost = depth + exit_cost)
-        self.total_cost = self.exit_cost = 0
+        self.total_cost = 0
         IDA_Node.COUNT_TOTAL += 1
         IDA_Node.MEMORY_TOTAL += getsizeof(self)
         #IDA_Node.COUNT_BY_DEPTH[self.depth] += 1
@@ -184,17 +140,19 @@ class IDA_Node(Node):
     def __str__(self):
         """Appends additional IDA information to standard Node str format"""
         cur_str = super().__str__()
-        cur_str += f"\n # Exit ({self.exit_cost}) + Depth = {self.total_cost}"
+        cur_str += f"\n # Exit ({self.total_cost - self.depth}) + Depth = {self.total_cost}"
         return cur_str
 
     def __lt__(self, other):
         """Allows (node < other_node) behavior, for use in PQ"""
         return self.total_cost < other.total_cost
 
+    @trackit
     def new_child(self):
         """Overrides child creation call in Node class"""
         return IDA_Node(parent=self)
 
+    @trackit
     def kill_tree(self):
         # Kill subtrees
         for child in self.children[::-1]:
@@ -240,8 +198,7 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
                 TT[my_hash].append(child)
 
             # Evaluate heuristics, define possible_actions, append to queue
-            child.exit_cost = apply_heuristics(heuristics, child)
-            child.total_cost = child.depth + child.exit_cost
+            child.total_cost = child.depth + apply_heuristics(heuristics, child)
             child.possible_actions = possible_actions(child.state)
             queue.put(child)
     else:
@@ -270,24 +227,12 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
     # IDA has failed to find anything
     return None
 
-def UCS(initial_state, exit_h=jump_heuristic, debug_flag=True):
-    """Runs UCS that works with nodes"""
-    initial_node = IDA_Node.create_root(initial_state)
-    initial_node.total_cost = initial_node.exit_cost = apply_heuristics(heuristics, initial_node)
-    print(f"# Initial valuation: (FS) {forced_side_heuristic(initial_node)} + (Dj) {dijkstra_heuristic(initial_node)} + (D) {initial_node.depth} = {initial_node.total_cost}")
-    TT = defaultdict(list)
-    TT[Z_hash(initial_node.state)].append(initial_node)
-
-    # Fringe Set
-    unexpanded = PQ()
-
-"""Made debug_flag=True for now"""
-def IDA_control_loop(initial_state, heuristics=[jump_heuristic], max_threshold = 35, debug_flag=True):
+def IDA_control_loop(initial_state, heuristics=[dijkstra_heuristic], max_threshold = 35, debug_flag=True):
     """Runs IDA*. Must use a heuristic that works with Nodes and returns goal if found"""
     """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
     initial_node = IDA_Node.create_root(initial_state)
-    initial_node.total_cost = initial_node.exit_cost = threshold = apply_heuristics(heuristics, initial_node)
+    initial_node.total_cost = threshold = apply_heuristics(heuristics, initial_node)
     print(f"#\n# Initial valuation: " + ", ".join([f"[{f.__name__}] {f(initial_node)}" for f in heuristics]) + f" + [Depth] {initial_node.depth} = {initial_node.total_cost}")
     TT = defaultdict(list)
     TT[Z_hash(initial_node.state)].append(initial_node)

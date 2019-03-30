@@ -7,6 +7,7 @@ All common, multi-purpose classes go here.
 ########################## IMPORTS ###########################
 # Standard modules
 from collections import defaultdict
+import time
 
 ########################## GLOBALS ###########################
 NUM_EXIT_STATES = 4
@@ -66,14 +67,17 @@ def trackit(method):
     return timed_and_counted
 
 @trackit
-def time_100_ms():
+def unit_timer():
     """Used to take unit time measurement"""
-    time.sleep(0.1)
+    for i in range(2*30024):
+        x = 1
 
 def timing_info(time_taken, TIME_LOG, COUNT_LOG):
     BANNER = '*' * 60 + '\n'
-    time_100_ms()
-    unit_time = TIME_LOG.pop("time_100_ms".upper()) / 100
+    unit_timer()
+    print(TIME_LOG)
+    print(COUNT_LOG)
+    unit_time = TIME_LOG.pop("unit_timer".upper()) / 100
 
     print(f"# {BANNER}# UNIT TIME FOR 1 MS: {unit_time:3f}\n#")
     print("# " + f"{'FUNCTION NAME':19s}" + f"|| {'TIMES':40s}" + "|| COUNTS")
@@ -101,6 +105,7 @@ class Vector:
         return (int((v[1]*x[0] - v[0]*x[1]) / det_uv), int((-u[1]*x[0] + u[0]*x[1]) / det_uv))
 
     @staticmethod
+    @trackit
     def add(list_1, list_2):
         """Allows for "vector_1 + vector_2"""
         return (list_1[0] + list_2[0], list_1[1] + list_2[1])
@@ -116,6 +121,7 @@ class Vector:
         return tuple([i*n for i in list_1])
 
     @staticmethod
+    @trackit
     def get_cubic(list_1):
         """Converts axial coordinates to cubic form - assumes sum(cubic) = 0.
         Partly adapted from https://www.redblobgames.com/grids/hexagons/#neighbors-axial"""
@@ -133,6 +139,7 @@ Each of the 37 hexes has a 2-bit flag:
 
 """
 
+@trackit
 def Z_hash(data):
     """Hash the board state"""
     hashed = 0
@@ -172,6 +179,7 @@ def Z_hash(data):
         hashed = hashed ^ (0b01 << CODE_LEN * VALID_COORDINATES.index(piece))
     return hashed
 
+@trackit
 def Z_data(hashed):
     """Return data for board"""
     result = defaultdict(tuple)

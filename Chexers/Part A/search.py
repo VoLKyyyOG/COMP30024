@@ -71,13 +71,11 @@ def main():
     else:
         print(f'# ERROR: No solution found at this depth')
 
-    print(f"#\n#\n# (Real) Time Elapsed {time_taken:.6f}")
+    print(f"#\n# (Real) Time Elapsed {time_taken:.4f} seconds")
     if (time_taken < 30):
         PASSED = True
     else:
         print("# F to Pay Respects.")
-
-
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
     main()
