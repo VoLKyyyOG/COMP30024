@@ -132,6 +132,46 @@ class IDA_Node(Node):
         root.state = initial_state
         return root
 
+class A_Node(IDA_Node):
+    def new_child(self):
+        return A_Node(parent=self)
+
+    @staticmethod
+    def create_root(initial_state):
+        """Creates a root A_Node for A* to work with"""
+        root = IDA_Node(None)
+        root.state = initial_state
+        return root
+
+def A_star_control_loop(initial_state, heuristics=[dijkstra_heuristic]):
+    """Main control for running of A*"""
+    Fringe = PQ()
+    TT = defaultdict(list)
+    initial_node = A_Node.create_root(initial_state) # Check this is assigned MAY BE REDUNDANT
+    initial_node.total_cost = apply_heuristics(heuristics, initial_node)
+    Fringe.put(initial_node)
+    # Print initial evaluation line
+
+    while not Fringe.empty():
+        current = Fringe.get()
+        if apply_heuristics(heuristics, current) == 0:
+            return current
+        if not current.is_expanded:
+            current.create_children()
+            for child in current.children:
+                '''my_hash = Z_hash(child.state)
+                if my_hash in TT:
+                    if current.depth < TT[my_hash][0].depth:
+                        TT[my_hash].pop().kill_tree()
+                        TT[my_hash].append(child)
+                    else:
+                        continue'''
+                child.total_cost = apply_heuristics(heuristics, child)
+                #TT[my_hash].append(child)
+        for child in current.children:
+            Fringe.put(child)
+    return None
+
 def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
     """Implements IDA*, using IDA_node.depth as g(n) and sum(heuristics) as h(n)"""
 
@@ -142,16 +182,17 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
         # Initialize children, with trimming
         for child in node.children:
             my_hash = Z_hash(child.state)
-            if my_hash in TT.keys() and child.depth <= TT[my_hash][0].depth:
-                IDA_Node.TRIM_TOTAL += 1
-                TT[my_hash].pop().kill_tree()
-                TT[my_hash].append(child)
-                #if (child.depth < previous.depth): previous.update_depth(child.depth)
-                # Remove from parent's children
-                #previous.parent.children.remove(previous)
-                #node.children.append(previous)
-                #previous.parent = node
-                continue
+            if my_hash in TT.keys():
+                if child.depth <= TT[my_hash][0].depth:
+                    IDA_Node.TRIM_TOTAL += 1
+                    TT[my_hash].pop().kill_tree()
+                    TT[my_hash].append(child)
+                    #if (child.depth < previous.depth): previous.update_depth(child.depth)
+                    # Remove from parent's children
+                    #previous.parent.children.remove(previous)
+                    #node.children.append(previous)
+                    #previous.parent = node
+                    continue
             else:
                 TT[my_hash].append(child)
 
