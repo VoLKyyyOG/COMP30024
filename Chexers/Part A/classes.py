@@ -77,7 +77,7 @@ def unit_timer():
         x = 1
 
 def timing_info(time_taken, TIME_LOG, COUNT_LOG):
-    if not ENABLE_TRACKING: return
+    if ENABLE_TRACKING: return
     BANNER = '*' * 60 + '\n'
     unit_timer()
     print(TIME_LOG)
