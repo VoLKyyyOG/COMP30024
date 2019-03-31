@@ -41,6 +41,8 @@ VALID_COORDINATES = [(-3, 0), (-3, 1), (-3, 2), (-3, 3),
 
 #################### CLASSES & FUNCTIONS #####################
 
+######################### DECORATORS #########################
+
 TIME_LOG = defaultdict(float)
 COUNT_LOG = defaultdict(int)
 
@@ -80,8 +82,6 @@ def timing_info(time_taken, TIME_LOG, COUNT_LOG):
     if not ENABLE_TRACKING: return
     BANNER = '*' * 60 + '\n'
     unit_timer()
-    print(TIME_LOG)
-    print(COUNT_LOG)
     unit_time = TIME_LOG.pop("unit_timer".upper()) / 100
 
     print(f"# {BANNER}# UNIT TIME FOR 1 MS: {unit_time:3f}\n#")
@@ -96,6 +96,8 @@ def timing_info(time_taken, TIME_LOG, COUNT_LOG):
         PASSED = True
     else:
         print("# F to Pay Respects.")
+
+########################## VECTORS ##########################
 
 class Vector:
     """Facilitates operations on axial/cubic hexagonal coordinates"""
@@ -116,11 +118,14 @@ class Vector:
         return (list_1[0] + list_2[0], list_1[1] + list_2[1])
 
     @staticmethod
+    @trackit
     def sub(list_1, list_2):
         """Allows for "vector_1 - vector_2"""
         return (list_1[0] - list_2[0], list_1[1] - list_2[1])
 
+
     @staticmethod
+    @trackit
     def mult(list_1, n):
         """Scalar multiplication of a (direction) vector"""
         return tuple([i*n for i in list_1])
@@ -187,14 +192,13 @@ def Z_hash(data):
 @trackit
 def Z_data(hashed):
     """Return data for board"""
-    result = defaultdict(tuple)
+    result = defaultdict(list)
     result["colour"] = PLAYER_CODE[hashed >> HASH_LEN - CODE_LEN] # First entry
-    result["pieces"] = []
-    result["blocks"] = []
     """
     PART B: ( read exit states into result)
     """
 
+    hex_codes = [(hashed >> CODE_LEN*i) & 0b11 for i in range(NUM_HEXES)]
     for i, coordinate in enumerate(VALID_COORDINATES):
         # ith coordinate = 2ith 2-bit combination in hash
         hex_code = (hashed >> CODE_LEN*i) & 0b11
