@@ -73,15 +73,16 @@ def trackit(method):
     return timed_and_counted
 
 @trackit
-def time_100_ms():
+def unit_timer():
     """Used to take unit time measurement"""
-    time.sleep(0.1)
+    for i in range(2*30024):
+        x = 1
 
 def timing_info(time_taken, TIME_LOG, COUNT_LOG):
     if not ENABLE_TRACKING: return
     BANNER = '*' * 60 + '\n'
-    time_100_ms()
-    unit_time = TIME_LOG.pop("time_100_ms".upper()) / 100
+    unit_timer()
+    unit_time = TIME_LOG.pop("unit_timer".upper()) / 100
 
     print(f"# {BANNER}# UNIT TIME FOR 1 MS: {unit_time:3f}\n#")
     print("# " + f"{'FUNCTION NAME':19s}" + f"|| {'TIMES':40s}" + "|| COUNTS")
