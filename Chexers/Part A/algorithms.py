@@ -100,7 +100,7 @@ class IDA_Node(Node):
 
     def __str__(self):
         """Appends additional IDA information to standard Node str format"""
-        return super().__str__() + f"\n # Exit {self.total_cost - self.depth} + Depth {self.pdeth} = {self.total_cost}"
+        return super().__str__() + f"\n # Exit {self.total_cost - self.depth} + Depth {self.depth} = {self.total_cost}"
 
     def __lt__(self, other):
         """Allows (node < other_node) behavior, for use in PQ"""
@@ -159,13 +159,13 @@ def A_star_control_loop(initial_state, heuristics=[dijkstra_heuristic]):
         if not current.is_expanded:
             current.create_children()
             for child in current.children:
-                '''my_hash = Z_hash(child.state)
+                my_hash = Z_hash(child.state)
                 if my_hash in TT:
                     if current.depth < TT[my_hash][0].depth:
                         TT[my_hash].pop().kill_tree()
                         TT[my_hash].append(child)
                     else:
-                        continue'''
+                        continue
                 child.total_cost = apply_heuristics(heuristics, child)
                 #TT[my_hash].append(child)
         for child in current.children:

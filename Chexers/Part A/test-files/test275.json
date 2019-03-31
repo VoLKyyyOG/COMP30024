@@ -1,1 +1,1 @@
-{"colour": "red", "pieces": [[1, -1], [-1, 3]], "blocks": []}
+{"colour": "red", "pieces": [[1, 1], [-3, 3]], "blocks": [[1, 0], [0, -1]]}
