@@ -1,25 +1,3 @@
-While I was Gone Thread:
-=========
-- ~ML info_gain() completed~
-- ML info_gain() was made to work iteratively in case we would lose marks for not doing so
-- ~ML cross validation optimised~
-- ~ML added relevant comments~
-- I read through AI, fixed a couple minor errors in definitions 
-- AI added a neat pythonic list comprehension to make our marker hate us
-### TODO:
-- ~Answer ML questions due 5th April 12pm~
-- Added brief dotpoint answers to questions. will need to verify Q2 is correct with other people (it looks like a legit shit show if what I have done is correct. the logic is below)
-```python
-for each attribute (A) excluding the class:
-	calculate its entropy H(A)
-	for every other attribute (A'):
-		calculate its mean_info sum(Pr(A')H(A')
-		THEN:
-			info gain(A' | A) = H(A) - sum(Pr(A')H(A'))
-```
-- Complete the implementation for AI due 12th April 11pm
-
-
 COMP300024 - Artificial Intelligence, The University of Melbourne
 =========
 GitHub for Akira and Callum.
@@ -110,63 +88,64 @@ GitHub for Akira and Callum.
 
 ##### Apply a search strategy to solve problem
 - **Note that:**  
-		- _b_ = maximum branching factor of the search tree  
-		- _d_ = depth of the least-cost solution  
-		- _m_ = maximum depth of the state space (could be infinite)
+  - _b_ = maximum branching factor of the search tree  
+  - _d_ = depth of the least-cost solution  
+  - _m_ = maximum depth of the state space (could be infinite)
 
 - **BFS**
-	- Expands the shallowest unexpanded node
-	- **Complete** if the branching factor (b) is finite
-	- Time: _O(b<sup>d</sup>)_
-	- Space: _O(b<sup>d</sup>)_
-	- **Optimal Path** if path cost is uniform (cost = 1), otherwise _not complete or optimal in general_
+  - Expands the shallowest unexpanded node
+  - **Complete** if the branching factor (b) is finite
+  - Time: _O(b<sup>d</sup>)_
+  - Space: _O(b<sup>d</sup>)_
+  - **Optimal Path** if path cost is uniform (cost = 1), otherwise _not complete or optimal in general_
 
 - **DFS**
-	- Expands depth wise (from the furthest unexpanded node)
-	- **Not Complete** if in an Infinite Space (algorithm would infinitely expand states of zero cost)
-	- Time: _O(b<sup>m</sup>)_
-	- Space: _O(bm)_ **(at any given time, in the worst case, only need to remembe to depth m states, to get which you expanded at most b nodes each --> bm!)**
-	- **Not an Optimal Path**
+  - Expands depth wise (from the furthest unexpanded node)
+  - **Not Complete** if in an Infinite Space (algorithm would infinitely expand states of zero cost)
+  - Time: _O(b<sup>m</sup>)_
+  - Space: _O(bm)_ **(at any given time, in the worst case, only need to remembe to depth m states, to get which you expanded at most b nodes each --> bm!)**
+  - **Not an Optimal Path**
 
 - **Uniform Cost Search**
-	- Expand least-cost unexpanded node
-	- **Complete** if step size > 0
-	- Time: _number of nodes with g <= cost of optimal solution_
-	- Space: _number of nodes with g <= cost of optimal solution_
-	- **Optimal** since it searches the least-cost node
+  - Expand least-cost unexpanded node
+  - **Complete** if step size > 0
+  - Time: _number of nodes with g <= cost of optimal solution_
+  - Space: _number of nodes with g <= cost of optimal solution_
+  - **Optimal** since it searches the least-cost node
 
 - **Depth Limited Search**
-	- Perform a DFS with depth limit = _l_
-	- **Not Complete**
-	- Time: _O(b<sup>l</sup>)_
-	- Space: _O(bl)_
-	- **Not Optimal**
+  - Perform a DFS with depth limit = _l_
+  - **Not Complete**
+  - Time: _O(b<sup>l</sup>)_
+  - Space: _O(bl)_
+  - **Not Optimal**
 
 - **Iterative Deepening Search**
-	- Do DFS for each 'step'
-	- **Complete**
-	- Time: _O(b<sup>d</sup>)_
-	- Space: _O(bd)_
-	- **Optimal** if step size = 1
-	- Can be modified to explore a uniform-cost tree
+  - Do DFS for each 'step'
+  - **Complete**
+  - Time: _O(b<sup>d</sup>)_
+  - Space: _O(bd)_
+  - **Optimal** if step size = 1
+  - Can be modified to explore a uniform-cost tree
 
 - **Bidirectional Search**
-	- Search from both goal and start
-	- **Complete**
-	- Time: _O(b<sup>d/2</sup>)_
-	- Space: _O(b<sup>d/2</sup>)_
-	- **Optimal** if done with the correct strategy (such as BFS)
+  - Search from both goal and start
+  - **Complete**
+  - Time: _O(b<sup>d/2</sup>)_
+  - Space: _O(b<sup>d/2</sup>)_
+  - **Optimal** if done with the correct strategy (such as BFS)
 
 ## Week 3: Informed Search Algorithms
 ##### Demonstrate operation of search algorithms
 
 ##### Discuss and evaluate the properties of search algorithms
 - **Greedy Best First Search**
-	- Go down the path that seems to be as close as possible to the end
-	- **Not Complete** (needs repeated state checking)
-	- Time: _O(b<sup>m</sup>)_
-	- Space: _O(b<sup>m</sup>)_
-	- **Not Optimal**
+  - Go down the path that seems to be as close as possible to the end
+  - **Not Complete** (needs repeated state checking)
+  - Time: _O(b<sup>m</sup>)_
+  - Space: _O(b<sup>m</sup>)_
+  - **Not Optimal**
+  
 - [**AStar (A\*) Search**](https://qiao.github.io/PathFinding.js/visual/)
 	- Avoid expanding paths that are already expensive
 		- Keep an ordered list of the f(n) cost of things
@@ -205,46 +184,96 @@ GitHub for Akira and Callum.
 	- h<sub>1</sub>(n) >= h<sub>2</sub>(n) for *all of n*
 
 ## Week 4: Game Playing and Adversarial Search
-##### Design suitable evaluation functions for a game
-- Evaluate games as a search problem
-	- Initial State
-	- Actions
-	- Terminal Test (win/lose/draw)
-	- Utility Function
-		- e.g. chess: +1, 0, -1
-		- poker: cash one or lost
+**n-ply means n-move games**
+### Types of Games:
+|                       | Deterministic                | Chance                               |
+|-----------------------|------------------------------|--------------------------------------|
+| Perfect Information   | Chess, Checkers, Go, Othello | Backgammon, Monopoly                 |
+| Imperfect Information |                              | Bridge, Poker, Scrabble, Nuclear War |
 
-##### Discuss and evaluate the properties of game search algorithms
+### Representing a Game as a Search Problem
+We can formally define a strategic two-player game by:  
+- Initial State  
+- Actions
+- Terminal Test (Win / Low / Draw)
+- A Utility Function (Numeric Reward for Outcome):
+	- Chess: +1, 0, -1
+	- Poker: Cash won or lost
 
-##### Demonstrate operation of game search algorithms e.g., which nodes will be pruned under given node order or optimal node ordering in a given search tree
-- **Minimax**
-	- Check all possible moves for their value up to a certain level
-		- Calculate our value with a heuristic similar to AStar
-		- **Maximize our utility value when it's our turn**
-		- **Minimize enemy utility value when it's not**
-	- Absolutely **perfect play** with **infinite lookahead**
-	- **Complete**
-	- **Optimal (against another optimal opponent)**
-	- Time: **O(b<sup>m</sup>)**
-	- Space: **O(bm)**
-- [**AlphaBeta Pruning**](http://homepage.ufp.pt/jtorres/ensino/ia/alfabeta.html)
-	- Do the same as minimax, but every time you find a new minimum/maximum, keep track of it and discard values that are under/over this value
-		- Calculate our value
-		- If our current lowest MIN value is 3 and we find a 2 while minimizing, set the new lowest MIN value to 2 and discard the rest of the branch
-		- Basically imagine you're pruning a tree to the shortest/longest branch
-	- **Not Complete**
-	- **Optimal since it results in the same thing**
-	- Time: **O(b<sup>m/2</sup>) with perfect ordering**
-	- Space: **Same as time?**
-- Quiescence Search
-	- Find a cut-off depth in minimax
+In a zero-sum game with 2 players, each player's utility for a state are equal and opposite
 
-##### Explain how to search in nondeterministic games e.g., demonstrate operation of ExpectiMinimax
+### Minimax
+- Check all possible moves for their value up to a certain level
+  - Calculate our value with a heuristic similar to AStar
+  - **Maximize our utility value when it is our turn**
+  - **Minimize enemy utility value when it is not**
+- Absolutely **perfect play** with **infinite lookahead**
+- **Complete**
+- **Optimal** (against another optimal opponent)
+- Complexity is same as DFS
+- Time: **O(b<sup>m</sup>)**
+- Space: **O(bm)** 
+
+```python
+def MINIMAX_DECISION(game):
+	for op in OPERATORS[game]:
+		VALUE[op] = MINIMAX_VALUE(APPLY(op,game),game)
+	return max(VALUE[op])
+
+def MINIMAX_VALUE(stae, game):
+	if TERMINAL_TEST[game](state):
+		return UTILITY[game][state]
+	elif it is our turn:
+		return the highest MINIMAX_VALUE of SUCCESSORS(state)
+	else:
+		return the lowest MINIMAX_VALUE of SUCCESSORS(state)
+```
+
+How to speed Minimax in time constraints: 
+- `Cutoff test` (a depth limit) is used instead of `Terminal test`
+- `Evaluation function` (estimated desirability of position) is used instead of `Utility function`
+
+### [AlphaBeta Pruning](http://homepage.ufp.pt/jtorres/ensino/ia/alfabeta.html)
+- **Idea:** Prune parts of the tree that are not impactful without the need to examine them
+- Works the same as Minimax, but every time you find a new minimum/maximum, keep track of it and discard values that are under/over this value
+  - Calculate our value
+  - If our current lowest MIN value is 3 and we find a 2 while minimizing, set the new lowest MIN value to 2 and discard the rest of the branch
+  - Basically imagine you're pruning a tree to the shortest/longest branch
+- **Not Complete**
+- **Optimal since does not affect the final result**
+- Time: **O(b<sup>m/2</sup>)** with Perfect Ordering 
+  - Doubles depth of search and can reach depth 8 to play good chess
+
+```python
+def MAX_VALUE(state,game,alpha,beta):
+	inputs: state, current state in game
+		game, game description
+		alpha, the best score for MAX along the path to state
+		beta, the best score for MIN along the path to state
+	
+	if CUTOFF_TEST(state):
+		return EVAL(state)
+	for s in SUCCESSORS(state):
+		a = MAX(alpha, MIN_VALUE(s, game, alpha, beta))
+		if alpha >= beta:
+			return beta
+	return alpha
+
+def MIN_VALUE(state, game, alpha, beta):
+	if CUTOFF_TEST(state):
+		return EVAL(state)
+	for s in SUCCESSORS(state):
+		beta = MIN(beta, MAX_VALUE(s, game, alpha, beta))
+		if b <= alpha:
+			return alpha
+	return beta
+```
+
 - **Expectiminimax**
-	- Minimax but before every outcome you add a "chance node" which applies a probability to it
-	- Tree grows really fast
-	- As depth increases probability of reaching a node becomes diminished
-		- Means we care less about really *deep nodes*
+  - Minimax but before every outcome you add a "chance node" which has a probability of outcome
+  - Tree grows really fast
+  - As depth increases, probability of reaching a node becomes diminished
+    - Means we care less about really *deep nodes*
 
 ## Week 5: Machine Learning in Game Search
 ##### Discuss opportunities for learning in game playing
