@@ -42,8 +42,10 @@ def main():
     # Implementing IDA*
     used_heuristics = [dijkstra_heuristic]
     if len(argv) > 2:
+        print("# Using IDA")
         optimal_solution = IDA_control_loop(data, heuristics=used_heuristics)
     else:
+        print("# Using A*")
         optimal_solution = A_star_control_loop(data, heuristics=used_heuristics)
 
     # END TIME (FOUND SOLUTION)

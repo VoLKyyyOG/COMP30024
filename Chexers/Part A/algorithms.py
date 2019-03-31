@@ -112,8 +112,9 @@ class IDA_Node(Node):
         return IDA_Node(parent=self)
 
     @trackit
-    def update_depth(self, new_depth):
+    def update_depth(self, new_depth, Fringe):
         """Update depths of all predecessors"""
+        self.total_cost += (new_depth - self.depth)
         self.depth = new_depth
         for child in self.children:
             child.update_depth(new_depth + 1)
@@ -154,20 +155,23 @@ def A_star_control_loop(initial_state, heuristics=[dijkstra_heuristic]):
 
     while not Fringe.empty():
         current = Fringe.get()
-        if apply_heuristics(heuristics, current) == 0:
+        if current.total_cost == current.depth:
             return current
-        if not current.is_expanded:
+        if not current.is_expanded: # Prevents doubling up
             current.create_children()
             for child in current.children:
                 my_hash = Z_hash(child.state)
                 if my_hash in TT:
-                    if current.depth < TT[my_hash][0].depth:
-                        TT[my_hash].pop().kill_tree()
-                        TT[my_hash].append(child)
+                    if child.depth < TT[my_hash][0].depth: # New one is better
+                        previous = TT[my_hash][0]
+                        previous.update_depth(child.depth, Fringe)
                     else:
-                        continue
-                child.total_cost = apply_heuristics(heuristics, child)
-                #TT[my_hash].append(child)
+                        pass
+                        # Other one is better, don't revisit this one
+                    current.children.remove(child)
+                    continue
+                TT[my_hash].append(child)
+                child.total_cost = child.depth + apply_heuristics(heuristics, child)
         for child in current.children:
             Fringe.put(child)
     return None
