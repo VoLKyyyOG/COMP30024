@@ -8,11 +8,11 @@ Currently formatted for Part A
 ########################## IMPORTS ###########################
 # Standard modules
 from collections import defaultdict
-from copy import copy
+from copy import copy, deepcopy
 from queue import PriorityQueue as PQ
 
 # User-defined files
-from classes import Vector, PLAYER_CODE
+from classes import *
 from print_debug import *
 
 ########################## GLOBALS ###########################
@@ -26,20 +26,26 @@ GOAL = {
 }
 
 # Game valid coordinate positions (taken from the test generator script)
-VALID_COORDINATES = ((-3, 0), (-3, 1), (-3, 2), (-3, 3),
+VALID_COORDINATES = [(-3, 0), (-3, 1), (-3, 2), (-3, 3),
                     (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-2, 3),
                     (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-1, 3),
                     (0, -3), (0, -2), (0, -1), (0, 0), (0, 1), (0, 2), (0, 3),
                     (1, -3), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2),
                     (2, -3), (2, -2), (2, -1), (2, 0), (2, 1),
-                    (3, -3), (3, -2), (3, -1), (3, 0))
+                    (3, -3), (3, -2), (3, -1), (3, 0)]
 
-POSSIBLE_DIRECTIONS = ((0,1),(1,0),(1,-1),(0,-1),(-1,0),(-1,1))
+POSSIBLE_DIRECTIONS = [(0,1),(1,0),(1,-1),(0,-1),(-1,0),(-1,1)]
 
 FORWARD_DIRECTIONS = {
-    "red" : ((1,-1),(1,0)),
-    "green" : ((-1,1),(0,1)),
-    "blue" : ((-1,0),(0,-1))
+    "red" : [(1,-1),(1,0)],
+    "green" : [(-1,1),(0,1)],
+    "blue" : [(-1,0),(0,-1)]
+}
+
+PREFERRED_DIRECTIONS = {
+    "red" : [(1,-1),(1,0),(0,1),(0,-1),(-1,0),(-1,1)],
+    "green" : [(-1,1),(0,1),(1,0),(1,-1),(0,-1),(-1,0)],
+    "blue" : [(-1,0),(0,-1),(0,1),(1,0),(1,-1),(-1,1)]
 }
 
 # As point indices range from -3 to 3
@@ -50,6 +56,14 @@ MOVE, JUMP, EXIT = 0, 1, 2
 
 #################### CLASSES & FUNCTIONS #####################
 
+def goal_in_sight(state):
+    """Highly expensive, but returns set of all goals 'in sight'"""
+    result = set(GOAL[state['colour']])
+    for piece in state['pieces']:
+        result = result.intersection(sight(piece, state['colour'], state['blocks']))
+    return result
+
+@trackit
 def get_next(current, occupied, direction):
     """If can move/jump in given direction, returns next possible point"""
     point = Vector.add(current, direction)
@@ -76,6 +90,7 @@ def sight(piece, player, occupied):
     sight_set = sight_set.union(sight(next_v, player, occupied))
     return sight_set
 
+@trackit
 def within_sight(position, dest, player):
     """Calculates whether a destination is reachable by directly moving 'forward' towards it"""
     # Idea: movement without moving sideways or backwards is most optimal.
@@ -88,36 +103,57 @@ def within_sight(position, dest, player):
     scalars = Vector.solve(u,v,displacement)
     return (scalars[0] >= 0 and scalars[1] >= 0)
 
+# DO NOT USE
+def no_node_apply_action(old_state, action):
+    """Applies action to passed state"""
+    piece, action_flag, dest = action
+    state = deepcopy(old_state)
+    state["pieces"].remove(piece)
+    if action_flag != EXIT:
+        state["pieces"].append(dest)
+        state["pieces"].sort()
+        """PART B: CONSIDER ORDERING & Must evaluate capturing here"""
+    return state
+
+@trackit
 def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""
     result = list()
 
+    # if a piece can exit, great! Do that immediately for Part A
+    possible_exit = [i for i in state["pieces"] if i in GOAL[state["colour"]]]
+    if possible_exit:
+        return [(possible_exit[0], EXIT, None)]
+
+
     for piece in state["pieces"]:
+        '''possible_moves =
+        possible_jumps =
+        for action_type, flag in [(possible_moves, MOVE), (possible_jumps, JUMP)]:
+            for dest in action_type:
+                if dest not in sight(piece, state['colour'], state['pieces'] + state['blocks']):
+                    result.append((piece, flag, dest))
+                    action_type.remove(dest)'''
 
-        # if a piece can exit, great! Do that immediately for Part A
-        possible_exit = exit_action(piece, state, debug_flag)
-        if possible_exit:
-            result.append((piece, EXIT, None))
-            return(result)
-
-        possible_moves = move(piece, state)
-        result += [(piece, MOVE, dest) for dest in possible_moves]
-
-        possible_jumps = jump(piece, state)
-        result += [(piece, JUMP, dest) for dest in possible_jumps]
-
-        if debug_flag:
-            print(f"Player coordinate: {piece}\nMoves: {possible_moves}\n" + \
-            f"Jumps: {possible_jumps}\nExits? : {possible_exit}\n{BANNER}")
+        result.extend([(piece, MOVE, dest) for dest in move(piece, state)])
+        result.extend([(piece, JUMP, dest) for dest in jump(piece, state)])
 
     return result
 
+@trackit
 def move(coordinate, state, relaxed=False):
     """Finds possible move actions given a coordinate"""
     # Non-movable pieces on board
-    occupied = state["blocks"]
-    if not relaxed: occupied = state["blocks"] + state["pieces"]
+    if relaxed:
+        occupied = state["blocks"]
+    else:
+        occupied = state["blocks"] + state["pieces"]
+
     possible_moves = list()
+
+    '''DIRECTIONS = POSSIBLE_DIRECTIONS
+    if not relaxed and goal_in_sight(state):
+        DIRECTIONS = PREFERRED_DIRECTIONS[state['colour']]'''
 
     for direction in POSSIBLE_DIRECTIONS:
         adjacent_hex = Vector.add(coordinate, direction)
@@ -126,13 +162,16 @@ def move(coordinate, state, relaxed=False):
             if adjacent_hex not in occupied: # Then it's free for the taking
                 possible_moves.append(adjacent_hex)
 
-    possible_moves.sort()
-    return possible_moves
+    return sorted(possible_moves)
 
+@trackit
 def jump(coordinate, state, relaxed=False):
     """Finds possible jump actions given a coordinate"""
-    occupied = state["blocks"]
-    if not relaxed: occupied = state["blocks"] + state["pieces"]
+    if relaxed:
+        occupied = state["blocks"]
+    else:
+        occupied = state["blocks"] + state["pieces"]
+
     possible_jumps = list()
 
     for direction in POSSIBLE_DIRECTIONS:
@@ -144,26 +183,15 @@ def jump(coordinate, state, relaxed=False):
                 if target_hex not in occupied: # Then actual place to land
                     possible_jumps.append(target_hex)
 
-    possible_jumps.sort()
-    return possible_jumps
+    return sorted(possible_jumps)
 
 # Determines if exit action possible
 def exit_action(coordinate, state, debug_flag=False):
-    possible_exit = coordinate in GOAL[state["colour"]]
-    if debug_flag:
-        print("Exit Action Possible? ", possible_exit)
-    return possible_exit
-
-def memoize(f):
-    memo = []
-    def helper(x):
-        if not len(memo):
-            memo.append(f(x))
-        return memo[0]
-    return helper
+    return coordinate in GOAL[state["colour"]]
 
 @memoize
 def dijkstra_board(state):
+    print("#\n# Minimum cost evaluation: ")
     """Evaluates minimum cost to exit for each non-block position"""
     # NOTE: The dijkstra board is CONSTANT (memoizable) iff blocks/colour don't change
     valid_goals = set(GOAL[state['colour']]).difference(set(state['blocks']))
