@@ -113,7 +113,7 @@ class IDA_Node(Node):
         return IDA_Node(parent=self)
 
     @trackit
-    def update_depth(self, new_depth, Fringe):
+    def update_depth(self, new_depth):
         """Update depths of all predecessors"""
         self.total_cost += (new_depth - self.depth)
         self.depth = new_depth
@@ -165,11 +165,13 @@ def A_star_control_loop(initial_state, heuristics=[dijkstra_heuristic]):
                 if my_hash in TT:
                     if child.depth < TT[my_hash][0].depth: # New one is better
                         previous = TT[my_hash][0]
-                        previous.update_depth(child.depth, Fringe)
-                    else:
-                        pass
-                        # Other one is better, don't revisit this one
+                        previous.update_depth(child.depth)
+                        previous.parent.children.remove(previous)
+                        previous.parent = node
+                        node.children.append(previous)
+                    # Other one is better, don't revisit this one
                     current.children.remove(child)
+                    del(child)
                     continue
                 TT[my_hash].append(child)
                 child.total_cost = child.depth + apply_heuristics(heuristics, child)
@@ -188,22 +190,30 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
         for child in node.children:
             my_hash = Z_hash(child.state)
             if my_hash in TT.keys():
-                if child.depth <= TT[my_hash][0].depth:
-                    IDA_Node.TRIM_TOTAL += 1
+                IDA_Node.TRIM_TOTAL += 1
+                if child.depth < TT[my_hash][0].depth:
                     TT[my_hash].pop().kill_tree()
                     TT[my_hash].append(child)
-                    #if (child.depth < previous.depth): previous.update_depth(child.depth)
-                    # Remove from parent's children
-                    #previous.parent.children.remove(previous)
-                    #node.children.append(previous)
-                    #previous.parent = node
+                else:
+                    node.children.remove(child)
+                    del(child)
                     continue
-            else:
-                TT[my_hash].append(child)
+                '''if child.depth < TT[my_hash][0].depth:
+                    previous = TT[my_hash][0]
+                    previous.update_depth(child.depth)
+                    if previous in previous.parent.children:
+                        previous.parent.children.remove(previous)
+                    previous.parent = node
+                    node.children.append(previous)
+                    queue.put(previous)
+                node.children.remove(child)
+                del(child)
+                continue'''
 
             # Evaluate heuristics, append to queue
             child.total_cost = child.depth + apply_heuristics(heuristics, child)
             queue.put(child)
+            TT[my_hash].append(child)
     else:
         for child in node.children:
             queue.put(child)
