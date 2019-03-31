@@ -83,6 +83,7 @@ def apply_heuristics(heuristics, node):
     """Quick abstraction for applying a list of heuristics in a search problem"""
     return sum((f(node) for f in heuristics))
 
+@trackit
 def dijkstra_heuristic(node):
     """Calculates worst-case cost in relaxed problem with free jumping"""
     return sum([dijkstra_board(node.state)[i] for i in node.state['pieces']])

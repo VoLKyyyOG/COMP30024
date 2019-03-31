@@ -103,18 +103,6 @@ def within_sight(position, dest, player):
     scalars = Vector.solve(u,v,displacement)
     return (scalars[0] >= 0 and scalars[1] >= 0)
 
-# DO NOT USE
-def no_node_apply_action(old_state, action):
-    """Applies action to passed state"""
-    piece, action_flag, dest = action
-    state = deepcopy(old_state)
-    state["pieces"].remove(piece)
-    if action_flag != EXIT:
-        state["pieces"].append(dest)
-        state["pieces"].sort()
-        """PART B: CONSIDER ORDERING & Must evaluate capturing here"""
-    return state
-
 @trackit
 def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""
