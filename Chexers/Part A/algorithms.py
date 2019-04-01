@@ -83,7 +83,6 @@ def apply_heuristics(heuristics, node):
     """Quick abstraction for applying a list of heuristics in a search problem"""
     return sum((f(node) for f in heuristics))
 
-@trackit
 def dijkstra_heuristic(node):
     """Calculates worst-case cost in relaxed problem with free jumping"""
     return sum([dijkstra_board(node.state)[i] for i in node.state['pieces']])
@@ -198,13 +197,13 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
             my_hash = Z_hash(child.state)
             if my_hash in TT.keys():
                 IDA_Node.TRIM_TOTAL += 1
-                '''if child.depth < TT[my_hash][0].depth:
+                if child.depth < TT[my_hash][0].depth:
                     TT[my_hash].pop().kill_tree()
                 else:
                     node.children.remove(child)
                     del(child)
-                    continue'''
-                # The below is fast! But 30move still sucks
+                    continue
+                '''# The below is fast! But 30move still sucks
                 if child.depth < TT[my_hash][0].depth:
                     previous = TT[my_hash][0]
                     previous.update_depth(child.depth)
@@ -215,7 +214,7 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
                     #queue.put(previous)
                 node.children.remove(child)
                 del(child)
-                continue
+                continue'''
 
             # Evaluate heuristics, append to queue
             child.total_cost = child.depth + apply_heuristics(heuristics, child)

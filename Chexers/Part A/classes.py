@@ -91,8 +91,8 @@ def timing_info(time_taken, TIME_LOG, COUNT_LOG):
             f"  {TIME_LOG[key] / (time_taken * 10):5.1f} %   ||" + \
             f"  Exec. {COUNT_LOG[key]/1000:5.0f} k times" + \
             f"  ~{TIME_LOG[key] *1000 / (unit_time*COUNT_LOG[key]):12.2f} units/kilo-exec." for key in sorted(TIME_LOG.keys()))))
-        prin("#\n# (Unit) Time Elapsed {time_taken / unit_time:.4f} units")
-    print(f"# (Real) Time Elapsed {time_taken:.4f} seconds\n")
+        print(f"#\n# (Unit) Time Elapsed {time_taken / unit_time:.4f} units")
+    print(f"# (Real) Time Elapsed {time_taken:.4f} seconds\n#")
     if (time_taken < 30):
         PASSED = True
     else:

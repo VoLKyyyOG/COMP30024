@@ -178,6 +178,7 @@ def exit_action(coordinate, state, debug_flag=False):
     return coordinate in GOAL[state["colour"]]
 
 @memoize
+@trackit
 def dijkstra_board(state):
     print("#\n# Minimum cost evaluation: ")
     """Evaluates minimum cost to exit for each non-block position"""
