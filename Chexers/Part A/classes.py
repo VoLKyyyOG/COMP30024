@@ -41,8 +41,6 @@ VALID_COORDINATES = [(-3, 0), (-3, 1), (-3, 2), (-3, 3),
 
 #################### CLASSES & FUNCTIONS #####################
 
-######################### DECORATORS #########################
-
 TIME_LOG = defaultdict(float)
 COUNT_LOG = defaultdict(int)
 
@@ -55,7 +53,7 @@ def memoize(method):
         return memo[0]
     return helper
 
-ENABLE_TRACKING = False
+ENABLE_TRACKING = True
 """ADAPTED FROM https://medium.com/pythonhive/python-decorator-to-measure-the-execution-time-of-methods-fa04cb6bb36d"""
 def trackit(method):
     """@trackit allows tracking of runtime and execution of functions"""
@@ -79,26 +77,25 @@ def unit_timer():
         x = 1
 
 def timing_info(time_taken, TIME_LOG, COUNT_LOG):
+    if ENABLE_TRACKING: return
     BANNER = '*' * 60 + '\n'
+    unit_timer()
+    print(TIME_LOG)
+    print(COUNT_LOG)
+    unit_time = TIME_LOG.pop("unit_timer".upper()) / 100
 
-    if ENABLE_TRACKING:
-        unit_timer()
-        unit_time = TIME_LOG.pop("unit_timer".upper()) / 100
-        print(f"# {BANNER}# UNIT TIME FOR 1 MS: {unit_time:3f}\n#")
-        print("# " + f"{'FUNCTION NAME':19s}" + f"|| {'TIMES':40s}" + "|| COUNTS")
-        print("# " + "-" * 100 + "\n# " + '\n# '.join((f"{key:18s} || {TIME_LOG[key] / 1000:7.3f} s" \
-            f"  {TIME_LOG[key] / unit_time:11.3f} units" + \
-            f"  {TIME_LOG[key] / (time_taken * 10):5.1f} %   ||" + \
-            f"  Exec. {COUNT_LOG[key]/1000:5.0f} k times" + \
-            f"  ~{TIME_LOG[key] *1000 / (unit_time*COUNT_LOG[key]):12.2f} units/kilo-exec." for key in sorted(TIME_LOG.keys()))))
-        prin("#\n# (Unit) Time Elapsed {time_taken / unit_time:.4f} units")
-    print(f"# (Real) Time Elapsed {time_taken:.4f} seconds\n")
+    print(f"# {BANNER}# UNIT TIME FOR 1 MS: {unit_time:3f}\n#")
+    print("# " + f"{'FUNCTION NAME':19s}" + f"|| {'TIMES':40s}" + "|| COUNTS")
+    print("# " + "-" * 100 + "\n# " + '\n# '.join((f"{key:18s} || {TIME_LOG[key] / 1000:7.3f} s" \
+        f"  {TIME_LOG[key] / unit_time:11.3f} units" + \
+        f"  {TIME_LOG[key] / (time_taken * 10):5.1f} %   ||" + \
+        f"  Exec. {COUNT_LOG[key]/1000:5.0f} k times" + \
+        f"  ~{TIME_LOG[key] *1000 / (unit_time*COUNT_LOG[key]):12.2f} units/kilo-exec." for key in sorted(TIME_LOG.keys()))))
+    print(f"#\n# (Real) Time Elapsed {time_taken:.4f} seconds\n# (Unit) Time Elapsed {time_taken / unit_time:.4f} units")
     if (time_taken < 30):
         PASSED = True
     else:
         print("# F to Pay Respects.")
-
-########################## VECTORS ##########################
 
 class Vector:
     """Facilitates operations on axial/cubic hexagonal coordinates"""
@@ -119,14 +116,11 @@ class Vector:
         return (list_1[0] + list_2[0], list_1[1] + list_2[1])
 
     @staticmethod
-    @trackit
     def sub(list_1, list_2):
         """Allows for "vector_1 - vector_2"""
         return (list_1[0] - list_2[0], list_1[1] - list_2[1])
 
-
     @staticmethod
-    @trackit
     def mult(list_1, n):
         """Scalar multiplication of a (direction) vector"""
         return tuple([i*n for i in list_1])
@@ -193,13 +187,14 @@ def Z_hash(data):
 @trackit
 def Z_data(hashed):
     """Return data for board"""
-    result = defaultdict(list)
+    result = defaultdict(tuple)
     result["colour"] = PLAYER_CODE[hashed >> HASH_LEN - CODE_LEN] # First entry
+    result["pieces"] = []
+    result["blocks"] = []
     """
     PART B: ( read exit states into result)
     """
 
-    hex_codes = [(hashed >> CODE_LEN*i) & 0b11 for i in range(NUM_HEXES)]
     for i, coordinate in enumerate(VALID_COORDINATES):
         # ith coordinate = 2ith 2-bit combination in hash
         hex_code = (hashed >> CODE_LEN*i) & 0b11

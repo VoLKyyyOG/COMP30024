@@ -11,6 +11,7 @@
 # Standard modules
 from json import load
 from sys import argv
+import time
 
 # User-defined files
 from print_debug import *
@@ -31,7 +32,7 @@ def main():
     # Read argv input for initial state
     with open(argv[1]) as file:
         data = load(file)
-        print('# 100%% Data input:', data)
+        print('# Data input:', data)
 
     data = convert_to_tuples(data)
 
@@ -40,13 +41,8 @@ def main():
     print_board(dijkstra_board(data), debug=False)
 
     # Implementing IDA*
-    used_heuristics = [dijkstra_heuristic]
-    if len(argv) > 2:
-        print("# Using IDA")
-        optimal_solution = IDA_control_loop(data, heuristics=used_heuristics)
-    else:
-        print("# Using A*")
-        optimal_solution = A_star_control_loop(data, heuristics=used_heuristics)
+    chosen_heuristics = [dijkstra_heuristic]
+    optimal_solution = IDA_control_loop(data, heuristics=chosen_heuristics, debug_flag=False)
 
     # END TIME (FOUND SOLUTION)
     end = time.time()
@@ -57,15 +53,12 @@ def main():
     print(f'# {BANNER}# {argv[1]} - {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed.')
 
     if (optimal_solution is not None):
-        print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves:\n#')
+        print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves: ')
         path = list()
         node_temp = optimal_solution
-
-        # Re-assemble path taken
         while (node_temp is not None):
             path.append(node_temp)
             node_temp = node_temp.parent
-
         for move in path[::-1]:
             if (move.action_made is not None):
                 piece, action, dest = move.action_made
