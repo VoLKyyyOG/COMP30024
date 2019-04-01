@@ -2,7 +2,7 @@
 ################################################################################
 ##########    COMP30024 Artificial Intelligence, Semester 1 2019    ############
 ##########          Solution to Project Part A: Searching           ############
-##########       Akira Wang (), Callum Holmes (899251)        ############
+##########       Akira Wang (913391), Callum Holmes (899251)        ############
 ##########                       Team: _blank_                      ############
 ################################################################################
 """
@@ -22,38 +22,21 @@ BANNER = '*' * 60 + '\n'
 
 ######################### FUNCTIONS ##########################
 
-# BEGIN TIME (PROGRAM EXECUTION)
-start = time.time()
-
 def main():
-    DEBUG_FLAG = True # FOR DEBUGGING
-
     # Read argv input for initial state
     with open(argv[1]) as file:
         data = load(file)
-        print('# 100%% Data input:', data)
 
     data = convert_to_tuples(data)
 
-    # Print current state
-    print_board(debug(data), debug=True)
-    print_board(dijkstra_board(data), debug=False)
-
     # Implementing IDA*
-    used_heuristics = [dijkstra_heuristic]
-    print("# Great amazingness")
-    optimal_solution = IDA_control_loop(data, heuristics=used_heuristics)
+    print("# Prepare for amazingness")
+    optimal_solution = IDA_control_loop(data, dijkstra_heuristic)
 
-    # END TIME (FOUND SOLUTION)
-    end = time.time()
-    time_taken = end - start
-
-    timing_info(time_taken, TIME_LOG, COUNT_LOG)
-
-    print(f'# {BANNER}# {argv[1]} - {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed.')
+    # print(f'# {argv[1]} - {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed.')
 
     if (optimal_solution is not None):
-        print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves:\n#')
+        print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves:')
         path = list()
         node_temp = optimal_solution
 
@@ -71,14 +54,14 @@ def main():
                     print(f'JUMP from {piece} to {dest}.')
                 elif (action == EXIT):
                     print(f'EXIT from {piece}.')
+        CELEBRATE = True
     else:
         print(f'# ERROR: No solution found at this depth')
 
-    print(f"#\n# (Real) Time Elapsed {time_taken:.4f} seconds")
-    if (time_taken < 30):
-        PASSED = True
+    if CELEBRATE:
+        pass
     else:
-        print("# F to Pay Respects.")
+        pass
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
     main()

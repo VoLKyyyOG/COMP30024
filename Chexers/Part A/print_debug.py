@@ -15,7 +15,8 @@ def convert_to_tuples(raw_state):
     return state
 
 def debug(data):
-    """Creates a dictionary of board pieces (keys) with string flag (value)"""
+    """Creates a dictionary of board pieces (keys) with string flag (value)
+    Sourced from skeleto code"""
     board_dict = {}
     for i in data['pieces']:
         board_dict[i] = data['colour']
@@ -24,27 +25,7 @@ def debug(data):
     return board_dict
 
 def print_board(board_dict, message="", debug=True, number_hexes=False):
-    """
-    Helper function to print a drawing of a hexagonal board's contents.
-
-    Arguments:
-
-    * `board_dict` -- dictionary with tuples for keys and anything printable
-    for values. The tuple keys are interpreted as hexagonal coordinates (using
-    the axial coordinate system outlined in the project specification) and the
-    values are formatted as strings and placed in the drawing at the corres-
-    ponding location (only the first 5 characters of each string are used, to
-    keep the drawings small). Coordinates with missing values are left blank.
-
-    Keyword arguments:
-
-    * `message` -- an optional message to include on the first line of the
-    drawing (above the board) -- default `""` (resulting in a blank message).
-    * `debug` -- for a larger board drawing that includes the coordinates
-    inside each hex, set this to `True` -- default `False`.
-    * Or, any other keyword arguments! They will be forwarded to `print()`.
-    """
-
+    """Print board display. Sourced from skeleton code"""
     # Set up the board template:
     if not debug:
         # Use the normal board template (smaller, not showing coordinates)

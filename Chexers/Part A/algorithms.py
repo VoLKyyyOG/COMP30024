@@ -13,7 +13,6 @@ from collections import defaultdict
 # User-defined files
 from moves import *
 from classes import *
-########################## GLOBALS ###########################
 
 ###################### NODE BASE CLASS #######################
 
@@ -30,7 +29,6 @@ class Node:
         self.state = None # Stores data
         self.children = list() # Stores addresses of children
 
-    @trackit
     def apply_action(self, action):
         """Applies action to passed node, updates attributes.
         NOTE: state is usually the parents', as self still being defined"""
@@ -42,7 +40,6 @@ class Node:
             self.state["pieces"].sort()
         self.action_made = action
 
-    @trackit
     def create_children(self):
         """Given a list of action tuples, create new children."""
         if not self.is_expanded:
@@ -79,10 +76,6 @@ class Node:
 
 ######################## HEURISTICS ##########################
 
-def apply_heuristics(heuristics, node):
-    """Quick abstraction for applying a list of heuristics in a search problem"""
-    return sum((f(node) for f in heuristics))
-
 def dijkstra_heuristic(node):
     """Calculates worst-case cost in relaxed problem with free jumping"""
     return sum([dijkstra_board(node.state)[i] for i in node.state['pieces']])
@@ -106,27 +99,9 @@ class IDA_Node(Node):
         """Allows (node < other_node) behavior, for use in PQ"""
         return self.total_cost < other.total_cost
 
-    @trackit
     def new_child(self):
         """Overrides child creation call in Node class"""
         return IDA_Node(parent=self)
-
-    @trackit
-    def update_depth(self, new_depth):
-        """Update depths of all predecessors"""
-        self.total_cost += (new_depth - self.depth)
-        self.depth = new_depth
-        for child in self.children:
-            child.update_depth(new_depth + 1)
-
-    @trackit
-    def kill_tree(self):
-        for child in self.children[::-1]:
-            child.kill_tree()
-        if self.parent:
-            self.parent.children.remove(self)
-        IDA_Node.TRIM_TOTAL += 1
-        del(self)
 
     @staticmethod
     def create_root(initial_state):
@@ -146,28 +121,14 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
         for child in node.children:
             my_hash = Z_hash(child.state)
             if my_hash in TT.keys():
-                if child.depth < TT[my_hash][0].depth:
-                    TT[my_hash] = [child]
-                else:
-                    IDA_Node.TRIM_TOTAL += 1
+                IDA_Node.TRIM_TOTAL += 1
+                if child.depth >= TT[my_hash].depth:
                     continue
-                '''# The below is fast! But 30move still sucks
-                if child.depth < TT[my_hash][0].depth:
-                    previous = TT[my_hash][0]
-                    previous.update_depth(child.depth)
-                    if previous in previous.parent.children:
-                        previous.parent.children.remove(previous)
-                    previous.parent = node
-                    node.children.append(previous)
-                    #queue.put(previous)
-                node.children.remove(child)
-                del(child)
-                continue'''
 
             # Evaluate heuristics, append to queue
-            child.total_cost = child.depth + apply_heuristics(heuristics, child)
+            child.total_cost = child.depth + dijkstra_heuristic(child)
             queue.put(child)
-            TT[my_hash].append(child)
+            TT[my_hash] = child
     else:
         for child in node.children:
             queue.put(child)
@@ -194,14 +155,14 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
     # IDA has failed to find anything
     return None
 
-def IDA_control_loop(initial_state, heuristics=[dijkstra_heuristic], debug_flag=False):
+def IDA_control_loop(initial_state, heuristics=dijkstra_heuristic):
     """Runs IDA*. Must use a heuristic that works with Nodes and returns goal if found"""
 
     initial_node = IDA_Node.create_root(initial_state)
-    initial_node.total_cost = threshold = apply_heuristics(heuristics, initial_node)
-    print(f"#\n# Initial valuation: " + ", ".join([f"[{f.__name__}] {f(initial_node)}" for f in heuristics]) + f" + [Depth] {initial_node.depth} = {initial_node.total_cost}")
-    TT = defaultdict(list)
-    TT[Z_hash(initial_node.state)].append(initial_node)
+    initial_node.total_cost = threshold = dijkstra_heuristic( initial_node)
+    # print(f"#\n# Initial valuation: " + ", ".join([f"[{f.__name__}] {f(initial_node)}" for f in heuristics]) + f" + [Depth] {initial_node.depth} = {initial_node.total_cost}")
+    TT = dict()
+    TT[Z_hash(initial_node.state)] = initial_node
 
     root = None
     while root is None:
@@ -210,8 +171,6 @@ def IDA_control_loop(initial_state, heuristics=[dijkstra_heuristic], debug_flag=
         root = IDA(initial_node, heuristics, TT, threshold, new_threshold)
         if root is None: # Update threshold, the goal hasn't been found
             threshold = new_threshold[0]
-        if debug_flag:
-            print(f"Threshold ({threshold}), new_threshold ({new_threshold[0]}), generated ({IDA_Node.COUNT_TOTAL})")
     return root
 
 #374
