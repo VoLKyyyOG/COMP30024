@@ -156,9 +156,9 @@ class IDA_Node(Node):
     def kill_tree(self):
         # Kill subtrees
         for child in self.children[::-1]:
-            kill_tree(child)
+            child.kill_tree()
         # Remove node from parent's collections
-        if self.parent:
+        if self in self.parent.children:
             self.parent.children.remove(self)
         # Kill this
         IDA_Node.TRIM_TOTAL += 1
@@ -184,23 +184,34 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
         # Initialize children, with trimming
         for child in node.children:
             #assert(hash(child) == Z_hash(child.state))
-            my_hash = Z_hash(child.state)#Z_hash(child.state)
+            my_hash = Z_hash(child.state)
             if my_hash in TT.keys():
+                IDA_Node.TRIM_TOTAL += 1
                 if child.depth < TT[my_hash][0].depth:
-                    #USE THIS TO CHECK HASHING: assert(Z_hash(child.state) == Z_hash(TT[my_hash][0].state))
-                    # Kill previous NEEDS DEBUGGING
-                    #TT[my_hash][0].kill_tree()
-                    TT[my_hash] = [child]
+                    TT[my_hash].pop().kill_tree()
                 else:
-                    IDA_Node.TRIM_TOTAL += 1
+                    node.children.remove(child)
+                    del(child)
                     continue
-            else:
-                TT[my_hash].append(child)
+                # The below is fast! But 30move still sucks
+                '''if child.depth < TT[my_hash][0].depth:
+                    previous = TT[my_hash][0]
+                    previous.update_depth(child.depth)
+                    if previous in previous.parent.children:
+                        previous.parent.children.remove(previous)
+                    previous.parent = node
+                    node.children.append(previous)
+                    #queue.put(previous)
+                node.children.remove(child)
+                del(child)
+                continue'''
+
 
             # Evaluate heuristics, define possible_actions, append to queue
             child.total_cost = child.depth + apply_heuristics(heuristics, child)
             child.possible_actions = possible_actions(child.state)
             queue.put(child)
+            TT[my_hash].append(child)
     else:
         for child in node.children:
             queue.put(child)
