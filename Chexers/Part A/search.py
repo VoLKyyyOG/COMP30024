@@ -36,13 +36,13 @@ def main():
     data = convert_to_tuples(data)
 
     # Print current state
-    print_board(debug(data), debug=False)
+    print_board(debug(data), debug=True)
     print_board(dijkstra_board(data), debug=False)
 
     # Implementing IDA*
     used_heuristics = [dijkstra_heuristic]
     if len(argv) > 2:
-        print("# Using IDA")
+        print("# Using Better alg")
         optimal_solution = IDA_control_loop(data, heuristics=used_heuristics)
     else:
         print("# Using A*")
