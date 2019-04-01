@@ -122,8 +122,10 @@ class IDA_Node(Node):
     @trackit
     def kill_tree(self):
         for child in self.children[::-1]:
-            self.children.remove(child)
             child.kill_tree()
+        if self.parent:
+            self.parent.children.remove(self)
+        IDA_Node.TRIM_TOTAL += 1
         del(self)
 
     @staticmethod
@@ -196,12 +198,10 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
         for child in node.children:
             my_hash = Z_hash(child.state)
             if my_hash in TT.keys():
-                IDA_Node.TRIM_TOTAL += 1
                 if child.depth < TT[my_hash][0].depth:
-                    TT[my_hash].pop().kill_tree()
+                    TT[my_hash] = [child]
                 else:
-                    node.children.remove(child)
-                    del(child)
+                    IDA_Node.TRIM_TOTAL += 1
                     continue
                 '''# The below is fast! But 30move still sucks
                 if child.depth < TT[my_hash][0].depth:
