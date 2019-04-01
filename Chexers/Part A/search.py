@@ -54,14 +54,9 @@ def main():
                     print(f'JUMP from {piece} to {dest}.')
                 elif (action == EXIT):
                     print(f'EXIT from {piece}.')
-        CELEBRATE = True
+        print(pikawin)
     else:
         print(f'# ERROR: No solution found at this depth')
-
-    if CELEBRATE:
-        pass
-    else:
-        pass
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
     main()
