@@ -23,12 +23,17 @@ def optimal_relaxed_paths(state, cost):
         # All optimal neighbours computed
     return optimal_neighbours
 
+# Annoying: it is possible that JP paths are used on paths that are NOT optimal for relaxed solution
+# HOWEVER it seems that despite this, only JP's on relaxed paths occur - that is, they are predictable
+# SOLN: You need relaxed path hierachies for ALL positions
+
 # Intuition: relaxed_paths is a bare minimum cost (the best you could do)
 # So aspire to have actual path lie on a relaxed path as much as possible
 # More coverage (without expense of cost) = lower cost
 # BIG Q: Can you benefit from moving to sub-optimal positions?
      # IDEA: ... no. Going to suboptimal = same or higher evaluation + 1 wasted.
      # So in BEST CASE, you get optimal + 1 > optimal.
+     # ACTUAL: 'suboptimal' with respect to relaxed is POSSIBLE (see 30MOVE - it does JP's that don't lie on any relaxed path from piece origins)
 
 def straight_paths(cost, rpaths):
     """Given relaxed paths, costs and state, finds all JP-possible RELAXED paths"""
