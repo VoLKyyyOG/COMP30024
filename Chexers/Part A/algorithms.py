@@ -2,23 +2,15 @@
 
 Implements algorithms for use in game exploration, NOT actual agent logic.
 
-Notes:
-- Utilise game_status to tell if trimmed (symmetrical flag) --> DONT Explore
-- Maybe have a different flag; so that way, one flag = "win/loss/draw", the other is "trim/duplicate" etc
-
 """
 
 ########################## IMPORTS ###########################
 
 # Standard modules
-from math import ceil
-from sys import getsizeof
-from copy import deepcopy
 from queue import PriorityQueue as PQ
 from collections import defaultdict
 
 # User-defined files
-from print_debug import *
 from moves import *
 from classes import *
 ########################## GLOBALS ###########################
@@ -32,32 +24,11 @@ class Node:
     def __init__(self, parent):
         """Creates new node. NOTE: it inherits (not updates) parent state"""
         self.parent = parent # Points to parent node
-        if (parent is not None):
-            self.state = deepcopy(self.parent.state) # Stores data
-            self.depth = self.parent.depth + 1 # No. actions taken so far
-        else: # Initial state
-            self.state = None
-            self.depth = 0
-        self.game_status = None # For now, is True if search ongoing
-        self.possible_actions = None # Will store list of action-tuples
-        self.is_expanded = False # Flags expanded nodes for use in Part B
+        self.depth = self.parent.depth + 1 if parent else 0
+        self.is_expanded = False # Flags expanded nodes
         self.action_made = None # Action that parent made to get here
+        self.state = None # Stores data
         self.children = list() # Stores addresses of children
-
-    @trackit
-    def create_children(self):
-        if self.is_expanded:
-            try:
-                assert len(self.children) == len(self.possible_actions)
-            except AssertionError:
-                print(f"Children: {[i.action_made for i in self.children]}")
-                print(f"Actions: {self.possible_actions}")
-        """Given a list of action tuples, create new children."""
-        for action in self.possible_actions:
-            new_child = self.new_child()
-            new_child.apply_action(action)
-            self.children.append(new_child)
-        self.is_expanded = True
 
     @trackit
     def apply_action(self, action):
@@ -65,32 +36,33 @@ class Node:
         NOTE: state is usually the parents', as self still being defined"""
         assert not self.is_expanded
         piece, action_flag, dest = action
+        self.state["pieces"].remove(piece)
         if action_flag != EXIT:
-            self.state["pieces"].remove(piece)
             self.state["pieces"].append(dest)
             self.state["pieces"].sort()
-            """PART B: CONSIDER ORDERING & Must evaluate capturing here"""
-            self.action_made = action
-        elif action_flag == EXIT:
-            """PART B: Do NOT evaluate no. exits - this is done via get_status below"""
-            self.state["pieces"].remove(piece)
-            self.action_made = action
+        self.action_made = action
 
-        # Update game_status, possible_actions (now that state is updated)
-        self.game_status = self.get_status()
-        self.possible_actions = possible_actions(self.state)
+    @trackit
+    def create_children(self):
+        """Given a list of action tuples, create new children."""
+        if not self.is_expanded:
+            for action in possible_actions(self.state):
+                new_child = self.new_child()
+                new_child.state = deepcopy(self.state)
+                new_child.apply_action(action) # The killer
+                self.children.append(new_child)
+            self.is_expanded = True
 
-    def get_status(self):
+    def game_status(self):
         """Determines if a win/loss/draw has occurred and by whom
         PART A: 0 is over, more than 1 is not over
         PART B: 1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW, -2 DUPLICATE"""
-        return (len(self.state["pieces"]) > 0 if self.state is not None else True)
+        return (len(self.state["pieces"]) > 0 if self.state else True)
 
-    def get_player(self):
+    def player(self):
         """Retrieves current player.
         PART A: Simple, just get it from data
         PART B: ONLY IMPLEMENT AFTER "DATA" structure FINALISED"""
-        assert(self.parent is not None)
         return self.parent.state["colour"]
 
     # Subclasses should overrride
@@ -98,21 +70,18 @@ class Node:
         """Creates new Node instance"""
         return Node(parent=self)
 
-    def __hash__(self):
-        return Z_hash(self.state)
-
     def __str__(self):
         """Defines string format for use in debugging"""
         return f"# State: {self.state}\n# Depth {self.depth}" \
-        + f", Game Status {self.game_status}" \
+        + f", Game Status {self.game_status()}" \
         + f", Expanded {self.is_expanded}, Action {self.action_made}\n# " \
-        + f"Actions {self.possible_actions}\n# Children {self.children}"
+        + f"Actions {possible_actions(self.state)}\n# Children {self.children}"
 
 ######################## HEURISTICS ##########################
 
 def apply_heuristics(heuristics, node):
     """Quick abstraction for applying a list of heuristics in a search problem"""
-    return sum([f(node) for f in heuristics])
+    return sum((f(node) for f in heuristics))
 
 @trackit
 def dijkstra_heuristic(node):
@@ -123,25 +92,16 @@ def dijkstra_heuristic(node):
 
 class IDA_Node(Node):
     """IDA* Node definition with inbuilt attributes for heuristic/total cost"""
-    COUNT_TOTAL = TRIM_TOTAL = MEMORY_TOTAL = F_SIDE = 0
-    COUNT_BY_DEPTH = [0] * 20
+    COUNT_TOTAL = TRIM_TOTAL = 0
 
     def __init__(self, parent):
         super().__init__(parent)
-
-        # Additional functionality for IDA*
-        # Exit cost = cost to get from here to completion
-        # Total cost factors in depth (total_cost = depth + exit_cost)
-        self.total_cost = 0
+        self.total_cost = 0 # Total cost factors in depth (total_cost = depth + exit_cost)
         IDA_Node.COUNT_TOTAL += 1
-        IDA_Node.MEMORY_TOTAL += getsizeof(self)
-        #IDA_Node.COUNT_BY_DEPTH[self.depth] += 1
 
     def __str__(self):
         """Appends additional IDA information to standard Node str format"""
-        cur_str = super().__str__()
-        cur_str += f"\n # Exit ({self.total_cost - self.depth}) + Depth = {self.total_cost}"
-        return cur_str
+        return super().__str__() + f"\n # Exit {self.total_cost - self.depth} + Depth {self.depth} = {self.total_cost}"
 
     def __lt__(self, other):
         """Allows (node < other_node) behavior, for use in PQ"""
@@ -153,37 +113,88 @@ class IDA_Node(Node):
         return IDA_Node(parent=self)
 
     @trackit
+    def update_depth(self, new_depth):
+        """Update depths of all predecessors"""
+        self.total_cost += (new_depth - self.depth)
+        self.depth = new_depth
+        for child in self.children:
+            child.update_depth(new_depth + 1)
+
+    @trackit
     def kill_tree(self):
-        # Kill subtrees
         for child in self.children[::-1]:
+            self.children.remove(child)
             child.kill_tree()
-        # Remove node from parent's collections
-        if self in self.parent.children:
-            self.parent.children.remove(self)
-        # Kill this
-        IDA_Node.TRIM_TOTAL += 1
         del(self)
 
     @staticmethod
     def create_root(initial_state):
         """Creates a root IDA_Node for IDA* to work with"""
         root = IDA_Node(None)
-        root.state = deepcopy(initial_state)
-        root.game_status = IDA_Node.get_status(root)
-        root.possible_actions = possible_actions(root.state)
+        root.state = initial_state
         return root
 
+class A_Node(IDA_Node):
+    def new_child(self):
+        return A_Node(parent=self)
+
+    @staticmethod
+    def create_root(initial_state):
+        """Creates a root A_Node for A* to work with"""
+        root = IDA_Node(None)
+        root.state = initial_state
+        return root
+
+def A_star_control_loop(initial_state, heuristics=[dijkstra_heuristic]):
+    """Main control for running of A*"""
+    Fringe = PQ()
+    TT = defaultdict(list)
+    initial_node = A_Node.create_root(initial_state) # Check this is assigned MAY BE REDUNDANT
+    initial_node.total_cost = apply_heuristics(heuristics, initial_node)
+    Fringe.put(initial_node)
+    # Print initial evaluation line
+
+    while not Fringe.empty():
+        current = Fringe.get()
+        if current.total_cost == current.depth:
+            return current
+        if not current.is_expanded: # Prevents doubling up
+            current.create_children()
+            for child in current.children:
+                my_hash = Z_hash(child.state)
+                if my_hash in TT:
+                    if child.depth < TT[my_hash][0].depth: # New one is better
+                        TT[my_hash].pop().kill_tree()
+                    else:
+                        current.children.remove(child)
+                        del(child)
+                        continue
+                        '''previous = TT[my_hash][0]
+                        previous.update_depth(child.depth)
+                        if previous in previous.parent.children:
+                            previous.parent.children.remove(previous)
+                        previous.parent = current
+                        current.children.append(previous)
+                        #Fringe.put(previous)
+                    # Other one is better, don't revisit this one
+                    current.children.remove(child)
+                    del(child)
+                    continue'''
+                TT[my_hash].append(child)
+                child.total_cost = child.depth + apply_heuristics(heuristics, child)
+        for child in current.children:
+            Fringe.put(child)
+    return None
+
 def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
-    """Implements IDA*, using IDA_node.depth as g(n) and exit_h as h(n)"""
+    """Implements IDA*, using IDA_node.depth as g(n) and sum(heuristics) as h(n)"""
 
     queue = PQ() # Gets item with lowest total_cost
-
     if not node.is_expanded:
         node.create_children()
 
         # Initialize children, with trimming
         for child in node.children:
-            #assert(hash(child) == Z_hash(child.state))
             my_hash = Z_hash(child.state)
             if my_hash in TT.keys():
                 IDA_Node.TRIM_TOTAL += 1
@@ -193,8 +204,8 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
                     node.children.remove(child)
                     del(child)
                     continue
-                # The below is fast! But 30move still sucks
-                '''if child.depth < TT[my_hash][0].depth:
+                '''# The below is fast! But 30move still sucks
+                if child.depth < TT[my_hash][0].depth:
                     previous = TT[my_hash][0]
                     previous.update_depth(child.depth)
                     if previous in previous.parent.children:
@@ -206,10 +217,8 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
                 del(child)
                 continue'''
 
-
-            # Evaluate heuristics, define possible_actions, append to queue
+            # Evaluate heuristics, append to queue
             child.total_cost = child.depth + apply_heuristics(heuristics, child)
-            child.possible_actions = possible_actions(child.state)
             queue.put(child)
             TT[my_hash].append(child)
     else:
@@ -238,9 +247,8 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
     # IDA has failed to find anything
     return None
 
-def IDA_control_loop(initial_state, heuristics=[dijkstra_heuristic], max_threshold = 35, debug_flag=True):
+def IDA_control_loop(initial_state, heuristics=[dijkstra_heuristic], debug_flag=False):
     """Runs IDA*. Must use a heuristic that works with Nodes and returns goal if found"""
-    """FUTURE GOAL: Allow generated nodes to remain in system memory for other algorithms to exploit!"""
 
     initial_node = IDA_Node.create_root(initial_state)
     initial_node.total_cost = threshold = apply_heuristics(heuristics, initial_node)
@@ -249,7 +257,7 @@ def IDA_control_loop(initial_state, heuristics=[dijkstra_heuristic], max_thresho
     TT[Z_hash(initial_node.state)].append(initial_node)
 
     root = None
-    while root is None and threshold < max_threshold:
+    while root is None:
         new_threshold = [INF] # So that IDA() can manipulate it
         # Perform IDA* down the tree to reach nodes just beyond threshold
         root = IDA(initial_node, heuristics, TT, threshold, new_threshold)
@@ -258,3 +266,5 @@ def IDA_control_loop(initial_state, heuristics=[dijkstra_heuristic], max_thresho
         if debug_flag:
             print(f"Threshold ({threshold}), new_threshold ({new_threshold[0]}), generated ({IDA_Node.COUNT_TOTAL})")
     return root
+
+#374
