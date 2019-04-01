@@ -32,7 +32,6 @@ class Node:
     def apply_action(self, action):
         """Applies action to passed node, updates attributes.
         NOTE: state is usually the parents', as self still being defined"""
-        assert not self.is_expanded
         piece, action_flag, dest = action
         self.state["pieces"].remove(piece)
         if action_flag != EXIT:
