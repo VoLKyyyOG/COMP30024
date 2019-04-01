@@ -11,7 +11,6 @@
 # Standard modules
 from json import load
 from sys import argv
-import time
 
 # User-defined files
 from print_debug import *
@@ -37,17 +36,22 @@ def main():
 
     # Print current state
 
-
     # Implementing IDA*
-    chosen_heuristics = [dijkstra_heuristic]
-    optimal_solution = IDA_control_loop(data, heuristics=chosen_heuristics, debug_flag=False)
+    used_heuristics = [dijkstra_heuristic]
+    optimal_solution = IDA_control_loop(data, heuristics=used_heuristics)
 
     # END TIME (FOUND SOLUTION)
     end = time.time()
     time_taken = end - start
 
-    print(f"{time_taken:.6f}")
+    timing_info(time_taken, TIME_LOG, COUNT_LOG)
 
+    print(f'{IDA_Node.COUNT_TOTAL}')
+
+    if (optimal_solution is not None):
+        print(optimal_solution.depth)
+        path = list()
+        node_temp = optimal_solution
 
 
 # when this module is executed, run the `main` function:
