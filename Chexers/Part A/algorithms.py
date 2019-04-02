@@ -25,6 +25,7 @@ class Node:
         self.parent = parent # Points to parent node
         self.depth = self.parent.depth + 1 if parent else 0
         self.is_expanded = False # Flags expanded nodes
+        self.is_dead = False # DO NOT continue to explore
         self.action_made = None # Action that parent made to get here
         self.state = None # Stores data
         self.children = list() # Stores addresses of children
@@ -41,7 +42,7 @@ class Node:
 
     def create_children(self):
         """Given a list of action tuples, create new children."""
-        if not self.is_expanded:
+        if not self.is_expanded and not self.is_dead:
             for action in possible_actions(self.state):
                 new_child = self.new_child()
                 new_child.state = deepcopy(self.state)
@@ -113,7 +114,7 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
     """Implements IDA*, using IDA_node.depth as g(n) and sum(heuristics) as h(n)"""
 
     queue = PQ() # Gets item with lowest total_cost
-    if not node.is_expanded:
+    if not node.is_expanded and not node.is_dead:
         node.create_children()
 
         # Initialize children, with trimming
@@ -122,16 +123,16 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
             if my_hash in TT.keys():
                 IDA_Node.TRIM_TOTAL += 1
                 if child.depth >= TT[my_hash].depth:
+                    child.is_dead = True
                     continue
 
             # Evaluate heuristics, append to queue
             child.total_cost = child.depth + dijkstra_heuristic(child)
             queue.put(child)
             TT[my_hash] = child
-    else:
+    elif not node.is_dead:
         for child in node.children:
             queue.put(child)
-
     # Expand children, preferring those of least (estimated) total_cost
     while not queue.empty():
         child = queue.get()
