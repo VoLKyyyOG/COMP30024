@@ -34,7 +34,7 @@ def main():
     print("# Prepare for amazingness")
     optimal_solution = IDA_control_loop(data, dijkstra_heuristic)
     end = time.time()
-    print(f"Time elapsed: {(end-start)}s")
+    # print(f"# Time elapsed: {(end-start)}s")
     # print(f'# {argv[1]} - {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed.')
 
     if (optimal_solution is not None):
