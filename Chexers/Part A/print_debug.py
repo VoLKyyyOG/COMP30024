@@ -10,7 +10,7 @@ def get_data(solution, optimal_depth):
     """Extracts data on branching factor and depth across all nodes"""
     node_temp = solution
 
-    # Re-assemble path taken
+    # Get back up to root
     while (node_temp.parent is not None):
         node_temp = node_temp.parent
     branching = [[0]*25 for i in range(optimal_depth + 1)] # 6 is max
