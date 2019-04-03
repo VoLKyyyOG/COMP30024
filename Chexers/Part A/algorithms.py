@@ -123,7 +123,7 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
             if my_hash in TT.keys():
                 IDA_Node.TRIM_TOTAL += 1
                 if child.depth >= TT[my_hash].depth and child != TT[my_hash]:
-                    child.is_dead = True
+                    #child.is_dead = True
                     continue
 
             # Evaluate heuristics, append to queue
