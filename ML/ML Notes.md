@@ -192,15 +192,11 @@ Two main different strategies to evaluate your model.
   - Class distribution is used here to extend definitions from continuous domain to discrete domain 
 
 #### Determining if a Classifier is Good
-- (FN) False Negatives is when there is a wrong rejection (Actual label is `A` with wrong prediction `None`)
-- (FP) False Positive is when there is a wrong prediction (Actual label is `A` with wrong prediction `B`)
-- (TN) True Negatives is when there is correct rejection (Actual label is `None` with correct prediction `None`)
-- (TP )True Positive is when there is a correct prediction (Actual label is `A` with correct prediction `A`)
+- True Positive (TP) are instances where we predicted label `A` and the actual label was `A`
+- False Positive (FP) are instances where we predicted label `A` but the actual label was `B`
+- True Negative (TN) are instances where we predicted label `?` and the actual class label was `?`
+- False Negative (FN) are instances where we predicted label `A` but the actual class label was `?`
 
-
-For a *two class* problem, we can assume:
-- An *Interesting Class* I (Actual = Predicted)
-- An *Uninteresting Class* U (Wrong Actual = Wrong Prediction)
 
 We want **TRUE** negatives and positives (correctly predicted).
 
