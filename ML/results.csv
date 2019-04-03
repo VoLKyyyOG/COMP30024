@@ -1,10 +1,6 @@
-﻿No Imputations and No dropping 0 info gain,10 fold Cross Validation result 1,No Imputations and Dropping 0 info gain,10 fold Cross Validation result 2,Mode Imputations and No dropping 0 info gain,10 fold Cross Validation result 3,Mode Imputations and Dropping 0 info gain,10 fold Cross Validation result 4
-99.11,99,99.11,98.99,99.11,98.78,99.11,99
-75.52,71.29,75.52,72.77,75.85,72.01,75.87,71.59
-87.38,85.42,87.38,85.71,87.38,85.82,87.38,85.07
-50.58,49.08,50.58,49.7,50.58,49.15,50.58,49.15
-85.16,83.71,85.16,83.17,84.52,84.5,84.52,84
-95.23,95.23,95.23,95.23,95.23,95.23,95.23,95.23
-99.72,99.69,99.72,99.68,99.58,99.68,99.58,99.68
-90.31,90.32,90.31,90.25,90.31,90.33,90.31,90.37
-61.65,46.27,61.65,46.31,57.52,46.9,57.52,48.4
+,Training on Test with Imputation,10-Fold Cross-Validation with Imputation,Training on Test without Imputation,10-Fold Cross-Validation without Imputation
+breast-cancer.csv,75.52447552,69.5320197,75.52447552,70.92364532
+hepatitis.csv,84.51612903,81.375,84.51612903,83.95833333
+hypothyroid.csv,95.22605122,95.22641057,95.22605122,95.22601126
+mushroom.csv,99.71688823,99.69228485,99.71688823,99.6923
+primary-tumor.csv,61.6519174,47.49554367,61.6519174,45.72192513
