@@ -1,3 +1,9 @@
+# TO RESEARCH:
+- MTD(f) --> apparently outperforms minimax a/b
+- Best Node Search --> apparently outperforms MTD(f) and is fairly new
+- Use of bloom filters to measure position similarity --> application to killer heuristic?
+
+
 
 ## A*:
 - Best-first search: evaluates nodes with g(n) + h(n) (cost to get here + cost to get to goal). Expand at each step by removing from the 'fringe' (PQ?), update heuristic values, and rinse/repeat until find the goal.
@@ -9,15 +15,10 @@ Admissible heuristic --> optimal.
 IDA* is beneficial when the problem is memory constrained... A* search keeps a large queue of unexplored nodes...
 By contrast... IDA* does not remember any node except the ones on the current path... O(solution) memory space-complexity
 
-## Dijkstra: NEEDS A HEURISTIC
+## Dijkstra:
 - Single-source minimum cost path. Basically A* with h(n) = 0 (no cost heuristic to get to finish considered)
 
 ## Floyd-Warshall: PRETTY BAD. O(|V|^3)... |V|x|V| array of all distance combinations. Iterate over each row-col pair and ask if there's shorter. Do this repeatedly (each time = get shortest paths of length total_num_iterations)
-
-## JPS: DOES NOT NEED A HEURISTIC
-- not 'ideal' for hexagonal, however you could do it with the following:
-- For all directions, progression y is a jump node if either A) it's goal, B.) it has a certain blocking, C) there's a cell you can JP to from y
-- Could also pre-process graphs to identify JP's ... but this assumes static env
 
 #  Minimax + Improvements
 
@@ -70,11 +71,107 @@ def minimax(node, depth, α, β, maximizingPlayer):
     - This updates C's `α` (due to `α = max(α, value)`)
     - C's best possible move is worse than A's worst-case move (`α` >= `β`)! There is no point further diving into any of C's other children and so C is pruned.
 
+# [FS A/B and Aspiration Search info sourced from this fabulous website](https://www.ics.uci.edu/~eppstein/180a/990202b.html)
+
 ## Fail-soft alpha beta (extends Minimax)
+Fixes one shortcoming of minimax - when a score is uninteresting, no extra information is returned about that score. The reason for this is that the current score is kept in the variable alpha... One of the simplest improvements to alpha-beta is to keep the current score and alpha in separate variables.
+
+```C
+// fail-soft alpha-beta search
+int alphabeta(int depth, int alpha, int beta) {
+    move bestmove;
+    int current = -WIN; // maximum score that can be returned by any call
+    if (game over or depth <= 0) return winning score or eval();
+    for (each possible move m) {
+        make move m;
+        score = -alphabeta(depth - 1, -beta, -alpha)
+        unmake move m;
+        if (score >= current) {
+            current = score;
+            bestmove = m;
+            if (score >= alpha) alpha = score;
+            if (score >= beta) break;
+        }
+    }
+    return current;
+}
+```
+
+With this change, one can determine a little more information than before:
+- If `x <= alpha`, then we still don't know the true value of the position... but we do know that the true value is at most x.
+- Similarly, if `x >= beta`, the true search value is at least x
+These slightly tighter upper and lower bounds don't improve the search itself, but they could lead to a greater number of successful hash probes. The use of fail-soft alpha-beta is also essential in the MTD(f) algorithm described below.
+
+## Aspiration Search (introduces idea of a window) (refactoring of A/B)
+Normally, when using alpha-beta to choose the best move, one calls `alphabeta(depth, -WIN, WIN)`
+where the huge range between -WIN and WIN indicates that we don't know what the true search value will be... instead, it is often helpful to call alpha-beta with an artificially narrow window `prev - WINDOW, prev + WINDOW`. If the result is a score within that window, you've saved time and found the correct search value. But if the search fails, you must widen the window and search again:
+
+```C
+// aspiration search
+int alpha = previous - WINDOW;
+int beta = previous + WINDOW;
+for (;;) {
+    score = alphabeta(depth, alpha, beta)
+    if (score <= alpha) alpha = -WIN; // Must widen window and research, true value outside window
+    else if (score >= beta) beta = WIN; // Must widen window and research, true value outside window
+    else break; // Window captured actual value
+}
+```
+
+- The constant WINDOW balances a tradeoff between time savings from a narrower search ... and the time lost from repeating an unsuccessful search.
+- Variants of aspiration search include widening the window more gradually in the event of an unsuccessful search, or using a different search window function
 
 ## Zero-Window Search (adds to Minimax/AB)
-This 2-player zero-sum algorithm asserts all leaves must evaluate to a win or loss by use of a threshold v.
-- Does not hold well for n-player games as the threshold can disguise worser positons as wins *e.g. buying a spoon is of equal value to buying a car if the threshold is just to be able to afford $1.*
+"If a narrower search window leads to faster searches, the idea here is to make the search window as narrow as possible: it always calls alpha-beta with `beta=alpha+1`."
+- "The effect of such a "zero-width" search is to compare the true score with alpha: if the search returns a value at most alpha, then the true score is itself at most alpha, and otherwise the true score is greater than alpha."
+- Alone, does not hold well for n-player games as the threshold can disguise worser positons as wins *e.g. buying a spoon is of equal value to buying a car if the threshold is just to be able to afford $1.*
+- Best used in a complementary fashion when there is reasonable confidence in a parent evaluation, e.g. PVS
+
+## MTD(f) (simplification of alpha-beta)
+"The MTD(f) idea is to instead use fail-soft alpha-beta to control the search: each call to fail-soft alpha-beta returns a search value which is closer to the final score, so if we use that search value as the start of the next test, we should eventually converge."
+"WARNING: One needs additional code to halt the search if too many iterations have been made without any convergence, as it is susceptible to infinite loops.
+```C
+// MTD(f)
+int test = 0;
+for (;;) {
+    score = alphabeta(depth, test,test+1);
+    if (test == score) break;
+    test = score; // Adjusting the window
+}
+```
+
+## Principal Variation Search (PVS - the 'king' of alpha-beta variants)
+"AKA Negascout"
+- Alpha-beta search works best if the first recursive search is likely to be the one with the best score... so if we try and make best moves the left-most, we can search the other moves more quickly by using the assumption that they are not likely to be as good. PVS performs an initial search with a normal window, but on subsequent searches uses a zero-width window to test each successive move against the first move. Only if the zero-width search fails does it do a normal search.
+
+```C
+// principal variation search (fail-soft version)
+int alphabeta(int depth, int alpha, int beta)
+{
+    move bestmove, current;
+    if (game over or depth <= 0) return winning score or eval();
+    move m = first move;
+    make move m;
+    current = -alphabeta(depth - 1, -beta, -alpha) // Evaluate first subtree
+    unmake move m;
+    for (each remaining move m) {
+        make move m;
+        score = -alphabeta(depth - 1, -alpha-1, -alpha)
+        if (score > alpha && score < beta)
+            score = -alphabeta(depth - 1, -beta, -alpha)
+        unmake move m;
+        if (score >= current) { // Need to update window
+            current = score;
+            bestmove = m;
+            if (score >= alpha) alpha = score;
+            if (score >= beta) break;
+        }
+    }
+    return current;
+}
+```
+
+This shares the advantage with MTD(f) that most nodes in the search tree have zero-width windows, and can use a simpler two-parameter form of alpha-beta. Since there are very few calls with beta > alpha+1, one can do extra work in those calls (such as saving the best move for later use) without worrying much about the extra time it takes.
 
 ## Last-branch alpha beta (Zero-window earch applied to Minimax)
 
@@ -129,6 +226,10 @@ Update the current move sequence with the result, keeping track of which player 
 
 # N-Player Analogs/Approaches
 
+[This paper first introduced MaxN: ](https://www.aaai.org/Papers/AAAI/1986/AAAI86-025.pdf)
+- "AI programs tend to analyze partial game trees in order to determine a best move" (due to explosive game tree size)
+- "Lookahead procedure" is that which backs up terminal node values to parents (e.g. minimax) and heuristics are what evaluate the terminal nodes
+
 ## Paranoid (Reduces N-Player games to Minimax)
 This algorithm is an n-player algorithm that assumes all opponents are collectively against the root player. Efficiency drops as n increases (not a concern for us) but does reduce complexity.
 
@@ -137,7 +238,7 @@ This algorithm is an n-player algorithm that assumes all opponents are collectiv
 - Identical to a 2-player game, and hence allows for alpha-beta minimax!!!
 
 ## Max^n (N-Player Minimax)
-[Here is the MaxN algorithm source](https://web.cs.du.edu/~sturtevant/papers/comparison_algorithms.pdf)
+[This paper extended MaxN algorithm](https://web.cs.du.edu/~sturtevant/papers/comparison_algorithms.pdf)
 This algorithm is an n-player analog of the minimax algorithm. Rather than a singular value representing state evaluation, an n-sized tuple is used, the ith value representing ith players' evaluation, and max_n chooses the child node of a player with tuple that maximises the choice player's score.
 
 *Assumptions*: Opponent behaviour is fixed.
@@ -164,7 +265,7 @@ This algorithm is an n-player analog of the minimax algorithm. Rather than a sin
 **Speculative pruning**: Last-branch pruning that doesn't wait until last branch for intermediate branches, but is willing to re-search if necessary (i.e. where Player 2 and Player 1 could mutually benefit from another Player 2 branch that wasn't explored at the time of pruning).
 *Note: sub-optimal ordering forces re-search because it forces Player 1 to change its preference to the current sub-branch, rather than a prior. This upsets the bounds that uphold the lemma for pruning to work, and hence, fields must be re-evaluated in the subbranch we pruned.*
 
-Sturtevant pseudocode (adapted)
+Sturtevant pseudocode (adapted) for speculative pruning
 ```python
 def specmax_n(Node, ParentScore, GrandparentScore)
     # note: result[currentPlayer] = "guaranteed score for currentPlayer from that subtree"
@@ -245,19 +346,13 @@ def MP_mix(defensiveThreshold, offensiveThreshold):
 ```
 **OI**: Measures impact of a decision on other players' performance. Typically, agents whose strategy = function(OI) perform better --> hence, constant OI tends to imply a constant strategy agent will work well.
 
-## SSS* (improves A*)
-
-## D* (improves A*)
-
 # Tabular techniques/search memoization
 
-## Rectangular Symmetry Reduction (RSR)
-
-## JPS (improves RSR)
-
-## Transposition Tables
-
 ## Refutation Tables
+'Abandoned', modern programs use transposition tables and killer heuristic typically.
+
+## Butterfly Board
 
 ## Killer Heuristic
-*Idea*: A move that was strong in some subtree X *could* also be strong in another location Y where the game states are similar enough.
+*Idea*: A move that was strong in some subtree X *could* also be strong in another location Y where the game states are similar enough. Typcically a killer move is one that doesn't explicitly capture, but causes cutoffs/trimming down the tree.
+- Requires a certain measure of similarity of states, and flexibility to allow for higher priority children
