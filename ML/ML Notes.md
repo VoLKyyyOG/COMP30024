@@ -426,7 +426,7 @@ Why is $k$-NN so slow?
     - Expensive index accessing
     - Prone to bias with an arbitrary $K$ value
 
-# Lecture 8: Support Vector Machines (SVM):
+## Lecture 8: Support Vector Machines (SVM):
 #### Nearest Prototype Classification
 - A parametric variance of the NN classification
 - Instead of $k$-NN, we calculate the centroid of each class and use that to classify each test
@@ -465,7 +465,7 @@ A possibly large margin solution is better even though constraints are being vio
 - Associate one class as positive (+1), and one as negative (-1)
 - Find the best hyperplane$\mathbf{w}$ and $b$, which maximise the margin between the positive and negative training instances (this is the **model**)
 - To make a prediction for a test instance $\mathbf{t} = <t_1,t_2,\dots,t_m>$:
-    - $f(t) = \mathbf{w}^\mathbf{t} + b
+    - $f(t) = \mathbf{w}^\mathbf{t} + b$
     - Find $sign(f(t))$
     - Assign `?` to instances within the margin
 
@@ -498,7 +498,7 @@ The classification function then becomes:
 
 $f(\mathbf{t}) = \sum^m_{i=1}\alpha_iy_i\mathbf{x}_i^T\mathbf{t} + b$
 
-$b = y_j(1 - \xi_j) - \sum^m_{i=1}\alpha_iy_i\mathbf{x}_i^T\mathbf{x}_j
+$b = y_j(1 - \xi_j) - \sum^m_{i=1}\alpha_iy_i\mathbf{x}_i^T\mathbf{x}_j$
 
 Most of the Lagrange Multipliers $\alpha_k$ are 0, where the non-zero correspond to **support vectors**
 
@@ -513,3 +513,5 @@ Since SVM's are inherently two-class classifiers, most common approaches to exte
 - Classification is built on projection of a point onto a hyperplane normal
 - SVM's have several parameters that need to be optimised and may be slow
 - SVM's can be applied to non-linear data by using an appropriate *kernel function*
+
+## Lecture 9: Discrete and Continuous Data
