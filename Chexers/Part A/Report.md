@@ -83,7 +83,7 @@ Furthermore, the heuristic assumes independent piece movement (as per the nature
 As leapfrogging is likelier to occur on sparse boards, overall the heuristic significantly underestimates true solution cost in sparse graphs due to its simplifying assumptions.
 
 ### Search algorithm: IDA*
-
+S
 Iterative Deepening A* (IDA*) was used to search the game tree. States were evaluated as f(n) = g(n) + h(n), where g(n) was path cost to reach it, and h(n) a heuristic estimate of the cost to achieve the goal from the position. A threhold is maintained that defines the cut between the expanded and unexpanded nodes. At each deepening, leaf nodes are expanded, and the least-cost new leaf's total cost defines the new threshold. This cycle continues until the goal is found, or all states exhausted.
 
 #### Motivating factors
@@ -108,14 +108,20 @@ input which affect the time and space complexity of your algorithm.)*
 
 ## Effectiveness of Approach (Answers Q3)
 
+### Issues with program input
+The input is initially stored in the json file as a dictionary, containing a string representation for the player and two lists for the pieces and blocks, representing coordinates as lists of length 2. This is inefficient: coordinates of blocks are never altered, and the primary use of a state is to evaluate membership of other locations (to derive potential moves/jumps and exit opportunities).
+
+### Optimisations to input/state storage
+
+
 ### Asymptotic Time-Space Complexity Analysis
 - **Use valgrind for space, it's better than getsizeof macro 4sure, infer a good O() and compare to theoretical esimates**
 - **Maybe graph # generated vs bash time for test files, infer a good O() cost and compare to theoretical estimates**
 
-### Depth (does it explore beyond optimal depth?)
-The path cost to achieve a goal state can vary from 1 to over 30 steps in some states, particularly where more pieces are used, the result being that the game tree has high average depth. Furthermore, a state can be reached repeatedly by 'backtracking', only adding to the depth and diluting the tree with repetition of suboptimal paths.
+### Problem's Depth (does it explore beyond optimal depth?)
+The path cost to achieve a goal state can vary from 1 to over 30 steps in some initial states, particularly where more pieces are used, the result being that the game tree has high average depth. Furthermore, a state can be entered repeatedly by 'backtracking', only adding to the depth and diluting the tree with repetition of suboptimal paths.
 
-### Branching (does it get dense? Is it wasting time on expansions?)
+### Problem's Branching (does it get dense? Is it wasting time on expansions?)
 In the worst case, when a state has a few, sparsely spread blocks, a game state can have up to 24 possible actions - movement in 6 directions for 4 pieces. Due to this, the problem tree has potental to be highly dense, which encroaches on time complexity and space complexity.
 
 Some optimisations were implemented to counter excessive depth and branching.
@@ -128,8 +134,6 @@ Ultimately, runtime data indicates an average branching factor of about 8.5-9.5 
 The data suggests that our trimming optimisations only marginally decrease the branching factor. This is expected; our algorithms evaluates children post-creation.
 
 
-
-What does the problem contribute to this issue?
 Does the input or its features impact this?
 What features of the problem allowed us to reduce branching?
 - **Measure branching factor with a tree sweep post-generation TICK - average b is about 9-10 (10 for harder problems), average depth varies b/t 3 for easy, and 7-8 for difficult. Given difficult problems actually have depth 20-30, this is a a strong reduction in net generation - reduced from O(b^{d_optimal}) to O(b^{d_optimal/3})**
