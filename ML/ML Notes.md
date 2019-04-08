@@ -359,6 +359,9 @@ A vector locates an instance as a point in an orthogonal n-space. The angle of t
     - Minimum (or close to no) dissimilarity is often 0, with a varying upper limit
 
 #### Distance Metrics
+**Hamming Distance:**
+$d_H(A,B) = \sum^n_{i=1}[0\textrm{ if }a_i == b_i\textrm{ else }1]$
+
 **Euclidean Distance:**  
 - Given two items $A$ and $B$, and their feature vectors $\mathbf{a}$ and $\mathbf{b}$, we can calculate their distance $d$ in Euclidean space:
 
@@ -392,12 +395,12 @@ In classification, we give class assignments of existing data points, and classi
 **Offset-Weighted $K$_NN:**
 - Classify the test input according to the weighted accumulative class of the $K$ nearest training instances, where weights are based on similarity of the input to each of the $K$ neighbours, factoring in an offset for the prior expectation of a test input being a member of that class
 
-#### Weight Strategies
+#### Weight Strategies (Majority Class, ILD, and ID)
 These are the notable strategies for weighing:
 - Give each neighbour equal weight (classify according to the **majority class** of set of neighbours)
-- Weight the vote of each instance by its **inverse linear distance** from the test instance:
+- Weight the vote of each instance by its **inverse linear distance (ILD)** from the test instance:
     $w_j = \frac{d_k - d_j}{d_k - d_1}$ if $d_j \neq d_1$ else $w_j = 1$, where $d_1$ is the nearest neighbour, and $d_k$ is the furthest neighbour
-- Weight the vote of each instance by its **inverse distance** from the **test instance**:
+- Weight the vote of each instance by its **inverse distance (ID)** from the **test instance**:
     $w_j = \frac{1}{d_j + \epsilon}$
 
 #### Ties for $K$-NN
@@ -515,3 +518,96 @@ Since SVM's are inherently two-class classifiers, most common approaches to exte
 - SVM's can be applied to non-linear data by using an appropriate *kernel function*
 
 ## Lecture 9: Discrete and Continuous Data
+#### Types of Naive Bayes
+- **Multivariate** NB: attributes are nominal, and can take any (fixed) number of values
+- **Binomial** NB: attributes are binary (special case of multivariate)
+- **Multinomial** NB: attributes are numbers (usually correspond to frequencies)
+  - Probability distribution is constructed by considering the formula
+  - $Pr(a_k = m | c_j) \approx Pr(a_k = 1 | c_j)^m/m!$
+- **Gaussian** NB: attributes are real numbers
+  - Instead of a PMF, we can use the PDF 
+
+#### Decision Trees
+To build a DT, we label a node with an attribute, and branches with corresponding attribute values. However, if the attribute(s) are numerical, then we can apply **Binarisation**:
+- Each node is labelled with $a_k$, and has two branches: one branch is $a_k \leq m$, and the other branch is $a_k > m$
+- Information Gain / Gain Ratio must be calculated for each non-trivial "split point" for each attribute
+  - Naively, this is each unique attribute value in the dataset
+  - Faster implementations will constrain the number of "split points" we need to consider
+- Otherwise, this is the equivalent to an ID3 implementation
+- Downside: may lead to arbitrarily large trees (we always want the smallest one)
+
+#### Discretisation
+Discretisation is the translation of continuous attributes onto nominal attributes (think _binning_). This process is usually performed in two steps:
+1. Decide how many values to map the feature onto (equal-width, freqeuency)
+2. Map the features onto $<(x_0,x_1],(x_1,x_2],\dots,(x_{n-1},x_n))>$
+
+Although it is simple to implement and in most cases, a viable solution, we end up with loss of generality, no sense of "numeric proximity" / ordering, and may result in overfitting.
+
+#### Unsupervised Discretisation
+1. Partition the values into equal-width bins (equal intervals)
+2. Sort the values and partition them into equal-sized bins (equal frequencies)
+3. Apply a $k$-means clustering algorithm
+   - Select $k$ points at random to act as seed clusters
+   - Assign each instance to the cluster with the nearest centroid
+   - Compute seed points as the centroids of the clusters of the current partition
+   - Repeat until the assignment of instances to clusters becomes stable
+
+#### Naive Supervised Discretisation
+Idea: to "group" values into class-contiguous intervals
+1. Sort values and identify breakpoints in class memberships
+
+| 64  | 65 | 68  | 69  | 70  | 71 | 72 | 72  | 75  |
+|-----|----|-----|-----|-----|----|----|-----|-----|
+| yes | no | yes | yes | yes | no | no | yes | yes |
+
+(64), (65), (68,69,70), (71,72), (72, 75)
+
+2. Reposition any breakpoints where there is _no change_ in numerical value
+
+| 64  | 65 | 68  | 69  | 70  | 71 | 72 | 72  | 75  |
+|-----|----|-----|-----|-----|----|----|-----|-----|
+| yes | no | yes | yes | yes | no | no | yes | yes |
+
+(64), (65), (68,69,70), (71,72, 72), (75)
+
+Although it is simple to implement, usually creates too many categories (overfitting). To combat this, we may apply the "group" values approach, but each category must have at least $n$ instances of a single class. 
+
+## Lecture 10: Feature Selection
+#### Wrapper Methods
+Choose subsets of attributes that give the best performance on the development data (with respect to a single learner)
+- Feature set will have optimal performance on development data
+- Takes a very long time. For $m$ attributes we have $O(\frac{2^m}{6})$, so it is only practical for very small datasets
+
+A **greedy approach** would be to train and evaluate the model on each single attribute. Then, we will choose the best attribute until it converges.
+- Although it converges much quicker, it still follows an $O(\frac{1}{2}m^2)$ performance
+- Usually converges to sub-optimal solutions (which we don't want)
+
+The **ablation approach** will start with all attributes, then remove an attribute each iteration until it diverges.
+- Assumes independence of attributes and takes $O(m^2)$ time
+
+#### Embedded Methods
+To some degree; SVM, Logistic Regression, and DT's perform some form of feature selection as part of the algorithm. These are what we refer to as **embedded methods**.
+
+#### Filtering Methods (PMI, MI, and $\chi^2$)
+Recall that if 2 events are independent, we have:
+
+$Pr(A\cap B) = Pr(A)Pr(B)$.
+
+Now we can calculate **Pointwise Mutual Information** (PMI):
+
+$PMI(A=a \cup C=c) = log_2\bigg(\frac{Pr(A\cap c)}{Pr(A)Pr(c)}\bigg)$.
+
+Attributes with the greatest PMI are most correlated with class. 
+
+
+**CONTIGENCY TABLE - REFER TO SLIDES 56 - 66 STATISTICS MODULE 7**
+
+**Mutual Information** can be calculated by:
+
+$MI(A,C) = \sum_{i\in a,\bar{a}}\sum_{j \in c,\bar{c}}Pr(i,j)log_2\bigg(\frac{Pr(i\cap j)}{Pr(i)Pr(j)}\bigg)$
+
+And the test statistic for the **$\chi^2$ distribution** is:
+
+$Q = \sum_{i}\sum{j}\frac{(Y_{ij} - Y_iY_j/n)^2}{Y_iY_j/n} \sim \chi^2_{(r-1)(c-1)}$
+
+
