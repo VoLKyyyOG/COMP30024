@@ -32,11 +32,9 @@ heuristics you may have developed to inform your search, including commenting on
 ## Algorithmic Approach (Answers Q2)
 
 ### Heuristic
-
 Our heuristic was derived from a relaxed version of the search problem, which allows piece(s) to jump freely, even if there is no block/piece to jump over (an empty space to land still had to be available). In this version, pieces would not need to converge in attempt to jump over each other and reduce path costs, as pieces can reach the goal independently, at maximal speed, at their own independent minimal cost.
 
-#### Explanation
-`Dijkstra_heuristic` evaluates the total minimal cost to exit all pieces if they move independently under these relaxed conditions. The board with the blocks (but not pieces) is preprocessed using a Dijkstra graph search algorithm with a priority queue to map the minimum cost of exiting for a piece at any location.
+`Dijkstra_heuristic` evaluates the total minimal cost to exit all pieces if they move independently under these relaxed conditions. The board with the blocks (but not pieces) is preprocessed using an adapted Dijkstra graph search algorithm with a priority queue to map the minimum cost of exiting for a piece at any location. To evaluate a state, the cost associated with each piece position is aggregated.
 
 #### Benefits
 Firstly, the heuristic is admissible.
@@ -69,11 +67,12 @@ Inductive:
 
 
 
-- *Consistent*: **requires h(x) >= d(x,y) + h(y)... CHECK? (i.e. there is no gain to moving in expensive directions)**
-
+#### Consistent? I don't know
+**requires h(x) >= d(x,y) + h(y)... CHECK? (i.e. there is no gain to moving in expensive directions)**
 **EXAMPLE EVALUATION WITH A FANCY LATEX MARKUP PIC TO IMPRESS??**
 
-The heuristic was optimised to reduce space/time complexity by memoizing the first evaluation (as the position of goals and blocks are static), allowing for constant O(m) time/space computation, where m is the number of player pieces. Given m is small, it is effectively O(1) time/space complexity to evaluate any node.
+#### Memoizable
+The heuristic is computed by adding the cost of each piece's location. Given only the blocks and goal positions determined the cost evaluation, and these are static for all possible paths, the board only needs computing once. Then the heuristic can be evalauted in constant O(m) time/space computation, where m is the number of player pieces. Given m is small, it is effectively O(1) time/space complexity to evaluate any node.
 
 #### Limitations
 The nature of the relaxed problem allows for jumping - thus, the preferred action for movement where permissible is jumping, and this is valued accordingly by the heuristic. For dense boards this heuristic can find optimal jumping paths and weight them as the best action to take, which yields strong performance. However, for sparse graphs with few jumping prospects, the heuristic evaluates the board as 'flat', where movement actions seem to be of little value. **INSERT PICTURE/REFERENCE TO ABOVE** Consequently, sparser configurations can degenerate evaluations to uniform-cost search, which fails to reduce branching factor.
@@ -83,7 +82,6 @@ Furthermore, the heuristic assumes independent piece movement (as per the nature
 As leapfrogging is likelier to occur on sparse boards, overall the heuristic significantly underestimates true solution cost in sparse graphs due to its simplifying assumptions.
 
 ### Search algorithm: IDA*
-S
 Iterative Deepening A* (IDA*) was used to search the game tree. States were evaluated as f(n) = g(n) + h(n), where g(n) was path cost to reach it, and h(n) a heuristic estimate of the cost to achieve the goal from the position. A threhold is maintained that defines the cut between the expanded and unexpanded nodes. At each deepening, leaf nodes are expanded, and the least-cost new leaf's total cost defines the new threshold. This cycle continues until the goal is found, or all states exhausted.
 
 #### Motivating factors
@@ -106,34 +104,29 @@ As a state is fully-observable, a Transposition Table (TT) was used to efficient
 (You might discuss the branching factor and depth of your search tree, and explain any other features of the
 input which affect the time and space complexity of your algorithm.)*
 
-## Effectiveness of Approach (Answers Q3)
+## Problem and Input Complexity & Optimisations (Answers Q3)
 
-### Issues with program input
-The input is initially stored in the json file as a dictionary, containing a string representation for the player and two lists for the pieces and blocks, representing coordinates as lists of length 2. This is inefficient: coordinates of blocks are never altered, and the primary use of a state is to evaluate membership of other locations (to derive potential moves/jumps and exit opportunities).
+### Program Input Considerations
+The input is initially stored in a json file as a dictionary, containing a string representation for the player and two lists for the pieces and blocks, representing coordinates as lists of length 2. This is inefficient: coordinates of blocks/pieces are never altered, and the primary use of a state is to evaluate membership of other locations (to derive potential moves/jumps and exit opportunities). Furthermore, the data supplied is incomplete - information such as where pieces can exit from, and valid coordinates for movement, are not passed.
 
-### Optimisations to input/state storage
+To deal with this: while the string representation for colour was retained, all coordinates were casted into tuples, which was found to reduce time-complexity. Furthermore, possible exit locations (for each colour) and valid board coordinates were pre-defined in global dictionaries/lists to avoid recalculations.
 
+### Problem Considerations
 
-### Asymptotic Time-Space Complexity Analysis
-- **Use valgrind for space, it's better than getsizeof macro 4sure, infer a good O() and compare to theoretical esimates**
+Regarding depth: The path cost to achieve a goal state can vary from 1 to over 30 steps in some initial states, particularly where more pieces are used, the result being that the game tree has high average depth. Furthermore, a state can be entered repeatedly by 'backtracking', only adding to the depth and diluting the tree with repetition.
+
+Regarding branching: In the worst case, when a state has a few, sparsely spread blocks, a game state can have up to 24 possible actions - movement in 6 directions for 4 pieces. Due to this, the problem tree has potental to be highly dense, which encroaches on time and space complexity.
+
+Optimisations to counter depth and branching included:
+
+1. The algorithm was coded to always exit pieces if exit actions were possible at any stage, reducing branching in the endgame to some extent.
+
+2. Use of a transposition table eliminated repetition 'down the branch' and 'across the branch'. This ensured every state was never expanded twice, and that at any time, only the most optimally reached instance for every state found so far was considered.
+
+### Asymptotic Time-Space Complexity Analysis?
+- **Use valgrind for space, it's better than getsizeof macro 4sure, infer a good O() and compare to theoretical estimates**
 - **Maybe graph # generated vs bash time for test files, infer a good O() cost and compare to theoretical estimates**
-
-### Problem's Depth (does it explore beyond optimal depth?)
-The path cost to achieve a goal state can vary from 1 to over 30 steps in some initial states, particularly where more pieces are used, the result being that the game tree has high average depth. Furthermore, a state can be entered repeatedly by 'backtracking', only adding to the depth and diluting the tree with repetition of suboptimal paths.
-
-### Problem's Branching (does it get dense? Is it wasting time on expansions?)
-In the worst case, when a state has a few, sparsely spread blocks, a game state can have up to 24 possible actions - movement in 6 directions for 4 pieces. Due to this, the problem tree has potental to be highly dense, which encroaches on time complexity and space complexity.
-
-Some optimisations were implemented to counter excessive depth and branching.
-
-1. The algorithm was coded to always exit pieces if exit actions were possible at any stage, reducing branching in the endgame *SUBTLE REFERENCE* to some extent.
-
-2. Transposition tables eliminated repetition 'down the branch' and 'across the branch'. This is to say that the same state was never expanded twice, and that only the most optimally reached instance is used in the search problem.
 
 Ultimately, runtime data indicates an average branching factor of about 8.5-9.5 generated children per parent. **MAY NEED FURTHER EVIDENCE TO CONCLUDE THAT THIS IS AN IMPROVEMENT FROM THE STATUS QUO**
 The data suggests that our trimming optimisations only marginally decrease the branching factor. This is expected; our algorithms evaluates children post-creation.
-
-
-Does the input or its features impact this?
-What features of the problem allowed us to reduce branching?
 - **Measure branching factor with a tree sweep post-generation TICK - average b is about 9-10 (10 for harder problems), average depth varies b/t 3 for easy, and 7-8 for difficult. Given difficult problems actually have depth 20-30, this is a a strong reduction in net generation - reduced from O(b^{d_optimal}) to O(b^{d_optimal/3})**
