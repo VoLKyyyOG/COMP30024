@@ -323,6 +323,19 @@ def MIN_VALUE(state, game, alpha, beta):
 	- D would be *times available*
 	- C would be *all times different for each lecture i.e. allDiff*
 
+##### Varieties of Constraints
+- **Unary** constraints involve a single variable (SA not "green")
+- **Binary** constraints involve a pair of variables (SA not WA)
+- **High-Order** constraints involve 3 or more variables (cryptarithmetic column constraints)
+- **Preferences (soft constraints)** are often representable by a cost for each variable assignment (constraint optimization problems)
+
+##### Cryptarithmetic 
+Assign values to letters such that a computer can solve "TWO + TWO" to be equal to "FOUR"
+- variables: F, T, U, W, R, O, X1, X2, X3
+- Domains: {0,1,2,3,4,5,6,7,8,9}
+- Constraints: _alldiff_(F, T, U, W, R, O)
+	- 'O + 'O' = 'R' + 10·X1 ('O' from 'TWO')
+
 ##### Demonstrate operation of CSP search algorithms
 - **Backtracking Search**
 	- Depth first search by assigning each domain value to each of variables
