@@ -37,45 +37,11 @@ Our heuristic was derived from a relaxed version of the search problem, which al
 `Dijkstra_heuristic` evaluates the total minimal cost to exit all pieces if they move independently under these relaxed conditions. The board with the blocks (but not pieces) is preprocessed using an adapted Dijkstra graph search algorithm with a priority queue to map the minimum cost of exiting for a piece at any location. To evaluate a state, the cost associated with each piece position is aggregated.
 
 #### Benefits
-Firstly, the heuristic is admissible.
-##### PROOF
-Let h:G->N, h(x) denote the value of the heuristic applied to a state x, for some x \in \G, the set of all game states.
-Let o:G->N, o(x) denote the exact cost to traverse to goal for a state x.
-P(1): admissible for just prior to solution.
-  o(x) = 1 (one action away)
-  h(x) = 1 (one action away in relaxed problem too)
-  Hence P(1).
-Inductive:
-  Let x' + action = x
-  P(x): h(x) <= o(x)
-  P(x'): h(x') <= o(x')
-  Must show: P(x) ==> P(x') always
-  Given: h(x) <= o(x) (1)
-  Use (1) -- h(x) <= o(x) + 1
-  So h(x) <= o(x')  
-  Just show: h(x') <= h(x)
-  Well x' to x is either a jump, move, or exit.
-  EXIT // one less piece, guarantees less 1.
-  so h(x') - 1 = h(x)
-  MOVE // h(position_x) = minimum cost to exit x
-  h(x') = sum(h(position_x') for x' in pieces)
-  So h(x) = h(position_x') ... + h(position_x' + m)
-  To prove: h_p(x'+ m) >= h_p(x')
-
-
-
-
-
-
-#### Consistent? I don't know
-**requires h(x) >= d(x,y) + h(y)... CHECK? (i.e. there is no gain to moving in expensive directions)**
-**EXAMPLE EVALUATION WITH A FANCY LATEX MARKUP PIC TO IMPRESS??**
-
-#### Memoizable
-The heuristic is computed by adding the cost of each piece's location. Given only the blocks and goal positions determined the cost evaluation, and these are static for all possible paths, the board only needs computing once. Then the heuristic can be evalauted in constant O(m) time/space computation, where m is the number of player pieces. Given m is small, it is effectively O(1) time/space complexity to evaluate any node.
+- **Admissibility**: The heuristic is admissible. The only difference between the relaxed and actual version of the problem is that 'relaxed pieces' can jump more often - meaning that they will never reach the goal slower than pieces in the actual problem.
+- **Semi-memoizable**: The heuristic is computed by adding the cost of each piece's location for any child state. However only the blocks and goal positions determine the cost evaluation for each hex. As these are static for all possible states descending from the initial board state, the board costs only need computing once; then the heuristic can be evaluated in constant O(m) time/space computation, m being the number of player pieces. Given m is small, it is effectively O(1) time/space complexity to evaluate any node.
 
 #### Limitations
-The nature of the relaxed problem allows for jumping - thus, the preferred action for movement where permissible is jumping, and this is valued accordingly by the heuristic. For dense boards this heuristic can find optimal jumping paths and weight them as the best action to take, which yields strong performance. However, for sparse graphs with few jumping prospects, the heuristic evaluates the board as 'flat', where movement actions seem to be of little value. **INSERT PICTURE/REFERENCE TO ABOVE** Consequently, sparser configurations can degenerate evaluations to uniform-cost search, which fails to reduce branching factor.
+The relaxed problem allows for freer jumping - thus, the preferred action to take where permissible is jumping, as it covers the most ground. For dense boards this heuristic can find optimal jumping paths and weight them as the best action to take, which yields strong performance **INSERT AN IMAGE OF TRAPV2 EVALUATION**. However, for sparse graphs with few jumping prospects, the heuristic evaluates the board as 'flat', where movement actions seem to be of little value. **INSERT IMAGE OF 1BLOCK or even 2BLOCK EVALUATION**. Consequently, sparser configurations can degenerate evaluations to uniform-cost search, which fails to reduce branching factor.
 
 Furthermore, the heuristic assumes independent piece movement (as per the nature of the relaxed problem). Thus, the heuristic fails to value movement that allows 'leapfrogging' piece movements (where a pair of pieces jump over each other), a move that requires pieces make moves conditional on other pieces' positioning.
 
