@@ -52,21 +52,11 @@ Furthermore, as jumping is always possible in the relaxed version, the relaxed p
 As leapfrogging is a stronger option on sparse boards, overall the heuristic significantly underestimates true solution cost in sparse graphs due to its simplifying assumptions.
 
 ### Search algorithm: IDA*
-Iterative Deepening A* (IDA*) was used to search the game tree. IDA* combines the best-first search aspect of A*, evaluating states as f(n) = g(n) + h(n), where g(n) is the path cost to reach the state from the initial state, and h(n) a heuristic estimate of the cost to reach the goal from the state. Both algorithms are *optimal* given an admisible heuristic is used and are *complete* if solution states exist (which is assumed for this problem).
+Iterative Deepening A* (IDA*) was used to search the game tree. IDA* combines the best-first search aspect of A*, evaluating states as f(n) = g(n) + h(n), where g(n) is the path cost to reach the state from the initial state, and h(n) a heuristic estimate of the cost to reach the goal from the state. Both algorithms are *optimal* given an admisible heuristic is used and are *complete* if solution states exist (which is assumed for this problem). [1]
 
-However, while A* has expensive space-complexity of O(b^m), IDA* uses iterative deepening to reduce the memory complexity to polynomial O(bm) (m is max depth of tree, b is branching factor).
+We found in experimentation that IDA* had stronger performance on average compared to A* even with optimisations, and so was our algorithm of choice.s
 
-As the entire solution path must be stored for this problem, all 'parent' states must be referenced. This forces a space complexity of O(b^m) for IDA* approach.
-
-#### Theoretical space/time complexity
-Our implementation of IDA* stores nodes/states in a tree structure, where child nodes are game states descending from a parent game state, as IDA* by virtue of design requires nodes be revisited at each deepening sweep to generate new nodes. This yields an expensive  To circumvent this, a tranposition table/set was utilised (**see below**).
-
-#### Optimality
-If the heuristic function used is admissible, then the least-cost path found using IDA* is optimal. **SOURCE/PROOF?**
-
-#### Optimisations
-As a state is fully-observable, a Transposition Table (TT) was used to efficiently memoize the unique states (and state evaluations) encountered during a search. States were indexed with a memory-efficient zero-collision hash. During the search, newly expanded nodes that were previously generated were trimmed if they were of equal or worse total cost than previous encounters. This not only prevented un-necessary re-searching of identical subtrees, but ensured any stored state was the most-optimally reached so far.
- **WE NEED MAGIC'S COUNT/RATE OF TRIMMING TO GET AN IDEA OF TIME/SPACE COMPLEXITY REDUCTION?**
+As the entire solution path must be stored for this problem, all 'parent' states must be referenced. We used a tree structure, where child nodes are game states descending from a parent game state. This however meant O(b^m) space-complexity (b being branching factor, m the length of optimal path).
 
 #### *What features of the problem and your program’s input impact your program’s time and space requirements?
 (You might discuss the branching factor and depth of your search tree, and explain any other features of the
@@ -89,7 +79,7 @@ Optimisations to counter depth and branching included:
 
 1. The algorithm was coded to always exit pieces if exit actions were possible at any stage, reducing branching in the endgame to some extent.
 
-2. Use of a transposition table eliminated repetition 'down the branch' and 'across the branch'. This ensured every state was never expanded twice, and that at any time, only the most optimally reached instance for every state found so far was considered.
+2. A Transposition Table was used to memoize the unique states (and state evaluations) encountered during a search, using a collision-free hash function to index states efficiently. Newly expanded nodes were trimmed if they were of equal or worse total cost than a previous encounter of the same state - preventing re-searching of identical subtrees and ensuring that stored states were the most optimally reached so far
 
 ### Asymptotic Time-Space Complexity Analysis?
 - **Use valgrind for space, it's better than getsizeof macro 4sure, infer a good O() and compare to theoretical estimates**
@@ -98,3 +88,6 @@ Optimisations to counter depth and branching included:
 Ultimately, runtime data indicates an average branching factor of about 8.5-9.5 generated children per parent. **MAY NEED FURTHER EVIDENCE TO CONCLUDE THAT THIS IS AN IMPROVEMENT FROM THE STATUS QUO**
 The data suggests that our trimming optimisations only marginally decrease the branching factor. This is expected; our algorithms evaluates children post-creation.
 - **Measure branching factor with a tree sweep post-generation TICK - average b is about 9-10 (10 for harder problems), average depth varies b/t 3 for easy, and 7-8 for difficult. Given difficult problems actually have depth 20-30, this is a a strong reduction in net generation - reduced from O(b^{d_optimal}) to O(b^{d_optimal/3})**
+
+# Bibliography
+StackExchange (n.d.) [Internet]. Available from: https://ai.stackexchange.com/questions/8821/how-is-iterative-deepening-a-better-than-a?fbclid=IwAR1j3LSIj9_p13C7Kr8bJuWgWi2dWvVanSKRWS5zebufixNq3ZPntyknNPU (Accessed 08/04/2019).
