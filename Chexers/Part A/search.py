@@ -13,12 +13,8 @@ from json import load
 from sys import argv
 
 # User-defined files
-from print_debug import *
+from formatting import convert_to_tuples, pikawin
 from algorithms import *
-from classes import *
-
-########################## GLOBALS ###########################
-BANNER = '*' * 60 + '\n'
 
 ######################### FUNCTIONS ##########################
 
@@ -28,27 +24,12 @@ def main():
         data = load(file)
 
     data = convert_to_tuples(data)
-    import time
-    start = time.time()
-    # Implementing IDA*
+
     print("# Prepare for amazingness")
     optimal_solution = IDA_control_loop(data, dijkstra_heuristic)
-    end = time.time()
-
-    branching = get_data(optimal_solution, optimal_solution.depth)[1:-1]
-
-    # Compute average
-    totals = [sum(data) for data in branching]
-    zero_counts = list(map(lambda x: x[0], branching))
-    avg_zeroes = sum([i*val / sum(zero_counts) for i, val in enumerate(zero_counts)])
-    avgs = [sum([i*depth[i] / float(max(sum(depth[1:]), 0.00001)) for i in range(1, len(depth))]) for depth in branching]
-    print(f"# Average depth (ignores root, solution): {avg_zeroes:.1f}\n# Average branching (ignores root, solution): {sum(avgs) / len(avgs):.2f}")
-
-    # print(f"# Time elapsed: {(end-start)}s")
-    # print(f'# {argv[1]} - {IDA_Node.COUNT_TOTAL} generated, {IDA_Node.TRIM_TOTAL} ({100*IDA_Node.TRIM_TOTAL / IDA_Node.COUNT_TOTAL:.2f}%) trimmed.')
 
     if (optimal_solution is not None):
-        print(f'# A solution was found! {IDA_Node.COUNT_TOTAL} generated. Cost: {optimal_solution.depth}\n# Sequence of moves:')
+        print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves:')
         path = list()
         node_temp = optimal_solution
 
@@ -69,6 +50,7 @@ def main():
         print(pikawin)
     else:
         print(f'# ERROR: No solution found at this depth')
+        
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
     main()

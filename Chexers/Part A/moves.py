@@ -1,7 +1,6 @@
 """ moves.py
 
 Defines core game structure, globals, and actions
-Currently formatted for Part A
 
 """
 
@@ -13,7 +12,6 @@ from copy import deepcopy
 
 # User-defined files
 from classes import *
-from print_debug import *
 
 ########################## GLOBALS ###########################
 INF = float('inf')
@@ -24,15 +22,6 @@ GOAL = {
     "blue": ((-3,0),(-2,-1),(-1,-2),(0,-3)),
     "green": ((-3, 3), (-2, 3), (-1, 3), (0, 3))
 }
-
-# Game valid coordinate positions (taken from the test generator script)
-VALID_COORDINATES = [(-3, 0), (-3, 1), (-3, 2), (-3, 3),
-                    (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-2, 3),
-                    (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-1, 3),
-                    (0, -3), (0, -2), (0, -1), (0, 0), (0, 1), (0, 2), (0, 3),
-                    (1, -3), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2),
-                    (2, -3), (2, -2), (2, -1), (2, 0), (2, 1),
-                    (3, -3), (3, -2), (3, -1), (3, 0)]
 
 POSSIBLE_DIRECTIONS = [(0,1),(1,0),(1,-1),(0,-1),(-1,0),(-1,1)]
 
@@ -70,7 +59,7 @@ def move(coordinate, state, relaxed=False):
     possible_moves = list()
 
     for direction in POSSIBLE_DIRECTIONS:
-        adjacent_hex = Vector.add(coordinate, direction)
+        adjacent_hex = add(coordinate, direction)
 
         if adjacent_hex in VALID_COORDINATES: # Then it's not off-board
             if adjacent_hex not in occupied: # Then it's free for the taking
@@ -88,8 +77,8 @@ def jump(coordinate, state, relaxed=False):
     possible_jumps = list()
 
     for direction in POSSIBLE_DIRECTIONS:
-        adjacent_hex = Vector.add(coordinate, direction)
-        target_hex = Vector.add(adjacent_hex, direction)
+        adjacent_hex = add(coordinate, direction)
+        target_hex = add(adjacent_hex, direction)
 
         if relaxed or adjacent_hex in occupied: # Then you can jump over it
             if target_hex in VALID_COORDINATES: # Then not off-board
@@ -105,7 +94,6 @@ def exit_action(coordinate, state):
 @memoize
 def dijkstra_board(state):
     """Evaluates minimum cost to exit for each non-block position"""
-    # NOTE: The dijkstra board is CONSTANT (memoizable) iff blocks/colour don't change
     valid_goals = set(GOAL[state['colour']]).difference(set(state['blocks']))
 
     visited = set() # Flags if visited or not

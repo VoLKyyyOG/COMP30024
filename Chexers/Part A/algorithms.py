@@ -12,7 +12,6 @@ from collections import defaultdict
 
 # User-defined files
 from moves import *
-from classes import *
 
 ###################### NODE BASE CLASS #######################
 
@@ -51,28 +50,17 @@ class Node:
             self.is_expanded = True
 
     def game_status(self):
-        """Determines if a win/loss/draw has occurred and by whom
-        PART A: 0 is over, more than 1 is not over
-        PART B: 1 W_RED, 2 W_GR, 3 W_BL, 0 NONE, -1 DRAW, -2 DUPLICATE"""
+        """Determines if a win/loss/draw has occurred and by whom"""
         return (len(self.state["pieces"]) > 0 if self.state else True)
 
     def player(self):
-        """Retrieves current player.
-        PART A: Simple, just get it from data
-        PART B: ONLY IMPLEMENT AFTER "DATA" structure FINALISED"""
+        """Retrieves current player"""
         return self.parent.state["colour"]
 
     # Subclasses should overrride
     def new_child(self):
         """Creates new Node instance"""
         return Node(parent=self)
-
-    def __str__(self):
-        """Defines string format for use in debugging"""
-        return f"# State: {self.state}\n# Depth {self.depth}" \
-        + f", Game Status {self.game_status()}" \
-        + f", Expanded {self.is_expanded}, Action {self.action_made}\n# " \
-        + f"Actions {possible_actions(self.state)}\n# Children {self.children}"
 
 ######################## HEURISTICS ##########################
 
@@ -84,16 +72,10 @@ def dijkstra_heuristic(node):
 
 class IDA_Node(Node):
     """IDA* Node definition with inbuilt attributes for heuristic/total cost"""
-    COUNT_TOTAL = TRIM_TOTAL = 0
 
     def __init__(self, parent):
         super().__init__(parent)
         self.total_cost = 0 # Total cost factors in depth (total_cost = depth + exit_cost)
-        IDA_Node.COUNT_TOTAL += 1
-
-    def __str__(self):
-        """Appends additional IDA information to standard Node str format"""
-        return super().__str__() + f"\n # Exit {self.total_cost - self.depth} + Depth {self.depth} = {self.total_cost}"
 
     def __lt__(self, other):
         """Allows (node < other_node) behavior, for use in PQ"""
@@ -121,7 +103,6 @@ def IDA(node, heuristics, TT, threshold, new_threshold, debug_flag=False):
         for child in node.children:
             my_hash = Z_hash(child.state)
             if my_hash in TT.keys():
-                IDA_Node.TRIM_TOTAL += 1
                 if child.depth >= TT[my_hash].depth and child != TT[my_hash]:
                     child.is_dead = True
                     continue
@@ -160,8 +141,7 @@ def IDA_control_loop(initial_state, heuristics=dijkstra_heuristic):
 
     initial_node = IDA_Node.create_root(initial_state)
     initial_node.total_cost = threshold = dijkstra_heuristic( initial_node)
-    # print(f"#\n# Initial valuation: " + ", ".join([f"[{f.__name__}] {f(initial_node)}" for f in heuristics]) + f" + [Depth] {initial_node.depth} = {initial_node.total_cost}")
-    TT = dict()
+    TT = dict() # Transposition Table
     TT[Z_hash(initial_node.state)] = initial_node
 
     root = None
@@ -172,5 +152,3 @@ def IDA_control_loop(initial_state, heuristics=dijkstra_heuristic):
         if root is None: # Update threshold, the goal hasn't been found
             threshold = new_threshold[0]
     return root
-
-#374
