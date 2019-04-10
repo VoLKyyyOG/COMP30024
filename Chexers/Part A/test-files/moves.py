@@ -8,12 +8,11 @@ Currently formatted for Part A
 ########################## IMPORTS ###########################
 # Standard modules
 from collections import defaultdict
-from copy import copy, deepcopy
 from queue import PriorityQueue as PQ
+from copy import deepcopy
 
 # User-defined files
 from classes import *
-from print_debug import *
 
 ########################## GLOBALS ###########################
 INF = float('inf')
@@ -36,18 +35,6 @@ VALID_COORDINATES = [(-3, 0), (-3, 1), (-3, 2), (-3, 3),
 
 POSSIBLE_DIRECTIONS = [(0,1),(1,0),(1,-1),(0,-1),(-1,0),(-1,1)]
 
-FORWARD_DIRECTIONS = {
-    "red" : [(1,-1),(1,0)],
-    "green" : [(-1,1),(0,1)],
-    "blue" : [(-1,0),(0,-1)]
-}
-
-PREFERRED_DIRECTIONS = {
-    "red" : [(1,-1),(1,0),(0,1),(0,-1),(-1,0),(-1,1)],
-    "green" : [(-1,1),(0,1),(1,0),(1,-1),(0,-1),(-1,0)],
-    "blue" : [(-1,0),(0,-1),(0,1),(1,0),(1,-1),(-1,1)]
-}
-
 # As point indices range from -3 to 3
 MAX_COORDINATE_VAL = 3
 
@@ -56,66 +43,6 @@ MOVE, JUMP, EXIT = 0, 1, 2
 
 #################### CLASSES & FUNCTIONS #####################
 
-def goal_in_sight(state):
-    """Highly expensive, but returns set of all goals 'in sight'"""
-    result = set(GOAL[state['colour']])
-    for piece in state['pieces']:
-        result = result.intersection(sight(piece, state['colour'], state['blocks']))
-    return result
-
-@trackit
-def get_next(current, occupied, direction):
-    """If can move/jump in given direction, returns next possible point"""
-    point = Vector.add(current, direction)
-    if point in VALID_COORDINATES and point not in occupied:
-        return point    # Reachable by move
-    else: # Maybe you can jump over it
-        point = Vector.add(point, direction)
-        if point in VALID_COORDINATES and point not in occupied:
-            return point    # Jumpable
-    return None     # No eligible position
-
-def sight(piece, player, occupied):
-    """Finds set of all positions optimally reachable by piece"""
-    u, v = FORWARD_DIRECTIONS[player]
-    sight_set = set()
-    if not piece or piece not in VALID_COORDINATES:
-        return sight_set
-    # Find eligible spots in u, v direction
-    next_u, next_v = (get_next(copy(piece), occupied, x) for x in (u,v))
-    if next_u: sight_set.add(next_u)
-    if next_v: sight_set.add(next_v)
-
-    sight_set = sight_set.union(sight(next_u, player, occupied))
-    sight_set = sight_set.union(sight(next_v, player, occupied))
-    return sight_set
-
-@trackit
-def within_sight(position, dest, player):
-    """Calculates whether a destination is reachable by directly moving 'forward' towards it"""
-    # Idea: movement without moving sideways or backwards is most optimal.
-    # If the two 'forward' directions towards a destination are u and v,
-    # Then you want two scalars a, b such that dest = au + bv.
-    # If a or b are negative, then you had to move back/sideways
-    # Else, you only moved a times 'left-forward' and b times 'right-forward' -- optimal!
-    u, v = FORWARD_DIRECTIONS[player]
-    displacement = Vector.sub(dest, position)
-    scalars = Vector.solve(u,v,displacement)
-    return (scalars[0] >= 0 and scalars[1] >= 0)
-
-# DO NOT USE
-def no_node_apply_action(old_state, action):
-    """Applies action to passed state"""
-    piece, action_flag, dest = action
-    state = deepcopy(old_state)
-    state["pieces"].remove(piece)
-    if action_flag != EXIT:
-        state["pieces"].append(dest)
-        state["pieces"].sort()
-        """PART B: CONSIDER ORDERING & Must evaluate capturing here"""
-    return state
-
-@trackit
 def possible_actions(state, debug_flag = False):
     """Possible actions from current location"""
     result = list()
@@ -125,22 +52,12 @@ def possible_actions(state, debug_flag = False):
     if possible_exit:
         return [(possible_exit[0], EXIT, None)]
 
-
     for piece in state["pieces"]:
-        '''possible_moves =
-        possible_jumps =
-        for action_type, flag in [(possible_moves, MOVE), (possible_jumps, JUMP)]:
-            for dest in action_type:
-                if dest not in sight(piece, state['colour'], state['pieces'] + state['blocks']):
-                    result.append((piece, flag, dest))
-                    action_type.remove(dest)'''
-
         result.extend([(piece, MOVE, dest) for dest in move(piece, state)])
         result.extend([(piece, JUMP, dest) for dest in jump(piece, state)])
 
     return result
 
-@trackit
 def move(coordinate, state, relaxed=False):
     """Finds possible move actions given a coordinate"""
     # Non-movable pieces on board
@@ -151,10 +68,6 @@ def move(coordinate, state, relaxed=False):
 
     possible_moves = list()
 
-    '''DIRECTIONS = POSSIBLE_DIRECTIONS
-    if not relaxed and goal_in_sight(state):
-        DIRECTIONS = PREFERRED_DIRECTIONS[state['colour']]'''
-
     for direction in POSSIBLE_DIRECTIONS:
         adjacent_hex = Vector.add(coordinate, direction)
 
@@ -164,7 +77,6 @@ def move(coordinate, state, relaxed=False):
 
     return sorted(possible_moves)
 
-@trackit
 def jump(coordinate, state, relaxed=False):
     """Finds possible jump actions given a coordinate"""
     if relaxed:
@@ -186,17 +98,15 @@ def jump(coordinate, state, relaxed=False):
     return sorted(possible_jumps)
 
 # Determines if exit action possible
-def exit_action(coordinate, state, debug_flag=False):
+def exit_action(coordinate, state):
     return coordinate in GOAL[state["colour"]]
 
 @memoize
 def dijkstra_board(state):
-    print("#\n# Minimum cost evaluation: ")
     """Evaluates minimum cost to exit for each non-block position"""
     # NOTE: The dijkstra board is CONSTANT (memoizable) iff blocks/colour don't change
     valid_goals = set(GOAL[state['colour']]).difference(set(state['blocks']))
 
-    #prev = {x:None for x in VALID_COORDINATES} # Stores optimal source.
     visited = set() # Flags if visited or not
     cost = {x:INF for x in VALID_COORDINATES} # Stores costs
     cost.update({x:1 for x in valid_goals}) # Sets goals cost
@@ -216,6 +126,5 @@ def dijkstra_board(state):
                 est_cost = curr_cost + 1
                 if est_cost < cost[new]: # Better path than previous
                     cost[new] = est_cost
-                    #prev[new] = curr
                 queue.put((cost[new], new))
     return cost
