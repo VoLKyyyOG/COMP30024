@@ -41,23 +41,25 @@ Our heuristic was derived from a relaxed version of the search problem, which al
 - **Semi-memoizable**: The heuristic is computed by adding the cost of each piece's location for any child state. However only the blocks and goal positions determine the cost evaluation for each hex. As these are static for all possible states descending from the initial board state, the board costs only need computing once; then the heuristic can be evaluated in constant O(m) time/space computation, m being the number of player pieces. Given m is small, it is effectively O(1) time/space complexity to evaluate any node.
 
 #### Limitations
-The relaxed problem allows for freer jumping - thus, the preferred action to take where permissible is jumping, as it covers the most ground. For dense boards this heuristic can find optimal jumping paths and weight them as the best action to take, which yields strong performance **INSERT AN IMAGE OF TRAPV2 EVALUATION**. However, for sparse graphs with few jumping prospects, the heuristic evaluates the board as 'flat', where movement actions seem to be of little value. **INSERT IMAGE OF 1BLOCK or even 2BLOCK EVALUATION**. Consequently, sparser configurations can degenerate evaluations to uniform-cost search, which fails to reduce branching factor.
+For dense boards this heuristic can find optimal jumping paths and weight them as the best action to take - looking at **Figure 1 (image of test_file3_evaluation)**, pieces on this board would have ample jumping opportunities even if isolated - hence almost all positions have a clearly optimal neighbour.
 
-Furthermore, the heuristic assumes independent piece movement (as per the nature of the relaxed problem). Thus, the heuristic fails to value movement that allows 'leapfrogging' piece movements (where a pair of pieces jump over each other), a move that requires pieces make moves conditional on other pieces' positioning.
+However, for sparse graphs with few blocks, the heuristic evaluates the board in a 'flat' fashion, which can degenerate evaluations to uniform-cost search. **Figure 2 (image of 1BLOCK_evaluation)**, pieces on the bottom-left fringe would be indifferent to moving sideways or forwards, and no path is obviously optimal.
 
-As leapfrogging is likelier to occur on sparse boards, overall the heuristic significantly underestimates true solution cost in sparse graphs due to its simplifying assumptions.
+In other words, where there is great uncertainty (branching factor), the heuristic is weak. In cases with low branching factor (high certainty), evaluations are stronger.
+
+Furthermore, as jumping is always possible in the relaxed version, the relaxed problem does not care if pieces try to jump over each other. This carries over to the heuristic - it fails to value movement that allows 'leapfrogging' piece movements (where a pair of pieces jump over each other repeatedly), which requires pieces make moves that converge towards other pieces' in addition to exits.
+
+As leapfrogging is a stronger option on sparse boards, overall the heuristic significantly underestimates true solution cost in sparse graphs due to its simplifying assumptions.
 
 ### Search algorithm: IDA*
-Iterative Deepening A* (IDA*) was used to search the game tree. States were evaluated as f(n) = g(n) + h(n), where g(n) was path cost to reach it, and h(n) a heuristic estimate of the cost to achieve the goal from the position. A threhold is maintained that defines the cut between the expanded and unexpanded nodes. At each deepening, leaf nodes are expanded, and the least-cost new leaf's total cost defines the new threshold. This cycle continues until the goal is found, or all states exhausted.
+Iterative Deepening A* (IDA*) was used to search the game tree. IDA* combines the best-first search aspect of A*, evaluating states as f(n) = g(n) + h(n), where g(n) is the path cost to reach the state from the initial state, and h(n) a heuristic estimate of the cost to reach the goal from the state. Both algorithms are *optimal* given an admisible heuristic is used and are *complete* if solution states exist (which is assumed for this problem).
 
-#### Motivating factors
-_Why did we choose IDA* other than our ADS fanboyism? Why does A* suck? Why not ID? Why not UCS?_
+However, while A* has expensive space-complexity of O(b^m), IDA* uses iterative deepening to reduce the memory complexity to polynomial O(bm) (m is max depth of tree, b is branching factor).
+
+As the entire solution path must be stored for this problem, all 'parent' states must be referenced. This forces a space complexity of O(b^m) for IDA* approach.
 
 #### Theoretical space/time complexity
-Unlike A*, does not maintain a large set of unvisited states (which being unordered is O(size) time/space-complex to search). Instead nodes/states are stored in a tree structure, where child nodes are game states descending from a parent game state. Ultimately, both approaches are memory-expensive (O(b^d)) in the worst-case), and IDA* by virtue of design requires nodes be revisited recursively to generate new nodes. To circumvent this, a tranposition table/set was utilised (**see below**).
-
-#### Completeness
-Assuming an origin state has a valid solution, IDA* explores all possible paths and hence is guaranteed to expand the goal state. **SOURCE/PROOF?**
+Our implementation of IDA* stores nodes/states in a tree structure, where child nodes are game states descending from a parent game state, as IDA* by virtue of design requires nodes be revisited at each deepening sweep to generate new nodes. This yields an expensive  To circumvent this, a tranposition table/set was utilised (**see below**).
 
 #### Optimality
 If the heuristic function used is admissible, then the least-cost path found using IDA* is optimal. **SOURCE/PROOF?**

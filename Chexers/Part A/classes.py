@@ -81,13 +81,7 @@ class Vector:
     def mult(list_1, n):
         """Scalar multiplication of a (direction) vector"""
         return tuple([i*n for i in list_1])
-
-    @staticmethod
-    def get_cubic(list_1):
-        """Converts axial coordinates to cubic form - assumes sum(cubic) = 0.
-        Partly adapted from https://www.redblobgames.com/grids/hexagons/#neighbors-axial"""
-        return (list_1[0], list_1[1], -list_1[0]-list_1[1])
-
+        
 ########################## HASHING ############################
 
 """
