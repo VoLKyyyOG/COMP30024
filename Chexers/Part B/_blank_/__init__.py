@@ -1,0 +1,1 @@
+from _blank_.player import ExamplePlayer as Player
