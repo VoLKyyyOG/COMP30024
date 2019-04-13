@@ -7,7 +7,7 @@ Implements Node class for use in graph/tree search algorithms.
 ########################### IMPORTS ##########################
 # Standard modules
 # User-defined files
-from referee.game_mechanics import possible_actions, apply_action
+from mechanics import possible_actions, apply_action
 
 class Node:
     """Node superclass with core (initialized) attributes and methods

@@ -9,7 +9,9 @@ Implements standard minimax
 from copy import deepcopy
 from math import inf
 # User-defined files
-from mechanics import *
+from mechanics import (
+    game_over, is_winner, player, apply_action
+)
 
 def evaluation(state, maximisingPlayer):
     """Returns +1 if maximisingPlayer wins, -1 if other player, or 0 for draw"""

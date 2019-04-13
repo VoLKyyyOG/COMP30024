@@ -34,15 +34,10 @@ MAX_VALUE = 24
 Do NOT need to redefine.
 """
 
-# A list of all the player names: note the auto-slicing
+# A default list of all the player names: note the auto-slicing
 PLAYER_NAMES = [
-    "red",
-    "green",
-    "blue",
-    "orange",
-    "yellow",
-    "purple",
-    "grey"
+    "red", "green", "blue",
+    "orange", "yellow", "purple"
 ][:N_PLAYERS]
 
 # 'r', 'g', etc. for display usage
@@ -56,7 +51,7 @@ NAME_TO_CODE = {name: name[0] for name in PLAYER_NAMES}
 
 """After defining what a state data structure is, code the following"""
 
-# State is just the current total, and whose turn it is
+# State  = (current_total, turn_player_code)
 
 def create_initial_state():
     """Returns the starting game state"""
