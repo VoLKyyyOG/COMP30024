@@ -1,5 +1,12 @@
 # Guide to Part B Folders
 
+## Notes to self (Callum)
+TODO:
+1. Finalise alphabeta
+2. Implement N-Player MC
+3. Streamline Algorithm Storage to work with states, and then with nodes
+  - Eventual idea: want some data to remain, store this as a node bundle
+
 ## Motivations
 Since we wanted to test many different games before we attack Chexers,
 and with many different algorithms, we wanted a code structure that:
