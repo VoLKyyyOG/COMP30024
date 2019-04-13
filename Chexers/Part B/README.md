@@ -15,17 +15,17 @@ To run any game, the following files/structure is necessary:
 
 > ./player/             # Folder for any number of players to use for game
 
-    > \_\_init\_\_.py   # Make it a package. Blank file
+>> \_\_init\_\_.py   # Make it a package. Blank file
 
-    > generic_1/        # Folder
+>> generic_1/        # Folder
 
-        > __init__.py   # See Player_example for code
+>>> __init__.py   # See Player_example for code
 
-        > player.py     # See Player_example - implements \_\_init\_\_, update and action
+>>> player.py     # See Player_example - implements \_\_init\_\_, update and action
 
-    > generic_2/
+>> generic_2/
 
-    > etc...
+>> etc...
 
 Execute from '.' scope:
 
