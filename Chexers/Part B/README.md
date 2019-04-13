@@ -10,16 +10,25 @@ and with many different algorithms, we wanted a code structure that:
 ## How to Run a Game
 To run any game, the following files/structure is necessary:
 > ./mechanics.py        # fully defines a ton of functions
+
 > ./referee/            # Includes CUSTOM referee files that work with any game
+
 > ./player/             # Folder for any number of players to use for game
+
     > \_\_init\_\_.py   # Make it a package. Blank file
+
     > generic_1/        # Folder
+
         > __init__.py   # See Player_example for code
+
         > player.py     # See Player_example - implements \_\_init\_\_, update and action
+
     > generic_2/
+
     > etc...
 
 Execute from '.' scope:
+
 > `python -m referee [-flags] player/generic_1 player/generic_2` ... `player/generic_N` (N as appropriate)
 
 To implement a new game:
