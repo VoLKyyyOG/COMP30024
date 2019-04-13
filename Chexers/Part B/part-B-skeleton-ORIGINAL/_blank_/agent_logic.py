@@ -3,10 +3,10 @@ Team: _blank_
 player.py to hold our player class
 """
 # Import Dependencies
-from moves import *
-from agent_early_game import *
-from agent_mid_game import *
-from agent_endgame import *
+from .moves import *
+# from .agent_early_game import *
+# from .agent_mid_game import *
+# from .agent_endgame import *
 
 """
 Agent Early Game - Monte Carlo / Book Learning
@@ -16,22 +16,26 @@ Agent Endgame - Minimax
 
 # Import Libraries
 from math import inf
+from random import choice as random_picker
 
 # Global Variables
 
 # Functions
 
-def agent_logic(player, opponent1, opponent2):
+def agent_logic(player, random=False):
     """
     Function that returns a move and decides on a strategy.
     :parameters: (early, mid, end) game, player, ....
     :returns: an action in format ("MOVE", ((q1, r2), (q2, r2)))
     """
+    # self.opponents
+
+
+    result = possible_actions(player, random)
     
+    choice = random_picker(result)
 
-
-
-    return ("MOVE", ((0, 0), (0, 1)))
+    return choice
 
 
 

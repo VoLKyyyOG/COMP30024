@@ -3,7 +3,8 @@ Team: _blank_
 player.py to hold our player class
 """
 # Import Dependencies
-from agent_logic import * # includes moves
+from .agent_logic import *
+import numpy as np
 
 # Global Variables
 INITIAL_PIECE_COUNT = 4
@@ -11,12 +12,19 @@ INITIAL_EXITED_PIECES = 0
 NUMBER_OF_ACTIONS = 0
 
 START_POINT = {
-    "red": np.matrix([[-3, 0], [-3, 1], [-3, 2], [-3, 3]]),
-    "green": np.matrix([[0, -3],[1, -3],[2, -3],[3, -3]]),
-    "blue": np.matrix([[3, 0], [2, 1], [1, 2], [0, 3]])
+    "red": {(-3,3), (-3,2), (-3,1), (-3,0)},
+    "green": {(0,-3), (1,-3), (2,-3), (3,-3)},
+    "blue": {(3, 0), (2, 1), (1, 2), (0, 3)}
 }
 
-COLOURS = np.array(["red", "green", "blue"])
+GOAL = {
+    "red": {(3,-3), (3,-2), (3,-1), (3,0)},
+    "green": {(-3,3), (-2,3), (-1,3), (0,3)},
+    "blue": {(-3,0),(-2,-1),(-1,-2),(0,-3)},
+}
+
+
+COLOURS = ["red", "green", "blue"]
 
 class Player:
     def __init__(self, colour):
@@ -31,13 +39,25 @@ class Player:
         strings "red", "green", or "blue" correspondingly.
         """
         # TODO: Set up state representation.
+        self.colour = colour
+
+        opponent_colours = [i for i in COLOURS if i != self.colour]
 
         self.own_state = START_POINT[colour]
-        self.opponents = [i for i in COLOURS if i != colour]
-        self.colour = colour
+        self.opponents = {
+            opponent_colours[0]: Opponent(opponent_colours[0]),
+            opponent_colours[1]: Opponent(opponent_colours[1])
+        }
+        self.goal = GOAL[colour]
+        print("*"*80)
+        print(self)
+        print(self.own_state)
+        print(self.opponents[opponent_colours[0]].own_state)
+        print(self.opponents[opponent_colours[1]].own_state)
+        print("*"*80)
+        
         self.pieces = INITIAL_PIECE_COUNT # Can add or subtract depending on captured pieces. If more than 4 then we can sacrifice
         self.exited_pieces = INITIAL_EXITED_PIECES
-
 
     def action(self):
         global NUMBER_OF_ACTIONS
@@ -52,13 +72,12 @@ class Player:
         actions.
         """
         # TODO: Decide what action to take.
-        if NUMBER_OF_ACTIONS == 0:
-            opponent1 = Opponent(self.opponents[0]) # first colour eg green
-            opponent2 = Opponent(self.opponents[1]) # second colour eg blue
-            assert(opponent1)
-            assert(opponent2)
+        ##### FOR NOW ALL AGENTS PLAY RANDOM MOVES
+        # Code below assumes we are player Red, therefore all other players will be random
+        # This means for random = False we can use a strategy
+        # choice = agent_logic(self, self.colour == "red")
 
-        choice = agent_logic(self, opponent1, opponent2)
+        choice = agent_logic(self)
 
         NUMBER_OF_ACTIONS += 1
 
@@ -87,19 +106,51 @@ class Player:
         the action/pass against the game rules).
         """
         # TODO: Update state representation in response to action.
-        """
-        action = ("MOVE", ((0,1), (-1,0)))
-        d = {'blue': [(0,1), (0,2), (-1,2)]}
-        action[1][0] -> (q1, r2)
-        action[1][1] -> (q2, r2)
-        NUMPY DELETE IS NOT IN PLACE AND RETURNS A COPY, PYTHON DEL COMPLETELY REMOVES IT
-        piece_index = self.opponent[colour].index(action[1][0]) # index of the piece to update in self.opponent[colour]
-        if action[0] == 'EXIT':
-            del self.opponent[colour][piece_index]
-        self.opponent[colour][piece_index] = action[1][1]
-        """
-        for opponent in self.opponent: # eg "green", "blue"
-            print()
+        p3 = ''.join([i for i in COLOURS if i != self.colour and i != colour]) # The third player (not us or the current player in turn)
+
+        current = action[1][0]
+        if action[0] != "EXIT":
+            destination = action[1][1]
+        
+        if colour == self.colour: # This is us
+            
+            print("*"*80)
+            print(f"PLAYER {self.colour.upper()} (C U R R E N T)\nOUR CURRENT STATE:", self.own_state)
+    
+            if action[0] == "EXIT":
+                self.own_state.remove(current)
+                self.pieces -= 1
+                self.exited_pieces += 1
+            else:
+                self.own_state.remove(current)
+                self.own_state.add(destination)
+
+            print("UPDATED TO: ", self.own_state)
+            print("\nOPPONENT STATES:")
+            for i in list(self.opponents.values()):
+                print(f"OPPONENT {i.colour.upper()} HAS STATE {i.own_state}")
+            print("*"*80)
+        else:
+            print("*"*80)
+
+            print(f"OPPONENT {self.colour.upper()} STATE IS:")
+            print(self.own_state)
+            
+            opponent = self.opponents[colour]
+
+            print(f"OPPONENT {self.colour.upper()}'s OTHER OPPONENT THATS NOT US (OPPONENT {p3.upper()}) HAS STATE:")
+            print(opponent.own_state)
+            print("*"*80)
+
+            # for some reason it updates wat
+            # if action[0] == "EXIT":
+            #     opponent.own_state.remove(current)
+            #     opponent.pieces -= 1
+            #     opponent.exited_pieces += 1
+            # else:
+            #     print("error here")
+            #     opponent.own_state.remove(current)
+            #     opponent.own_state.remove(destination)
 
 
 class Opponent:
