@@ -1,21 +1,20 @@
-""" Minimax.py
+""" minimax.py
 
 Implements standard minimax
-
-Notes:
-- Import of game_mechanics may be redundant... check this
 
 """
 
 ########################### IMPORTS ##########################
 # Standard modules
+from copy import deepcopy
+from math import inf
 # User-defined files
-from game_mechanics import *
+from mechanics import *
 
 def evaluation(state, maximisingPlayer):
     """Returns +1 if maximisingPlayer wins, -1 if other player, or 0 for draw"""
-    if state.game_over():
-        if state.game_status() == maximisingPlayer:
+    if game_over(state):
+        if is_winner(state, maximisingPlayer):
             return +1
         else:
             return -1
@@ -24,24 +23,23 @@ def evaluation(state, maximisingPlayer):
 
 def minimax(state, heuristic, maximisingPlayer):
     """Game-independent minimax implementation"""
-    if state.player() == maximisingPlayer: # Maximising player
+    if player(state) == maximisingPlayer: # Maximising player
         result = (None, -inf)
     else:
         result = (None, +inf)
 
-    if state.game_over():
+    if game_over(state):
         return (None, heuristic(state, maximisingPlayer))
 
-    for action in state.possible_actions():
+    for action in possible_actions(state):
         # Compute minimax value of that subtree
-        new_state = deepcopy(state)
-        new_state.apply_action(action)
-        next_subtree = (action, minimax(new_state)[1])
+        new_state = apply_action(deepcopy(state), action)
+        next_subtree = (action, minimax(new_state, heuristic, maximisingPlayer)[1])
 
-        if state.player() == maximisingPlayer:
+        if player(state) == maximisingPlayer:
             if next_subtree[1] > result[1]:
-                result = score
+                result = next_subtree
         else:
             if next_subtree[1] < result[1]:
-                result = score
+                result = next_subtree
     return result

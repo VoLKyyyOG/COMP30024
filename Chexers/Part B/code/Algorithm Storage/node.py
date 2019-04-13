@@ -7,7 +7,7 @@ Implements Node class for use in graph/tree search algorithms.
 ########################### IMPORTS ##########################
 # Standard modules
 # User-defined files
-from game_mechanics import *
+from referee.game_mechanics import possible_actions, apply_action
 
 class Node:
     """Node superclass with core (initialized) attributes and methods
@@ -28,8 +28,7 @@ class Node:
         if not self.is_expanded and not self.is_dead:
             for action in possible_actions(self.state):
                 new_child = self.new_child()
-                new_child.state = deepcopy(self.state)
-                apply_action(new_child.state, action)
+                new_child.state = apply_action(deepcopy(self.state), action)
                 self.children.append(new_child)
             self.is_expanded = True
 
@@ -42,5 +41,5 @@ class Node:
     def create_root(cls, initial_state):
         """Creates first instance"""
         root = cls.new_child(parent=None)
-        root.state = initial_state # Consider copying
+        root.state = initial_state
         return root
