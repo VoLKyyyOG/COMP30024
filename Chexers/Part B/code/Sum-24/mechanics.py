@@ -70,8 +70,8 @@ def possible_actions(state):
 def valid_action(state, action):
     """Checks validity of an action to be applied to a State, returns boolean"""
     current_total = state[0]
-    aarg = action[1]
-    return current_total + aarg <= MAX_VALUE
+    atype, aarg = action
+    return (1 <= aarg <= 3 and atype == ACTION_TYPE)
 
 def apply_action(state, action):
     """Applies an action to a State object, returns new state"""

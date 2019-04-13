@@ -32,7 +32,9 @@ optional arguments:
 """
 
 import argparse
-from referee.game import GAME_NAME, N_PLAYERS, PLAYER_NAMES, PLAYER_CODES
+from referee.game import (
+    GAME_NAME, N_PLAYERS, PLAYER_NAMES, PLAYER_CODES
+)
 
 # Program information:
 PROGRAM = "referee"
