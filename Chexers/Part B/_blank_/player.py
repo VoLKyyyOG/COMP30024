@@ -2,14 +2,14 @@
 Team: _blank_ 
 player.py to hold our player class
 """
-
-# Import libraries
-import numpy as np
-from collections import defaultdict
+# Import Dependencies
+from moves import *
 
 # Global Variables
 INITIAL_PIECE_COUNT = 4
 INITIAL_EXITED_PIECES = 0
+
+
 
 class Tet: # lmao the default is ExamplePlayer
     def __init__(self, colour):
@@ -24,12 +24,12 @@ class Tet: # lmao the default is ExamplePlayer
         strings "red", "green", or "blue" correspondingly.
         """
         # TODO: Set up state representation.
-        self.state = None
+        self.state = None # state["pieces"] returns array of our pieces, state["enemy"] returns array of blocked pieces?
         self.colour = colour
         """
-        self.strategy = default to book learning?
+        self.strategy = default to book learning / max^n / paranoid / directed offence
         """
-        self.pieces = INITIAL_PIECE_COUNT
+        self.pieces = INITIAL_PIECE_COUNT # Can add or subtract depending on captured
         self.exited_pieces = INITIAL_EXITED_PIECES
 
 
@@ -47,13 +47,7 @@ class Tet: # lmao the default is ExamplePlayer
         # TODO: Decide what action to take.
         #### AKIRA
         # Action is a representation of the most recent action (or pass) conforming to the above instructions for representing actions
-        """
-        Return values for the referee:
-        1. ("MOVE", ((q1, r1), (q2, r2)))
-        2. ("JUMP", ((q1, r1), (q2, r2)))
-        3. ("EXIT", (q1, q2))
-        4. ("PASS", None)
-        """
+
         
         return ("PASS", None)
 
@@ -70,10 +64,12 @@ class Tet: # lmao the default is ExamplePlayer
         "green", or "blue" correspondingly.
 
         The parameter action is a representation of the most recent action (or 
-        pass) conforming to the above in- structions for representing actions.
+        pass) conforming to the above instructions for representing actions.
 
         You may assume that action will always correspond to an allowed action 
         (or pass) for the player colour (your method does not need to validate 
         the action/pass against the game rules).
         """
         # TODO: Update state representation in response to action.
+        #### I assume we update our own piece for the move we take so 
+        #### If not our colour, update state with their action
