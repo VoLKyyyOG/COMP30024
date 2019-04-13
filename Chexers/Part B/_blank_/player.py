@@ -1,5 +1,17 @@
+"""
+Team: _blank_ 
+player.py to hold our player class
+"""
 
-class ExamplePlayer:
+# Import libraries
+import numpy as np
+from collections import defaultdict
+
+# Global Variables
+INITIAL_PIECE_COUNT = 4
+INITIAL_EXITED_PIECES = 0
+
+class Tet: # lmao the default is ExamplePlayer
     def __init__(self, colour):
         """
         This method is called once at the beginning of the game to initialise
@@ -12,6 +24,13 @@ class ExamplePlayer:
         strings "red", "green", or "blue" correspondingly.
         """
         # TODO: Set up state representation.
+        self.state = None
+        self.colour = colour
+        """
+        self.strategy = default to book learning?
+        """
+        self.pieces = INITIAL_PIECE_COUNT
+        self.exited_pieces = INITIAL_EXITED_PIECES
 
 
     def action(self):
@@ -26,6 +45,16 @@ class ExamplePlayer:
         actions.
         """
         # TODO: Decide what action to take.
+        #### AKIRA
+        # Action is a representation of the most recent action (or pass) conforming to the above instructions for representing actions
+        """
+        Return values for the referee:
+        1. ("MOVE", ((q1, r1), (q2, r2)))
+        2. ("JUMP", ((q1, r1), (q2, r2)))
+        3. ("EXIT", (q1, q2))
+        4. ("PASS", None)
+        """
+        
         return ("PASS", None)
 
 
