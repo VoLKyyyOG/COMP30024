@@ -28,18 +28,19 @@ def agent_logic(player, random=False):
     :parameters: (early, mid, end) game, player, ....
     :returns: an action in format ("MOVE", ((q1, r2), (q2, r2)))
     """
-    # self.opponents
+    two_player = False
+    early_game = True
+    mid_game = False
 
-
-    result = possible_actions(player, random)
-    
-    choice = random_picker(result)
-
-    return choice
-
-
-
-
+    if not two_player and early_game:
+        print("So far so good")
+        result = possible_actions(player)
+        choice = random_picker(result)
+        return choice
+    elif not two_player and mid_game:
+        result = mp_mix(player)
+    else:
+        result = minimax(player)
 
 def evaluation(state, maximisingPlayer):
     """Returns +1 if maximisingPlayer wins, -1 if other player, or 0 for draw"""

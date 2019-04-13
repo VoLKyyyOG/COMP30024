@@ -27,25 +27,31 @@ def add(u, v):
     """
     return (u[0] + v[0], u[1] + v[1])
 
-def possible_actions(player, random=False):
+def possible_actions(player):
     """
     Function that finds all possible actions in a given state.
     :returns: list of possible actions.
     """
+    print("Possible actions called")
     actions = list()
 
+    # All occupied hexes (doesn't account for who's who)
+    # That is taken care of if a capture has occured in update()
+    occupied = list(i[0] for i in player.state.values())
+    print(occupied)
+
     opponents = list(player.opponents.values()) # Have to convert any .values() into a list to index
-    opponent_hexes = opponents[0].own_state.union(opponents[1].own_state) # All occupied hexes (opponent pieces).
-    occupied = opponent_hexes.union(player.own_state)
+    opponent_hexes = opponents[0].state.union(opponents[1].state) # All occupied hexes (opponent pieces).
+    occupied = opponent_hexes.union(player.state)
 
     # Exits
-    actions.extend(exit_action(player.own_state, player.goal))
+    actions.extend(exit_action(player.state, player.goal))
 
     # Moves
-    actions.extend(move_action(player.own_state, occupied))
+    actions.extend(move_action(player.state, occupied))
 
     # Jumps
-    actions.extend(jump_action(player.own_state, occupied))
+    actions.extend(jump_action(player.state, occupied))
 
     return actions
 
