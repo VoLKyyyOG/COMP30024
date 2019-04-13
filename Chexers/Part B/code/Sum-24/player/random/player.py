@@ -1,16 +1,17 @@
 """ player.py
 
-Base class for any TerminalPlayer.
+Base class for any RandomPlayer.
 Asks for inputs directly from command line.
 
 """
 
 ########################### IMPORTS ##########################
 # Standard modules
+from random import randint
 # User-defined files
 from mechanics import *
 
-class TerminalPlayer:
+class RandomPlayer:
     def __init__(self, colour):
         """
         This method is called once at the beginning of the game to initialise
@@ -33,9 +34,7 @@ class TerminalPlayer:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        while(True):
-            aarg = int(input("Enter next action >>> "))
-            try:
-                return (ACTION_TYPE, aarg)
-            except SyntaxError:
-                print("ERROR: Invalid input")
+        while (True):
+            action = (ACTION_TYPE, randint(1,3))
+            if valid_action(self.state, action):
+                return action
