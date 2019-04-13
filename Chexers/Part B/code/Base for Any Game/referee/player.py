@@ -8,6 +8,8 @@ import gc
 import time
 import importlib
 
+SEP = " " * 45 + "| "
+
 class PlayerWrapper:
     """
     Wraps a real Player class, providing essentially the same interface:
@@ -45,15 +47,17 @@ class PlayerWrapper:
         with self.space, self.timer:
             # ask the real player
             action = self.player.action()
-        self._message(f"  {self.colour} player returned action: {action!r}")
+        # self._message(f"  {self.colour} player returned action: {action!r}")
+        self._message(f"{self.colour} player returned action: {action!r}")
         self._message(self.timer.status())
         self._message(self.space.status())
         # give back the result
         return action
 
     def update(self, colour, action):
-        self._message(f"updating {self.colour} player with {colour}'s "
-            f"action {action}...")
+        self._message(f"updating {self.colour}...")
+        # self._message(f"updating {self.colour} player with {colour}'s "
+        #   f"action {action}...")
         with self.space, self.timer:
             # forward to the real player
             self.player.update(colour, action)
@@ -62,7 +66,7 @@ class PlayerWrapper:
 
     def _message(self, message):
         if self.output and message:
-            print("*", message)
+            print(f"* {SEP}", message)
 
 def _load_player_class(package_name, class_name):
     """

@@ -15,7 +15,12 @@ structures for representing the state of a game.
 import sys
 import time
 from collections import defaultdict
-from mechanics import *
+from mechanics import (
+        GAME_NAME, N_PLAYERS, PLAYER_NAMES, PLAYER_CODES, CODE_TO_NAME,
+        MAX_TURNS, create_initial_state, apply_action, possible_actions,
+        get_score, encode, game_drawn, game_over, get_template,
+        get_strings_for_template, action_str
+)
 
 #################### STRICTLY GRAPHICS ONLY ##################
 
