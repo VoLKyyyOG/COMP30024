@@ -212,8 +212,10 @@ def possible_actions(state):
     actions.extend(exit_action(state))
     actions.extend(move_action(state, occupied))
     actions.extend(jump_action(state, occupied))
-
-    return actions
+    if not actions:
+        return [("PASS",None)]
+    else:
+        return actions
 
 def encode(state):
     """Defines a low-collision invertible hash for a State object"""

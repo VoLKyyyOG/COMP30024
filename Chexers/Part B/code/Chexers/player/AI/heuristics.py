@@ -7,6 +7,7 @@ Stores heuristics for use in Chexers, or any other game.
 ########################### IMPORTS ##########################
 # Standard modules
 from queue import PriorityQueue as PQ
+from math import inf
 # User-defined files
 from mechanics import *
 
@@ -22,6 +23,15 @@ def goal_eval_for_minimax(state, maximisingPlayer):
         return 0
 
 ########################### CHEXERS ##########################
+def exit_diff_2_player(state, maximisingPlayer):
+    """Calculates as exits(self) - exits(only_remaining_opponent)"""
+    if not state[state['turn']]:
+        print("somehow this player is out of the game")
+        return -inf
+    else:
+        opponent = [i for i in PLAYER_NAMES if state[i] and i != maximisingPlayer].pop()
+        return state['exits'][maximisingPlayer] - state['exits'][opponent]
+
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""
     return [sum([dijkstra_board(state)[piece] for piece in player(state)]) for player in PLAYER_NAMES]

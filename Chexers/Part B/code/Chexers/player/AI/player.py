@@ -6,15 +6,15 @@ Base class for any AIPlayer.
 
 ########################### IMPORTS ##########################
 # Standard modules
+from random import choice
 # User-defined files
 from mechanics import *
-from random import choice
 from .minimax import alphabeta_search
-from .heuristics import retrograde_dijkstra
+from .heuristics import retrograde_dijkstra, exit_diff_2_player
 
 class AIPlayer:
     MID_GAME_THRESHOLD = 18
-    END_GAME_THRESHOLD = 150
+    END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
         """
@@ -50,22 +50,35 @@ class AIPlayer:
 
     def mid_game(self):
         """Runs amazing 3-player algorithms"""
-        return choice(possible_actions(self.state))
+        return self.random_action()
         # When they've been coded
 
     def early_game(self):
         """Uses booking/random choice to make early game decisions"""
-        return choice(possible_actions(self.state))
+        return self.random_action()
 
     def end_game(self):
         """Given two players are left, uses optimal 2-player strategy to choose
         action. """
-        return alphabeta_search(self.state, get_score, self.colour)
+        #print(f"{self.turn_count}, running alphabeta on {self.state}")
+        if not self.state[self.colour]:
+            return ("PASS", None)
+        elif two_players_left(self.state):
+            return alphabeta_search(self.state, exit_diff_2_player, self.colour)
+        else:
+            return self.random_action()
 
     def start_mid_game(self):
         """Determines when to shift strategy to the mid game"""
+        if self.turn_count == AIPlayer.MID_GAME_THRESHOLD:
+            print(f"* ({self.colour}) is switching to midgame")
         return (self.turn_count >= AIPlayer.MID_GAME_THRESHOLD)
 
     def start_end_game(self):
+        if self.turn_count == AIPlayer.END_GAME_THRESHOLD:
+            print(f"* ({self.colour}) is switching to endgame")
         """Determines when to shift strategy to the end game"""
         return (two_players_left(self.state) or self.turn_count >= AIPlayer.END_GAME_THRESHOLD)
+
+    def random_action(self):
+        return choice(possible_actions(self.state))
