@@ -13,6 +13,7 @@ import datetime
 from random import choice
 from math import log, sqrt
 # User-defined files
+from mechanics import *
 
 class MonteCarlo(object):
     def __init__(self, board, **kwargs):

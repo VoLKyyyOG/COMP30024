@@ -10,6 +10,7 @@ from copy import deepcopy
 from math import inf
 from collections import OrderedDict
 # User-defined files
+from mechanics import *
 
 """
 Concept adapted from:

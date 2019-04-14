@@ -105,6 +105,9 @@ class GameObject:
         detect repeated game states.
         """
         self.nturns += 1
+
+        if self.nturns % 100 == 0:
+            print(f"*  Reached {self.nturns} turns")
         if self.nturns >= MAX_TURNS * 3:
             self.drawmsg = "maximum number of turns reached."
 

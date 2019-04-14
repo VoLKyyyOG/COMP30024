@@ -110,3 +110,661 @@
 [red  ] - chose to MOVE (-3, 1) to (-2, 1)
 [green] - chose to JUMP (0, -3) to (-2, -1)
 [blue ] - chose to MOVE (1, -2) to (2, -3)
+[red  ] - chose to MOVE (-2, 3) to (-2, 2)
+[green] - chose to JUMP (-2, -1) to (0, -3)
+[blue ] - chose to MOVE (0, -1) to (1, -1)
+[red  ] - chose to MOVE (-2, 1) to (-3, 1)
+[green] - chose to JUMP (1, 0) to (-1, 0) - CAPTURED blue
+[blue ] - chose to MOVE (1, -1) to (2, -2)
+[red  ] - chose to MOVE (-2, 2) to (-3, 3)
+[green] - chose to MOVE (-1, 0) to (0, -1)
+[blue ] - chose to MOVE (2, -2) to (1, -1)
+[red  ] - chose to MOVE (-3, 1) to (-3, 2)
+[green] - chose to MOVE (0, 0) to (1, 0)
+[blue ] - chose to MOVE (2, 1) to (1, 1)
+[red  ] - chose to MOVE (-3, 2) to (-3, 1)
+[green] - chose to JUMP (2, -1) to (2, 1)
+[blue ] - chose to MOVE (2, -3) to (3, -3)
+[red  ] - chose to MOVE (-3, 3) to (-2, 3)
+[green] - chose to MOVE (-1, -2) to (-2, -1)
+[blue ] - chose to MOVE (1, 1) to (0, 1)
+[red  ] - chose to MOVE (-2, 3) to (-1, 3)
+[green] - chose to MOVE (2, 0) to (3, -1)
+[blue ] - chose to MOVE (1, -1) to (1, -2)
+[red  ] - chose to MOVE (-3, 1) to (-2, 1)
+[green] - chose to JUMP (0, -1) to (2, -3) - CAPTURED blue
+[blue ] - chose to MOVE (0, 1) to (0, 0)
+[red  ] - chose to MOVE (-1, 3) to (0, 3)
+[green] - chose to JUMP (2, -3) to (0, -1)
+[blue ] - chose to MOVE (3, -3) to (2, -3)
+[red  ] - chose to MOVE (-2, 1) to (-3, 2)
+[green] - chose to MOVE (0, -3) to (-1, -2)
+[blue ] - chose to MOVE (2, -3) to (3, -3)
+[red  ] - chose to MOVE (0, 3) to (-1, 3)
+[green] - chose to MOVE (2, 1) to (1, 2)
+[blue ] - chose to MOVE (0, 0) to (-1, 0)
+[red  ] - chose to MOVE (-1, 3) to (-2, 3)
+[green] - chose to MOVE (1, -2) to (0, -2)
+[blue ] - chose to MOVE (-1, 0) to (-1, -1)
+[red  ] - chose to MOVE (-3, 2) to (-3, 1)
+[green] - chose to JUMP (-1, -2) to (-1, 0) - CAPTURED blue
+[blue ] - chose to MOVE (3, -3) to (2, -2)
+[red  ] - chose to MOVE (-3, 1) to (-3, 2)
+[green] - chose to JUMP (-1, 0) to (-1, -2)
+[blue ] - chose to MOVE (2, -2) to (2, -3)
+[red  ] - chose to MOVE (-3, 2) to (-3, 3)
+[green] - chose to JUMP (1, -3) to (3, -3) - CAPTURED blue
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 3) to (-2, 2)
+[green] - chose to MOVE (3, -1) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 2) to (-2, 1)
+[green] - chose to JUMP (3, -3) to (1, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 1) to (-3, 1)
+[green] - chose to MOVE (1, -3) to (0, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 3) to (-3, 2)
+[green] - chose to MOVE (0, -1) to (0, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 2) to (-2, 2)
+[green] - chose to MOVE (0, -2) to (0, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 2) to (-1, 1)
+[green] - chose to JUMP (1, 0) to (-1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 1) to (-3, 2)
+[green] - chose to MOVE (0, -3) to (0, -2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 2) to (-3, 1)
+[green] - chose to MOVE (0, -2) to (1, -2)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-1, 1) to (1, -1) - CAPTURED green
+[green] - chose to MOVE (-2, -1) to (-3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, -1) to (1, -3) - CAPTURED green
+[green] - chose to MOVE (-1, -2) to (0, -3)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, 0) to (0, -2) - CAPTURED green
+[green] - chose to JUMP (-1, -1) to (1, -1) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (-1, -2)
+[green] - chose to MOVE (2, 0) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (2, -2)
+[green] - chose to JUMP (2, -3) to (2, -1) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -3) to (2, -3)
+[green] - chose to MOVE (1, -1) to (1, -2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (-2, -1)
+[green] - chose to MOVE (2, -1) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 1) to (-2, 0)
+[green] - chose to MOVE (-1, 0) to (-1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, -1) to (-1, -1)
+[green] - chose to JUMP (-3, 0) to (-1, 0) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -1) to (-1, -2)
+[green] - chose to MOVE (2, 0) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (2, -3) to (2, -1) - CAPTURED green
+[green] - chose to MOVE (-1, 0) to (0, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, -2) to (1, -1)
+[green] - chose to MOVE (-2, 0) to (-1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, -1) to (1, 1) - CAPTURED green
+[green] - chose to JUMP (0, -1) to (0, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (-1, -1)
+[green] - chose to MOVE (0, 1) to (-1, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, -1) to (1, -1)
+[green] - chose to MOVE (-1, 2) to (0, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, 1) to (0, 1)
+[green] - chose to MOVE (1, -2) to (0, -1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, 0) to (1, -2)
+[green] - chose to MOVE (-1, 0) to (-2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (0, -2)
+[green] - chose to MOVE (0, 0) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (1, -3)
+[green] - chose to MOVE (0, -3) to (0, -2)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, 1) to (-2, 1) - CAPTURED green
+[green] - chose to JUMP (0, -1) to (-2, -1) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -1) to (1, -2)
+[green] - chose to MOVE (1, 0) to (0, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, -3) to (1, -1)
+[green] - chose to MOVE (2, 1) to (3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 1) to (-1, 2)
+[green] - chose to MOVE (0, -2) to (0, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 1) to (-3, 1)
+[green] - chose to MOVE (0, -3) to (1, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 2) to (-2, 3)
+[green] - chose to MOVE (0, 1) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (2, -3)
+[green] - chose to MOVE (-2, -1) to (-3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 3) to (-1, 2)
+[green] - chose to MOVE (1, 1) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (2, -3) to (0, -3) - CAPTURED green
+[green] - chose to MOVE (1, 2) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -1) to (0, -1)
+[green] - chose to MOVE (0, 2) to (-1, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 2) to (-2, 3)
+[green] - chose to MOVE (3, 0) to (3, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 1) to (-2, 1)
+[green] - chose to MOVE (3, -1) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (1, -2)
+[green] - chose to MOVE (2, 0) to (3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 1) to (-1, 1)
+[green] - chose to JUMP (1, 0) to (1, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 3) to (-1, 2)
+[green] - chose to JUMP (-3, 0) to (-1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 2) to (-2, 3)
+[green] - chose to MOVE (-1, 3) to (-1, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 1) to (-2, 1)
+[green] - chose to MOVE (-1, -1) to (0, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 1) to (-2, 2)
+[green] - chose to MOVE (3, 0) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -3) to (-1, -2)
+[green] - chose to MOVE (1, 1) to (0, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (2, -3)
+[green] - chose to MOVE (-1, 0) to (-1, -1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-2, 3) to (-2, 1)
+[green] - chose to MOVE (1, 2) to (0, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -3) to (0, -3)
+[green] - chose to MOVE (0, 1) to (-1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (-2, -1)
+[green] - chose to MOVE (-1, 2) to (-2, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 2) to (-3, 3)
+[green] - chose to MOVE (0, 2) to (0, 3)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-2, 1) to (0, 1) - CAPTURED green
+[green] - chose to MOVE (2, 1) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, 1) to (0, 0)
+[green] - chose to JUMP (-1, -1) to (1, -1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, 0) to (0, -2) - CAPTURED green
+[green] - chose to MOVE (0, 3) to (0, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 1) to (-1, 0)
+[green] - chose to MOVE (-2, 3) to (-2, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 0) to (0, 0)
+[green] - chose to MOVE (1, 1) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (-1, 0)
+[green] - chose to MOVE (1, 0) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -3) to (1, -3)
+[green] - chose to MOVE (1, 1) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, -3) to (-1, -1)
+[green] - chose to MOVE (1, -1) to (0, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (1, -2)
+[green] - chose to JUMP (0, -1) to (0, 1) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 0) to (0, -1)
+[green] - chose to MOVE (2, 1) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 3) to (-2, 3)
+[green] - chose to MOVE (0, 0) to (-1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 3) to (-1, 2)
+[green] - chose to MOVE (-1, 0) to (-2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -1) to (-1, -2)
+[green] - chose to MOVE (2, 0) to (2, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (1, -3)
+[green] - chose to MOVE (-2, 0) to (-3, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (0, 0)
+[green] - chose to MOVE (0, 2) to (1, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 2) to (-1, 1)
+[green] - chose to MOVE (1, 2) to (0, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -3) to (1, -2)
+[green] - chose to MOVE (0, 3) to (-1, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (0, -2)
+[green] - chose to MOVE (2, -1) to (1, -1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-2, -1) to (0, -3)
+[green] - chose to EXIT (-1, 3)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, -3) to (-2, -1)
+[green] - chose to MOVE (1, -1) to (0, -1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-1, -2) to (-3, 0)
+[green] - chose to MOVE (-2, 2) to (-1, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 0) to (-2, 0)
+[green] - chose to MOVE (0, -1) to (-1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, 0) to (-2, 2)
+[green] - chose to MOVE (-1, 2) to (-1, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, -3) to (3, -3)
+[green] - chose to MOVE (0, 1) to (0, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (1, -2)
+[green] - chose to MOVE (-1, 0) to (0, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, -1) to (-1, -2)
+[green] - chose to MOVE (-1, 3) to (-1, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (3, -3) to (3, -2)
+[green] - chose to MOVE (0, 2) to (1, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (0, -1)
+[green] - chose to MOVE (-1, 2) to (0, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 0) to (-1, -1)
+[green] - chose to MOVE (0, 0) to (-1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (1, -1)
+[green] - chose to MOVE (-2, 1) to (-3, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 1) to (-1, 2)
+[green] - chose to MOVE (-3, 1) to (-2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (0, -3)
+[green] - chose to MOVE (0, 2) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 2) to (-1, 1)
+[green] - chose to MOVE (-2, 0) to (-2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -1) to (1, 0)
+[green] - chose to MOVE (1, 1) to (0, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (3, -2) to (3, -1)
+[green] - chose to MOVE (-2, 1) to (-2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -1) to (-1, -2)
+[green] - chose to MOVE (-1, 0) to (0, 0)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, -3) to (-2, -1)
+[green] - chose to MOVE (0, 2) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 1) to (0, 1)
+[green] - chose to MOVE (-3, 2) to (-2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (3, -1) to (2, -1)
+[green] - chose to MOVE (-2, 1) to (-1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-1, 2) to (-1, 0) - CAPTURED green
+[green] - chose to JUMP (0, 0) to (-2, 2) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (0, -3)
+[green] - chose to MOVE (1, 1) to (0, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, -1) to (2, -2)
+[green] - chose to MOVE (-1, 1) to (-2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, 1) to (0, 0)
+[green] - chose to MOVE (0, 2) to (0, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, -2) to (1, -1)
+[green] - chose to MOVE (-2, 2) to (-3, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, 0) to (1, 1)
+[green] - chose to JUMP (-2, 0) to (-2, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 0) to (-1, 1)
+[green] - chose to MOVE (-2, 2) to (-3, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, 1) to (1, 0)
+[green] - chose to MOVE (-3, 3) to (-2, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, -1) to (-3, 0)
+[green] - chose to JUMP (0, 1) to (2, -1) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 1) to (-1, 2)
+[green] - chose to MOVE (-2, 1) to (-1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -1) to (0, -1)
+[green] - chose to MOVE (-1, 0) to (-2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, 0) to (0, -2)
+[green] - chose to MOVE (-2, 3) to (-2, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (1, -2)
+[green] - chose to MOVE (2, -1) to (3, -2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (-1, -1)
+[green] - chose to MOVE (1, 2) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 0) to (-2, -1)
+[green] - chose to MOVE (2, 1) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, -1) to (-1, -2)
+[green] - chose to MOVE (-2, 2) to (-1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -1) to (-1, 0)
+[green] - chose to MOVE (2, 0) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (0, -2)
+[green] - chose to MOVE (1, 0) to (0, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 0) to (0, -1)
+[green] - chose to MOVE (-3, 2) to (-3, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, -2) to (0, 0)
+[green] - chose to JUMP (0, 1) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-1, 2) to (-1, 0) - CAPTURED green
+[green] - chose to MOVE (-3, 1) to (-3, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 1) to (-1, 2)
+[green] - chose to MOVE (1, 1) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -3) to (1, -3)
+[green] - chose to MOVE (-2, 1) to (-2, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 0) to (-1, -1)
+[green] - chose to MOVE (2, 1) to (1, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -3) to (0, -2)
+[green] - chose to MOVE (1, 0) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (1, -1)
+[green] - chose to MOVE (-2, 2) to (-2, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -1) to (1, 0)
+[green] - chose to MOVE (2, 0) to (3, -1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, 0) to (2, 0)
+[green] - chose to MOVE (-2, 3) to (-1, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, 0) to (2, -1)
+[green] - chose to JUMP (3, -1) to (3, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -1) to (-1, 0)
+[green] - chose to MOVE (3, -2) to (2, -2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 2) to (0, 1)
+[green] - chose to MOVE (1, 2) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, 0) to (3, 0)
+[green] - chose to JUMP (2, -2) to (2, 0) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (0, -3)
+[green] - chose to MOVE (-1, 3) to (0, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, 1) to (1, 0)
+[green] - chose to JUMP (2, 0) to (2, -2)
+[blue ] - chose to PASS
+[red  ] - chose to EXIT (3, 0)
+[green] - chose to JUMP (1, 1) to (1, -1) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 0) to (0, -1)
+[green] - chose to MOVE (2, -2) to (2, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (-2, -1)
+[green] - chose to MOVE (-3, 2) to (-3, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (1, -2)
+[green] - chose to MOVE (-3, 1) to (-2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -3) to (-1, -2)
+[green] - chose to MOVE (1, 0) to (0, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (0, -2)
+[green] - chose to MOVE (2, -3) to (1, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (0, -1)
+[green] - chose to MOVE (0, 1) to (-1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-1, -2) to (-3, 0)
+[green] - chose to MOVE (1, -3) to (2, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (1, -2)
+[green] - chose to JUMP (1, -1) to (3, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 0) to (-2, 0)
+[green] - chose to MOVE (3, -1) to (3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (0, -2)
+[green] - chose to MOVE (-2, 1) to (-1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (1, -3)
+[green] - chose to MOVE (3, 0) to (3, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, -1) to (-1, -1)
+[green] - chose to MOVE (2, -1) to (2, -2)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-2, 0) to (0, -2)
+[green] - chose to EXIT (0, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -1) to (-1, -2)
+[green] - chose to MOVE (2, -2) to (3, -2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -3) to (1, -2)
+[green] - chose to JUMP (3, -2) to (3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (0, -3)
+[green] - chose to MOVE (3, -3) to (2, -2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (-1, -1)
+[green] - chose to MOVE (3, -1) to (3, -2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -3) to (-1, -2)
+[green] - chose to MOVE (3, 0) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (0, -1)
+[green] - chose to MOVE (2, 1) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (0, -2)
+[green] - chose to MOVE (1, 1) to (0, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -1) to (-1, -2)
+[green] - chose to JUMP (-1, 1) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, -2) to (0, 0)
+[green] - chose to JUMP (2, -3) to (2, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (1, -1)
+[green] - chose to MOVE (0, 1) to (-1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -1) to (1, -2)
+[green] - chose to MOVE (-1, 1) to (-2, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (-1, -1)
+[green] - chose to MOVE (2, -2) to (3, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -1) to (-1, -2)
+[green] - chose to MOVE (3, -3) to (2, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, 0) to (1, -1)
+[green] - chose to MOVE (2, -1) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -1) to (2, -1)
+[green] - chose to MOVE (-2, 2) to (-3, 2)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (2, -1) to (2, 1) - CAPTURED green
+[green] - chose to MOVE (-1, 0) to (-1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (1, -3)
+[green] - chose to MOVE (3, -2) to (2, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -3) to (1, -2)
+[green] - chose to MOVE (2, -1) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (2, 1) to (0, 1) - CAPTURED green
+[green] - chose to MOVE (-3, 2) to (-3, 3)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, 1) to (1, -1) - CAPTURED green
+[green] - chose to MOVE (2, -3) to (3, -3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, 0) to (2, -1)
+[green] - chose to MOVE (-3, 3) to (-2, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -2) to (0, -2)
+[green] - chose to MOVE (-2, 2) to (-2, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, 1) to (0, 2)
+[green] - chose to MOVE (3, -3) to (3, -2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, 0) to (1, 1)
+[green] - chose to MOVE (-1, 1) to (0, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, 2) to (0, 1)
+[green] - chose to MOVE (3, -2) to (3, -1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, 1) to (-1, 1)
+[green] - chose to MOVE (0, 0) to (0, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -1) to (2, -2)
+[green] - chose to MOVE (3, -1) to (3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, -1) to (3, -1)
+[green] - chose to MOVE (-2, 3) to (-3, 3)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (3, -1) to (2, 0)
+[green] - chose to MOVE (3, 0) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, -2) to (-1, 0) - CAPTURED green
+[green] - chose to MOVE (-3, 3) to (-2, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -2) to (1, -3)
+[green] - chose to MOVE (-2, 2) to (-2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-1, 1) to (-3, 1) - CAPTURED green
+[green] - chose to MOVE (2, 1) to (3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 1) to (-2, 2)
+[green] - chose to MOVE (3, 0) to (3, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, -2) to (2, -1)
+[green] - chose to JUMP (3, -1) to (1, -1) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (0, 0)
+[green] - chose to JUMP (1, -1) to (3, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 1) to (-3, 0)
+[green] - chose to MOVE (2, -1) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 0) to (-2, 0)
+[green] - chose to MOVE (3, -1) to (3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (2, 0) to (2, 1)
+[green] - chose to MOVE (1, 0) to (1, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -3) to (1, -2)
+[green] - chose to JUMP (3, 0) to (1, 2) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, 1) to (-1, 1)
+[green] - chose to MOVE (1, 2) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (1, -3)
+[green] - chose to MOVE (1, 1) to (1, 2)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, 0) to (1, 0)
+[green] - chose to MOVE (1, -1) to (0, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -3) to (1, -2)
+[green] - chose to MOVE (1, 2) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-2, 2) to (-3, 3)
+[green] - chose to MOVE (1, 1) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, 0) to (1, 1)
+[green] - chose to MOVE (0, 0) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -2) to (0, -1)
+[green] - chose to MOVE (2, 1) to (3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 3) to (-3, 2)
+[green] - chose to MOVE (2, 0) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, 1) to (1, -1) - CAPTURED green
+[green] - chose to MOVE (3, 0) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 1) to (0, 0)
+[green] - chose to MOVE (2, 0) to (3, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (1, -2)
+[green] - chose to MOVE (3, -1) to (3, -2)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, 0) to (-1, 0)
+[green] - chose to MOVE (3, -2) to (3, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, 0) to (1, 0)
+[green] - chose to MOVE (3, -1) to (2, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-3, 2) to (-3, 1)
+[green] - chose to MOVE (2, 1) to (1, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-3, 1) to (-1, -1)
+[green] - chose to MOVE (2, -1) to (2, -2)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-1, 0) to (-1, -2)
+[green] - chose to MOVE (1, 1) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (1, -1) to (0, 0)
+[green] - chose to MOVE (2, 1) to (3, 0)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (1, 0) to (-1, 0)
+[green] - chose to JUMP (2, -2) to (0, -2) - CAPTURED red
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 0) to (-1, 1)
+[green] - chose to MOVE (1, -2) to (0, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, -1) to (-2, -1)
+[green] - chose to MOVE (0, -2) to (-1, -1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (0, 0) to (0, -2) - CAPTURED green
+[green] - chose to MOVE (3, 0) to (2, 1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-1, -2) to (-1, 0) - CAPTURED green
+[green] - chose to MOVE (2, 1) to (2, 0)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-1, -1) to (1, -3)
+[green] - chose to MOVE (2, 0) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (0, -1) to (-1, -1)
+[green] - chose to MOVE (1, 0) to (2, -1)
+[blue ] - chose to PASS
+[red  ] - chose to JUMP (-3, 0) to (-1, -2)
+[green] - chose to MOVE (2, -1) to (1, 0)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 0) to (-2, 1)
+[green] - chose to MOVE (1, 0) to (2, -1)
+[blue ] - chose to PASS
+[red  ] - chose to MOVE (-1, 1) to (0, 1)
+[green] - chose to MOVE (2, -1) to (1, 0)
+[blue ] - chose to PASS
+[over ] - draw detected: maximum number of turns reached.

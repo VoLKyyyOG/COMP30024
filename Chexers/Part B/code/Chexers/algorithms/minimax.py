@@ -9,6 +9,7 @@ Implements standard minimax
 from copy import deepcopy
 from math import inf
 # User-defined files
+from mechanics import *
 
 def negamax_ab(state, heuristic, alpha=-inf, beta=inf, depth_left=6):
     """Efficient minimax with alpha-beta pruning

@@ -9,6 +9,7 @@ Stores heuristics for use in Chexers, or any other game. (Callum is a keen boy)
 from queue import PriorityQueue as PQ
 from math import inf
 # User-defined files
+from mechanics import *
 
 ######################### INDEPENDENT ########################
 def goal_eval_for_minimax(state):
