@@ -1,30 +1,12 @@
 Game Implementation
 ========
 ### TODO:
-In `update(self, colour, action)`, if a piece is captured then:
-```python
-player = self.state[colour] # a set of coordinates for the given player colour
-current = action[1][0]
-destination = action[1][1]
+`game_over` flag when a player has `NO_EXITED_PIECE = 4`   
 
-if action[0] == "JUMP":
-    jumped_piece = function find_middile_hex() # coordinate of the jumped piece
-    if jumped_piece in player[PIECE_COORD]:
-        player.remove(current)
-        player.add(destination)
-    else: # we have captured a piece
-        opponent_colours = [i for i in self.state.keys() if i != colour]
-        for colour in opponent_colours:
-            opponent = self.state[colour]
-            if jumped_piece in opponent[PIECE_COORD]:
-                opponent[NO_PIECES] -= 1
-                opponent[PIECE_COORD].remove(jumped_piece)
-                player.add(jumped_piece)
-                player[NO_PIECES] += 1
-                break
-```
+`is_eliminated` flag when a player has been eliminated
 
-
+### Current progress
+80 turns at 0.078 game total time using Agent_Random
 
 ### Program Flow
 The player class holds `colour`, `state`, and `goal`. The `state` is in format `{color: [{piece coordinates}, no_pieces, no_exited_pieces]}`
