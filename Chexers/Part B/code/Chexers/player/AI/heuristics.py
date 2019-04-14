@@ -38,6 +38,8 @@ def exit_diff_3_player(state, maximisingPlayer, minimisingPlayer):
         print("this shouldn't be happening...")
         return -inf
     else:
+        if maximisingPlayer == minimisingPlayer: # this is us so return number of exits
+            return state['exits'][maximisingPlayer]
         return state['exits'][maximisingPlayer] - state['exits'][minimisingPlayer]
 
 #### TODO: heuristic = exit_diff_3_player + number_of_pieces_captured + number_of_pieces_lost + retrograde_dijkstra
