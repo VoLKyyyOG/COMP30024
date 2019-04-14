@@ -11,6 +11,7 @@ from random import choice
 from mechanics import *
 from .minimax import alphabeta_search
 from .heuristics import retrograde_dijkstra, exit_diff_2_player
+from .mp_mix import mp_mix as amazeballs
 
 class AIPlayer:
     MID_GAME_THRESHOLD = 18
@@ -51,7 +52,11 @@ class AIPlayer:
     def mid_game(self):
         """Runs amazing 3-player algorithms"""
         return self.random_action()
-        # When they've been coded
+        
+        #### TODO: mp_mix(state, heuristic, defenceThreshold, offenceThreshold, maximisingPlayer)
+        ####       heuristic = exited_pieces + number_of_pieces_captured + number_of_pieces_lost + distance_to_goal
+        ####       will need to add weighting to each of them. ideally, we want number of pieces captured > 0, number of pieces = 0
+        ####       return amazeballs(self.state, exit_diff_2_player, 0, 0, self.colour)
 
     def early_game(self):
         """Uses booking/random choice to make early game decisions"""
@@ -70,6 +75,8 @@ class AIPlayer:
 
     def start_mid_game(self):
         """Determines when to shift strategy to the mid game"""
+        #### TODO: Probably best to add a flag once a player piece has been
+        ####       captured and transition to mid game
         if self.turn_count == AIPlayer.MID_GAME_THRESHOLD:
             print(f"* ({self.colour}) is switching to midgame")
         return (self.turn_count >= AIPlayer.MID_GAME_THRESHOLD)

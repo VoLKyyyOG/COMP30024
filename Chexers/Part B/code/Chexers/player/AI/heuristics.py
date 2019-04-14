@@ -1,6 +1,6 @@
 """ heuristics.py
 
-Stores heuristics for use in Chexers, or any other game.
+Stores heuristics for use in Chexers, or any other game. (Callum is a keen boy)
 
 """
 
@@ -26,11 +26,25 @@ def goal_eval_for_minimax(state, maximisingPlayer):
 def exit_diff_2_player(state, maximisingPlayer):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""
     if not state[state['turn']]:
-        print("somehow this player is out of the game")
+        print("this shouldn't be happening...")
         return -inf
     else:
         opponent = [i for i in PLAYER_NAMES if state[i] and i != maximisingPlayer].pop()
         return state['exits'][maximisingPlayer] - state['exits'][opponent]
+
+def exit_diff_3_player(state, maximisingPlayer, minimisingPlayer):
+    """Temporary 3 player mp-mix heuristic"""
+    if not state[state['turn']]:
+        print("this shouldn't be happening...")
+        return -inf
+    else:
+        return state['exits'][maximisingPlayer] - state['exits'][minimisingPlayer]
+
+#### TODO: heuristic = exit_diff_3_player + number_of_pieces_captured + number_of_pieces_lost + retrograde_dijkstra
+####       if we have more than 4 pieces, number_of_pieces_lost can have the smallest weighting
+####       if we have less than 4 pieces, number_of_pieces_captured has the max weighting
+####       exit_diff_3_player probably won't be that useful
+####       retrograde_dijkstra will have a high weighting
 
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""
@@ -38,6 +52,9 @@ def retrograde_dijkstra(state):
 
 def dijkstra_board(state, colour):
     """Evaluates minimum cost to exit for each non-block position"""
+    #### TODO: need to define valid_goals. Should be
+    ####       GOALS[colour].difference(occupied) where occupied is
+    ####       union of all opponent pieces
     occupied = set() # Stores enemy pieces
     for player in PLAYER_NAMES:
          if player != colour:
@@ -45,7 +62,7 @@ def dijkstra_board(state, colour):
     valid_goals = set(GOALS[colour]).difference(occupied) # Stores empty goal positions
 
     visited = set() # Flags if visited or not
-    cost = {x:INF for x in VALID_COORDINATES} # Stores costs
+    cost = {x: INF for x in VALID_COORDINATES} # Stores costs
     cost.update({x:1 for x in valid_goals}) # Sets goals cost
     queue = PQ()
 
@@ -58,7 +75,7 @@ def dijkstra_board(state, colour):
         curr_cost, curr = queue.get()
         if curr not in visited:
             visited.add(curr)
-            poss_neighbours = set(move(state, occupied)).union(set(jump(state, occupied)))
+            poss_neighbours = set(move_action(state, occupied)).union(set(jump_action(state, occupied)))
             for new in poss_neighbours:
                 est_cost = curr_cost + 1
                 if est_cost < cost[new]: # Better path than previous

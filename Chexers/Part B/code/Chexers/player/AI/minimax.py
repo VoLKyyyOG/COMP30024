@@ -14,6 +14,8 @@ from mechanics import (
 )
 
 # Adapted AIMA implementation
+#### TODO: Looks pretty good -> paranoid can just be adapted by combining
+####       opponent 1 and opponent 2
 def alphabeta_search(state, heuristic, maximisingPlayer):
     """Search game to determine best action; use alpha-beta pruning.
     This version uses an evaluation function."""
@@ -59,6 +61,7 @@ def alphabeta_search(state, heuristic, maximisingPlayer):
             best_action = action
     return best_action
 
+#### TODO: Obsolete for now
 def minimax(state, heuristic, maximisingPlayer):
     """Game-independent minimax implementation"""
     if player(state) == maximisingPlayer: # Maximising player

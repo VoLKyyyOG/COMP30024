@@ -19,6 +19,7 @@ from moves import *
 N_PLAYERS = 3 # Must be 2 minimum
 GAME_NAME = "Chexers"
 MAX_TURNS = 256 # per player
+INITIAL_EXITED_PIECES = 0
 
 # Needs implementing
 TEMPLATE_NORMAL = """*   scores: {0}
@@ -116,8 +117,11 @@ class AlgorithmRequiredError(Exception):
 
 def create_initial_state():
     """Returns the starting game state"""
+    #### TODO: Instead of deepcopy(), we can just hardcode it here since we
+    ####       won't be using the global again.
+    ####       Confirming that we derive number of pieces using len() in two_players left
     initial_state = deepcopy(STARTS)
-    initial_state['exits'] = {name:0 for name in PLAYER_NAMES}
+    initial_state['exits'] = {name: INITIAL_EXITED_PIECES for name in PLAYER_NAMES}
     initial_state['turn'] = 'red'
     return initial_state
 
@@ -139,7 +143,7 @@ def next_player(state, ignore_disqualified=False):
 def prev_player(state, ignored_disqualified=False):
     """Determines previous player"""
     # Exploits ordering of PLAYER_NAMES, gets index of next along
-    if ignore_disqualified and two_players_left(state):
+    if ignored_disqualified and two_players_left(state):
         return next_player(state, True)
     current_index = PLAYER_NAMES.index(state['turn'])
     return PLAYER_NAMES[(current_index - 1) % N_PLAYERS]
@@ -153,6 +157,9 @@ def get_score(state, colour):
 
 def game_drawn(state):
     """Returns True if game is tied else false"""
+    #### TODO: do we need to pass through self.turn_count and the TT?
+    # if self.turn_count == 256 or state in visited_states (4 times):
+    #     return True
     raise NotImplementedError
 
 def game_over(state):
@@ -163,6 +170,7 @@ def is_winner(state, colour_code):
     """Returns True if player represented by colour has won"""
     return (state['exits'][NAMING_DICT[colour_code]] == MAX_EXITS)
 
+#### TODO: May be redundant since possible actions only gives valid moves
 def valid_action(state, action):
     """Checks validity of an action to be applied to a State, returns boolean"""
     raise NotImplementedError
@@ -280,7 +288,7 @@ def Z_hash(state, ignore_exits=True):
         - 01 for red
         - 10 for green
         - 11 for blue
-        - 00 for noney """
+        - 00 for none """
 
     hashed = 0
 
