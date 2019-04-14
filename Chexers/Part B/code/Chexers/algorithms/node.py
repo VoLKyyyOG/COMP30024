@@ -7,7 +7,6 @@ Implements Node class for use in graph/tree search algorithms.
 ########################### IMPORTS ##########################
 # Standard modules
 # User-defined files
-from mechanics import possible_actions, apply_action
 
 class Node:
     """Node superclass with core (initialized) attributes and methods

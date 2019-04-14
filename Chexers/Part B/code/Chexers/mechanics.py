@@ -19,7 +19,6 @@ from moves import *
 N_PLAYERS = 3 # Must be 2 minimum
 GAME_NAME = "Chexers"
 MAX_TURNS = 256 # per player
-INITIAL_EXITED_PIECES = 0
 
 # Needs implementing
 TEMPLATE_NORMAL = """*   scores: {0}
@@ -80,6 +79,7 @@ PLAYER_CODES = [name[0] for name in PLAYER_NAMES]
 NAMING_DICT = {name[0]: name for name in PLAYER_NAMES}
 NAMING_DICT.update({name: name[0] for name in PLAYER_NAMES})
 
+INITIAL_EXITED_PIECES = 0
 MAX_EXITS = 4
 
 # For hashing
@@ -103,17 +103,7 @@ action = (MOVE, (loc_1, loc_2)), (JUMP, (loc_1, loc_2)), (EXIT, (loc_1)),  (PASS
 
 # Must be copyable
 
-Three kinds of errors below:
-- RefereeRequiredError (self explanatory)
-- AlgorithmRequiredError (optional if not using certain algorithm files)
-- NotImplementedError (optional, can delete if want)
 """
-
-class RefereeRequiredError(Exception):
-    """This method is utilised by the referee and must be defined"""
-
-class AlgorithmRequiredError(Exception):
-    """A number of algorithm files use this and must be defined to work"""
 
 def create_initial_state():
     """Returns the starting game state"""
@@ -129,32 +119,32 @@ def player(state):
     """Retrieves current player"""
     return state['turn']
 
-def next_player(state, ignore_disqualified=False):
+def next_player(state, ignore_dead=False):
     """Determines next player. Can reduce to 2-player if ignore_dead"""
     # Exploits ordering of PLAYER_NAMES, gets index of next along
-    if ignore_disqualified and two_players_left(state):
-        for player in PLAYER_NAMES:
-            if not len(state[player]):
-                return player
+    if ignore_dead and two_players_left(state):
+        try:
+            return get_opponents(state).pop()
+        except:
+            print("NEXT_PLAYER ERROR ... this is easily fixed")
     else:
         current_index = PLAYER_NAMES.index(state['turn'])
         return PLAYER_NAMES[(current_index + 1) % N_PLAYERS]
 
-def prev_player(state, ignored_disqualified=False):
+#### TODO: May be redundant
+def prev_player(state, ignore_dead=False):
     """Determines previous player"""
     # Exploits ordering of PLAYER_NAMES, gets index of next along
-    if ignored_disqualified and two_players_left(state):
-        return next_player(state, True)
+    if ignore_dead and two_players_left(state):
+        return get_opponents(state).pop()
     current_index = PLAYER_NAMES.index(state['turn'])
     return PLAYER_NAMES[(current_index - 1) % N_PLAYERS]
 
 def get_score(state, colour):
-    """
-    Retrieves score for player in a state.
-    colour_code is the single-letter code, e.g. 'r'
-    """
+    """Retrieves score for player in a state."""
     return state['exits'][colour]
 
+#### TODO: May be redundant
 def game_drawn(state):
     """Returns True if game is tied else false"""
     #### TODO: do we need to pass through self.turn_count and the TT?
@@ -163,19 +153,20 @@ def game_drawn(state):
     raise NotImplementedError
 
 def game_over(state):
-    """Determines if a game is over"""
+    """Determines if a game is won"""
     return (MAX_EXITS in state['exits'].values())# or game_drawn(state))
 
-def is_winner(state, colour_code):
+#### TODO: May be redundant
+def is_winner(state, colour):
     """Returns True if player represented by colour has won"""
-    return (state['exits'][NAMING_DICT[colour_code]] == MAX_EXITS)
+    return (state['exits'][NAMING_DICT[colour]] == MAX_EXITS)
 
 #### TODO: May be redundant since possible actions only gives valid moves
 def valid_action(state, action):
     """Checks validity of an action to be applied to a State, returns boolean"""
     raise NotImplementedError
 
-def apply_action(state, action, ignore_disqualified=False):
+def apply_action(state, action, ignore_dead=False):
     """Applies an action to a State object, returns new state"""
     flag, pieces = action
     new_state = deepcopy(state)
@@ -204,8 +195,14 @@ def apply_action(state, action, ignore_disqualified=False):
         pass
 
     # Update turn player
-    new_state['turn'] = next_player(state, ignore_disqualified)
+    new_state['turn'] = next_player(state, ignore_dead)
     return new_state
+
+def is_capture(state, action):
+    atype, pieces = action
+    if atype != "JUMP": return False
+    old, new = pieces
+    return midpoint(old, new) not in state[player(state)]
 
 def possible_actions(state):
     """Returns list of possible actions for a given state"""
@@ -216,7 +213,7 @@ def possible_actions(state):
     for player in PLAYER_NAMES:
         occupied.update(set(state[player]))
 
-    # Append exits, moves and jumps respectively
+    # Append exits, moves, jumps and passes respectively
     actions.extend(exit_action(state))
     actions.extend(move_action(state, occupied))
     actions.extend(jump_action(state, occupied))
@@ -244,7 +241,7 @@ def get_strings_for_template(state, debug=False):
         result[VALID_COORDINATES.index(piece)] = string_stor[piece]
     return result
 
-def action_str(action):
+def log_action(state, action):
     """Defines how to print an action, for logging and display
     E.g. 'TYPE, from X to Z'"""
     flag, pieces = action
@@ -254,7 +251,16 @@ def action_str(action):
     elif flag == "EXIT":
         return base_str + f" {pieces}"
     else:
-        new_str = base_str + f" {pieces[0]} to {pieces[1]}"
+        if flag == "JUMP" and is_capture(state, action):
+            old, new  = pieces
+            captured = midpoint(old, new)
+            for player in PLAYER_NAMES:
+                if captured in state[player]:
+                    capture_str = f" - CAPTURED {player}"
+        else:
+            capture_str = ""
+        # Any other flags can go here
+        new_str = base_str + f" {pieces[0]} to {pieces[1]}{capture_str}"
         return new_str
 
 def get_template(debug=False):
@@ -266,12 +272,18 @@ def get_template(debug=False):
     return template
 
 def two_players_left(state):
-    """Checks if a player has lost all pieces"""
+    """Checks if one player has lost all pieces"""
     if not game_over(state):
-        for player in PLAYER_NAMES:
-            if not len(state[player]):
-                return True
+        return len(players_left(state)) == 2
     return False
+
+def get_opponents(state):
+    """Fetches a turn player's opponents"""
+    return [player for player in PLAYER_NAMES if player != state['turn']]
+
+def players_left(state):
+    """Finds all players left"""
+    return [player for player in PLAYER_NAMES if len(state[player])]
 
 ########################## HASHING ############################
 

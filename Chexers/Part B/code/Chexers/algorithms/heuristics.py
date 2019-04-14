@@ -9,7 +9,6 @@ Stores heuristics for use in Chexers, or any other game. (Callum is a keen boy)
 from queue import PriorityQueue as PQ
 from math import inf
 # User-defined files
-from mechanics import *
 
 ######################### INDEPENDENT ########################
 def goal_eval_for_minimax(state):
@@ -25,17 +24,16 @@ def goal_eval_for_minimax(state):
 ########################### CHEXERS ##########################
 def exit_diff_2_player(state):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""
-    if not state[state['turn']]:
-        print("this shouldn't be happening...")
+    if not state[state['turn']]: # Checks if you are dead already
         return -inf
     else:
-        opponent = [i for i in PLAYER_NAMES if state[i] and i != state['turn']].pop()
+        opponent = get_opponents(state).pop()
         return state['exits'][state['turn']] - state['exits'][opponent]
 
 def exit_diff_3_player(state, maximisingPlayer, minimisingPlayer):
     """Temporary 3 player mp-mix heuristic"""
     if not state[state['turn']]:
-        print("this shouldn't be happening...")
+        print(f"EXIT_DIFF_3_PLAYER ERROR: I, {state['turn']} am dead - I have {state[state['turn']]} pieces..")
         return -inf
     else:
         if maximisingPlayer == minimisingPlayer: # this is us so return number of exits
@@ -50,13 +48,12 @@ def exit_diff_3_player(state, maximisingPlayer, minimisingPlayer):
 
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""
-    return [sum([dijkstra_board(state)[piece] for piece in player(state)]) for player in PLAYER_NAMES]
+    return [sum([dijkstra_board(state, player(state))[piece] for piece in player(state)]) for player in PLAYER_NAMES]
 
 def dijkstra_board(state, colour):
     """Evaluates minimum cost to exit for each non-block position"""
-    #### TODO: need to define valid_goals. Should be
-    ####       GOALS[colour].difference(occupied) where occupied is
-    ####       union of all opponent pieces
+    #### TODO: Given dynamic board, forcing 'moves only' i.e. jump_heuristic may be more accurate
+    #### Otherwise this is a forward unto death greedy heuristic
     occupied = set() # Stores enemy pieces
     for player in PLAYER_NAMES:
          if player != colour:
@@ -64,8 +61,8 @@ def dijkstra_board(state, colour):
     valid_goals = set(GOALS[colour]).difference(occupied) # Stores empty goal positions
 
     visited = set() # Flags if visited or not
-    cost = {x: INF for x in VALID_COORDINATES} # Stores costs
-    cost.update({x:1 for x in valid_goals}) # Sets goals cost
+    cost = {x: inf for x in VALID_COORDINATES} # Stores costs
+    cost.update({x: 1 for x in valid_goals}) # Sets goals cost
     queue = PQ()
 
     # Add exits to queue to get it started

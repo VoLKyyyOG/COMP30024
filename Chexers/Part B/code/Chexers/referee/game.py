@@ -18,7 +18,7 @@ from collections import defaultdict
 from mechanics import (
         GAME_NAME, N_PLAYERS, PLAYER_NAMES, PLAYER_CODES, NAMING_DICT,
         MAX_TURNS, create_initial_state, apply_action, possible_actions,
-        get_score, encode, game_over, get_template, action_str,
+        get_score, encode, game_over, get_template, log_action,
         get_strings_for_template
 )
 
@@ -66,9 +66,10 @@ class GameObject:
         a message describing allowed actions.
         Otherwise, apply the action to the game state.
         """
-        colour_code = colour[0] # LOWERCASE code
-        available_actions = self._available_actions(colour_code)
+        available_actions = self._available_actions(colour)
         if action in available_actions:
+            # log action
+            self._log_action(colour, action)
             # Must update board with the action
             self.state = apply_action(self.state, action)
 
@@ -76,8 +77,7 @@ class GameObject:
             for player_code in self.score:
                 self.score[player_code] = get_score(self.state, NAMING_DICT[player_code])
 
-            # Log action and detect if a draw
-            self._log_action(colour, action)
+            # detect if a draw
             self._turn_detect_draw()
         else:
             result = f"illegal action detected ({colour}): {action!r}."
@@ -122,7 +122,7 @@ class GameObject:
 
     def over(self):
         """True iff the game over (draw or win detected)."""
-        return game_over(self.state)
+        return game_over(self.state) or self.nturns >= MAX_TURNS * 3 or self.history[self._snap()] >= 4
 
     def end(self):
         """
@@ -164,9 +164,8 @@ class GameObject:
 
     def _log_action(self, colour, action):
         """Helper method to log an action to the logfile"""
-        atype, aargs = action
         # call self._log(colour, message). Message should vary acc. to atype and aargs
-        self._log(colour, action_str(action))
+        self._log(colour, log_action(self.state, action))
 
     def _end_log(self):
         if self._logfile is not None:

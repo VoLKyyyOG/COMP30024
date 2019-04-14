@@ -1,1 +1,1 @@
-from player.random.player import RandomPlayer as Player
+from player.runner.player import RunnerPlayer as Player
