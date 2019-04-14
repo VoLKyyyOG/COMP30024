@@ -95,19 +95,20 @@ class Player:
             - The action itself
         """
         # Current Action Coordinate
-        current = action[1][0]
+        
         state = self.state
 
         if action[0] == "EXIT":
             # If there is an exit, no destination coordinate for piece
             # Doesn't affect any other players
+            current = action[1] # single coordinate
             state[colour][PIECE_COORD].remove(current)
             state[colour][NO_PIECE] -= 1
             state[colour][NO_EXIT_PIECE] += 1
         elif action[0] == "JUMP":
             print("\n\nJUMP WAS MADE")
-            # Destination Coordinate
-            destination = action[1][1]
+            # Current and destination
+            current, destination = action[1][0], action[1][1]
             # Find the piece colour and coordinate that was jumped
             jumped_colour, jumped_hex = find_jumped_piece(self, action[1])
 
@@ -173,13 +174,13 @@ class Player:
         else:
             # MOVE action was completed
             # Doesn't affect any players
-            destination = action[1][1]
+            current, destination = action[1][0], action[1][1]
             state[colour][PIECE_COORD].remove(current)
             state[colour][PIECE_COORD].add(destination)
 
-        print(f"Player {self.colour} - Successfully updated internal state for {colour}:")
+        print(f"\nAGENT {self.colour} - Successfully updated internal state for {colour}:")
         print(state)
-        print('*'*80)
+        print('*'*200)
 
 
 
