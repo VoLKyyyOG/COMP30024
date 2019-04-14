@@ -9,7 +9,7 @@ Base class for any AIPlayer.
 from random import choice
 # User-defined files
 from mechanics import *
-from .minimax import alphabeta_search
+from .minimax import negamax_ab
 from .heuristics import retrograde_dijkstra, exit_diff_2_player
 
 class AIPlayer:
@@ -64,7 +64,7 @@ class AIPlayer:
         if not self.state[self.colour]:
             return ("PASS", None)
         elif two_players_left(self.state):
-            return alphabeta_search(self.state, exit_diff_2_player, self.colour)
+            return negamax_ab(self.state, exit_diff_2_player, depth_left=4)
         else:
             return self.random_action()
 

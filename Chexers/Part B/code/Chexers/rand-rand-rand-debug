@@ -1,4 +1,4 @@
-[game ] - Start Chexers game log at Sun Apr 14 15:50:43 2019
+[game ] - Start Chexers game log at Sun Apr 14 15:37:42 2019
 [red  ] - None
 [green] - None
 [blue ] - None
@@ -151,49 +151,7 @@
 [blue ] - None
 [red  ] - None
 [green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
+[blue ] - chose to EXIT (-1.0, -2.0)
 [red  ] - None
 [green] - None
 [blue ] - None
@@ -240,7 +198,7 @@
 [green] - None
 [blue ] - None
 [red  ] - None
-[green] - None
+[green] - chose to EXIT (0, 3)
 [blue ] - None
 [red  ] - None
 [green] - None
@@ -253,9 +211,6 @@
 [blue ] - None
 [red  ] - None
 [green] - None
-[blue ] - None
-[red  ] - None
-[green] - chose to EXIT (-2.0, 3.0)
 [blue ] - None
 [red  ] - None
 [green] - None
@@ -280,9 +235,6 @@
 [blue ] - None
 [red  ] - None
 [green] - None
-[blue ] - None
-[red  ] - None
-[green] - chose to EXIT (0.0, 3.0)
 [blue ] - None
 [red  ] - None
 [green] - None
@@ -331,7 +283,154 @@
 [blue ] - None
 [red  ] - None
 [green] - None
-[blue ] - chose to EXIT (0.0, -3.0)
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - chose to EXIT (-3.0, 0.0)
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - chose to EXIT (-2.0, -1.0)
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - chose to EXIT (3.0, 0.0)
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - chose to EXIT (3.0, -2.0)
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
 [red  ] - None
 [green] - None
 [blue ] - None
@@ -363,5 +462,154 @@
 [green] - None
 [blue ] - None
 [red  ] - None
-[green] - chose to PASS
+[green] - None
 [blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - chose to EXIT (0.0, 3.0)
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - None
+[green] - None
+[blue ] - chose to PASS
+[red  ] - chose to EXIT (3.0, -3.0)
+[over ] - winner: red
