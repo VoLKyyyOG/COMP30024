@@ -1,4 +1,4 @@
-[game ] - Start Chexers game log at Sun Apr 14 14:01:21 2019
+[game ] - Start Chexers game log at Sun Apr 14 15:31:35 2019
 [red  ] - None
 [green] - None
 [blue ] - None
@@ -148,7 +148,202 @@
 [blue ] - None
 [red  ] - None
 [green] - None
-[blue ] - chose to EXIT (0.0, -3.0)
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - chose to EXIT (-1.0, 3.0)
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
 [red  ] - None
 [green] - None
 [blue ] - None
@@ -170,7 +365,31 @@
 [red  ] - None
 [green] - None
 [blue ] - None
-[red  ] - chose to EXIT (3.0, 0.0)
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
+[green] - None
+[blue ] - None
+[red  ] - None
 [green] - None
 [blue ] - None
 [red  ] - None
@@ -178,6 +397,9 @@
 [blue ] - None
 [red  ] - None
 [green] - None
+[blue ] - None
+[red  ] - None
+[green] - chose to EXIT (-1.0, 3.0)
 [blue ] - None
 [red  ] - None
 [green] - None
@@ -194,7 +416,7 @@
 [red  ] - None
 [green] - None
 [blue ] - None
-[red  ] - chose to EXIT (3, -1)
+[red  ] - None
 [green] - None
 [blue ] - None
 [red  ] - None
@@ -256,7 +478,7 @@
 [blue ] - None
 [red  ] - None
 [green] - None
-[blue ] - None
+[blue ] - chose to EXIT (0.0, -3.0)
 [red  ] - None
 [green] - None
 [blue ] - None
@@ -279,43 +501,7 @@
 [green] - None
 [blue ] - None
 [red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
-[blue ] - None
-[red  ] - None
-[green] - None
+[green] - chose to EXIT (-1.0, 3.0)
 [blue ] - None
 [red  ] - None
 [green] - None

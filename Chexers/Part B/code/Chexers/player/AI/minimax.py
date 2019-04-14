@@ -18,7 +18,7 @@ def alphabeta_search(state, heuristic, maximisingPlayer):
     """Search game to determine best action; use alpha-beta pruning.
     This version uses an evaluation function."""
 
-    LIMIT = 2
+    LIMIT = 4
     # Functions used by alphabeta
     def max_value(state, alpha, beta, depth):
         if game_over(state) or depth > LIMIT:
@@ -52,6 +52,8 @@ def alphabeta_search(state, heuristic, maximisingPlayer):
         new_state = apply_action(state, action, ignore_disqualified=True)
         max_value(new_state, best_score, beta, 1)
         current = min_value(new_state, best_score, beta, 1)
+        #if current == -inf:
+        #    print(f"Uhoh, had exits # of {new_state['exits'][new_state['turn']]}")
         if current > best_score:
             best_score = current
             best_action = action
