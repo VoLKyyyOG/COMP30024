@@ -39,7 +39,7 @@ def add(u, v):
 def midpoint(u, v):
     """Function that finds midpoint of two vectors u, v (tuple representation)
     :returns: tuple vector"""
-    return ((u[0] + v[0]) / 2, (u[1] + v[1]) / 2)
+    return (int((u[0] + v[0]) / 2), int((u[1] + v[1]) / 2))
 
 def exit_action(state):
     """

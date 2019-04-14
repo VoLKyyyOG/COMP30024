@@ -17,7 +17,7 @@ def negamax_ab(state, heuristic, a=-inf, b=inf, depth_left=4):
     """Efficient minimax with alpha-beta pruning
     Note that evaluations are with respect to the state turn, NOT a maximisingPlayer"""
     if not depth_left:
-        return heuristic(state, a, b) # Could be quiesence search, or simple eval
+        return heuristic(state) # Could be quiesence search, or simple eval
     for action in possible_actions(state):
         new_state = apply_action(state, action, ignore_disqualified=True)
         new_eval = -negamax_ab(new_state, heuristic, -b, -a, depth_left - 1)
