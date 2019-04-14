@@ -12,10 +12,10 @@ from math import inf
 from mechanics import *
 
 ######################### INDEPENDENT ########################
-def goal_eval_for_minimax(state, maximisingPlayer):
+def goal_eval_for_minimax(state):
     """Returns +1 if maximisingPlayer wins, -1 if other player, or 0 for draw"""
     if game_over(state):
-        if is_winner(state, maximisingPlayer):
+        if is_winner(state, state['turn']):
             return +1
         else:
             return -1
@@ -23,14 +23,14 @@ def goal_eval_for_minimax(state, maximisingPlayer):
         return 0
 
 ########################### CHEXERS ##########################
-def exit_diff_2_player(state, maximisingPlayer):
+def exit_diff_2_player(state):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""
     if not state[state['turn']]:
         print("this shouldn't be happening...")
         return -inf
     else:
-        opponent = [i for i in PLAYER_NAMES if state[i] and i != maximisingPlayer].pop()
-        return state['exits'][maximisingPlayer] - state['exits'][opponent]
+        opponent = [i for i in PLAYER_NAMES if state[i] and i != state['turn']].pop()
+        return state['exits'][state['turn']] - state['exits'][opponent]
 
 def exit_diff_3_player(state, maximisingPlayer, minimisingPlayer):
     """Temporary 3 player mp-mix heuristic"""

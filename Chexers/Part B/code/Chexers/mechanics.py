@@ -255,6 +255,7 @@ def action_str(action):
         return base_str + f" {pieces}"
     else:
         new_str = base_str + f" {pieces[0]} to {pieces[1]}"
+        return new_str
 
 def get_template(debug=False):
     """Returns the desired template for printing."""
