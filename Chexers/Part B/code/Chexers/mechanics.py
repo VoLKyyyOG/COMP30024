@@ -119,6 +119,13 @@ def player(state):
     """Retrieves current player"""
     return state['turn']
 
+def occupied(state, colours):
+    """Fetches set of all pieces for all colours"""
+    occupied = set()
+    for player in colours:
+        occupied.update(set(state[player]))
+    return occupied
+
 def next_player(state, ignore_dead=False):
     """Determines next player. Can reduce to 2-player if ignore_dead"""
     # Exploits ordering of PLAYER_NAMES, gets index of next along
@@ -210,9 +217,7 @@ def possible_actions(state, colour):
     actions = list()
 
     # All occupied hexes (doesn't account for who's who)
-    occupied = set()
-    for player in PLAYER_NAMES:
-        occupied.update(set(state[player]))
+    occupied = occupied(state, PLAYER_NAMES)
 
     # Append exits, moves, jumps and passes respectively
     actions.extend(exit_action(state, colour))
@@ -252,7 +257,7 @@ def log_action(state, action):
     elif flag == "EXIT":
         return base_str + f" {pieces}"
     else:
-        if flag == "JUMP" and is_capture(state, action):
+        if flag == "JUMP" and is_capture(state, action, state['turn']):
             old, new  = pieces
             captured = midpoint(old, new)
             for player in PLAYER_NAMES:

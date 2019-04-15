@@ -23,6 +23,8 @@ GOALS = {
     'blue': [(-3,0),(-2,-1),(-1,-2),(0,-3)],
 }
 
+MAX_COORDINATE_VAL = 3
+
 """
 Return values for the referee:
 1. ("MOVE", ((q1, r1), (q2, r2)))
@@ -40,6 +42,10 @@ def sub(u, v):
     """Function that subtracts two vectors u, v (tuple representation)
     :returns: tuple vector"""
     return (u[0] - v[0], u[1] - v[1])
+
+def get_cubic(v):
+        """Converts axial coordinates to cubic coordinates"""
+        return (v[0], v[1], -v[0]-v[1])
 
 def midpoint(u, v):
     """Function that finds midpoint of two vectors u, v (tuple representation)

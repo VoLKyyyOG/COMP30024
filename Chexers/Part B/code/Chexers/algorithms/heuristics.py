@@ -28,13 +28,37 @@ def goal_eval_for_minimax(state):
 def desperation(state):
     """Returns deficit/surplus in pieces vs exit"""
     # How many pieces available - how many pieces needed to win
-    return [len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES]
+    return tuple([len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES])
+
+def paris_vector(state):
+    """
+    paris_heuristic returns the number of capturing actions possible for each player.
+    :returns: [val_red, val_green, val_blue]
+    """
+    raw = paris(state)
+    return [len(raw[player]) for player in PLAYER_NAMES]
 
 def paris(state):
     """
-    Evaluates number of captures that you can perform
+    Evaluates captures that each player could perform
+    :returns: {player: list_of_capturing_actions for each player}
     """
-    raise NotImplementedError
+    captures = defaultdict(list)
+    for player in PLAYER_NAMES:
+        for action in possible_actions(state):
+            flag, pieces = action
+            if flag == "JUMP" and is_capture(state, action, player):
+                captures[player].append(action)
+    return captures
+
+def achilles_vector(state, reality=False):
+    """
+    achilles_vector returns the number of threats for each player.
+    - reality: if True, counts actual opponents that could capture
+    :returns: [val_red, val_green, val_blue]
+    """
+    raw = achilles(state, reality)
+    return [len(raw[player]) for player in PLAYER_NAMES]
 
 def achilles(state, reality=False):
     """
@@ -48,10 +72,7 @@ def achilles(state, reality=False):
     for player in PLAYER_NAMES:
         # All opponent pieces
         if reality:
-            occupied = set()
-            for opponent in PLAYER_NAMES:
-                if player != opponent:
-                    occupied.update(set(state[opponent]))
+            occupied = occupied(state, get_opponents(player))
 
         for piece in state[player]:
             possible_axes = POSSIBLE_DIRECTIONS[:3] # Three directions
@@ -68,19 +89,15 @@ def achilles(state, reality=False):
                         threats[player].update(set(threat_1, threat_2))
     return threats
 
-def david(state):
-    #### TODO: Make sure it works
-    """Evaluates whether there is a sufficiently nearby enemy that could threaten your pieces"""
-    threats = defaultdict(set)
-    for player in PLAYER_NAMES:
-
-        for piece in state[state['turn']]:
-            # Get all enemy pieces in radius 2 or less
-            for direction in POSSIBLE_DIRECTIONS:
-                # Radius 1 check
-                hex = add(piece, direction)
-
-    raise NotImplementedError
+def speed_demon(state):
+    """The jump_heuristic that measures raw minimum moves required to get to goal
+    This is raw displacemnt though: it does not make the relaxed assumption that jumping is always ok,
+    as optimality is not a concern."""
+    return [
+        sum([MAX_COORDINATE_VAL - get_cubic(piece)[PLAYER_CODES[player]])
+            for piece in state[player]
+            for player in PLAYER_NAMES
+    ]
 
 def exit_diff_2_player(state):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""
