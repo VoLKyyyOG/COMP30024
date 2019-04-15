@@ -23,18 +23,6 @@ def goal_eval_for_minimax(state):
         return 0
 
 ########################### CHEXERS ##########################
-def achilles(state):
-    """
-    Evaluates number of attackable angles on your pieces.
-    Ranges from 0 (all pieces in corners) to 6*N (all N pieces are isolated and not on an edge)
-    """
-    # Number of weakspots = possible_moves!
-    raise NotImplementedError
-
-def david(state):
-    """Evaluates whether there is a sufficiently nearby enemy that could threaten your pieces"""
-    raise NotImplementedError
-
 def exit_diff_2_player(state):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""
     if not state[state['turn']]: # Checks if you are dead already

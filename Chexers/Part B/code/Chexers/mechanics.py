@@ -215,11 +215,12 @@ def possible_actions(state):
         occupied.update(set(state[player]))
 
     # Append exits, moves, jumps and passes respectively
+    actions.extend(jump_action(state, occupied))
     actions.extend(exit_action(state))
     actions.extend(move_action(state, occupied))
-    actions.extend(jump_action(state, occupied))
+    
     if not actions:
-        return [("PASS",None)]
+        return [("PASS", None)]
     else:
         return actions
 
