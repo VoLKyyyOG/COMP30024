@@ -7,6 +7,7 @@ Stores heuristics for use in Chexers, or any other game. (Callum is a keen boy)
 ########################### IMPORTS ##########################
 # Standard modules
 from queue import PriorityQueue as PQ
+from collections import defaultdict
 from math import inf
 # User-defined files
 from mechanics import *
@@ -23,6 +24,81 @@ def goal_eval_for_minimax(state):
         return 0
 
 ########################### CHEXERS ##########################
+
+def desperation(state):
+    """Returns deficit/surplus in pieces vs exit"""
+    # How many pieces available - how many pieces needed to win
+    return tuple([len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES])
+
+def paris_vector(state):
+    """
+    paris_heuristic returns the number of capturing actions possible for each player.
+    :returns: [val_red, val_green, val_blue]
+    """
+    raw = paris(state)
+    return [len(raw[player]) for player in PLAYER_NAMES]
+
+def paris(state):
+    """
+    Evaluates captures that each player could perform
+    :returns: {player: list_of_capturing_actions for each player}
+    """
+    captures = defaultdict(list)
+    for player in PLAYER_NAMES:
+        for action in possible_actions(state):
+            flag, pieces = action
+            if flag == "JUMP" and is_capture(state, action, player):
+                captures[player].append(action)
+    return captures
+
+def achilles_vector(state, reality=False):
+    """
+    achilles_vector returns the number of threats for each player.
+    - reality: if True, counts actual opponents that could capture
+    :returns: [val_red, val_green, val_blue]
+    """
+    raw = achilles(state, reality)
+    return [len(raw[player]) for player in PLAYER_NAMES]
+
+def achilles(state, reality=False):
+    """
+    Evaluates number of attackable angles on your pieces.
+    Ranges from 0 (all pieces in corners) to 6*N (all N pieces are isolated and not on an edge)
+    reality=True only returns actual about-to-kill-you opponents
+    """
+    #### TODO: Make sure it works
+
+    threats = defaultdict(set)
+    for player in PLAYER_NAMES:
+        # All opponent pieces
+        if reality:
+            occupied = occupied(state, get_opponents(player))
+
+        for piece in state[player]:
+            possible_axes = POSSIBLE_DIRECTIONS[:3] # Three directions
+            for diagonal in possible_axes:
+                threat_1, threat_2 = add(piece, diagonal), sub(piece, diagonal)
+                # Only a threat if the diagonal is fully empty, and does not have your own pieces
+                if (threat_1, threat_2) in VALID_COORDINATES and (threat_1, threat_2) not in state[player]:
+                    if reality:
+                        if threat_1 in occupied:
+                            threats[player].add(threat_1)
+                        if threat_2 in occupied:
+                            threats[player].add(threat_2)
+                    else:
+                        threats[player].update(set(threat_1, threat_2))
+    return threats
+
+def speed_demon(state):
+    """The jump_heuristic that measures raw minimum moves required to get to goal
+    This is raw displacemnt though: it does not make the relaxed assumption that jumping is always ok,
+    as optimality is not a concern."""
+    return [
+        sum([MAX_COORDINATE_VAL - get_cubic(piece)[PLAYER_CODES[player]])
+            for piece in state[player]
+            for player in PLAYER_NAMES
+    ]
+
 def exit_diff_2_player(state):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""
     if not state[state['turn']]: # Checks if you are dead already
