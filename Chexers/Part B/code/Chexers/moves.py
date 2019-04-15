@@ -1,4 +1,9 @@
-# Global Variables
+""" 
+:filename: moves.py
+:summary: Module which contain all move related functions
+:authors: Akira Wang (913391), Callum Holmes (XXXXXX)
+"""
+########################### GLOBALS ##########################
 POSSIBLE_DIRECTIONS = [(-1,+0),(+0,-1),(+1,-1),(+1,+0),(+0,+1),(-1,+1)]
 
 VALID_COORDINATES = [
@@ -25,31 +30,34 @@ GOALS = {
 
 MAX_COORDINATE_VAL = 3
 
-"""
-Return values for the referee:
-1. ("MOVE", ((q1, r1), (q2, r2)))
-2. ("JUMP", ((q1, r1), (q2, r2)))
-3. ("EXIT", (q1, q2))
-4. ("PASS", None)
-"""
+############################ MOVES ############################
 
 def add(u, v):
-    """Function that adds two vectors u, v (tuple representation)
-    :returns: tuple vector"""
+    """
+    Function that adds two vectors u, v (tuple representation)
+    :returns: tuple vector
+    """
     return (u[0] + v[0], u[1] + v[1])
 
 def sub(u, v):
-    """Function that subtracts two vectors u, v (tuple representation)
-    :returns: tuple vector"""
+    """
+    Function that subtracts two vectors u, v (tuple representation)
+    :returns: tuple vector
+    """
     return (u[0] - v[0], u[1] - v[1])
 
 def get_cubic(v):
-        """Converts axial coordinates to cubic coordinates"""
-        return (v[0], v[1], -v[0]-v[1])
+    """
+    Function that converts axial coordinates to cubic coordinates
+    :returns: cubic coordinates
+    """
+    return (v[0], v[1], -v[0]-v[1])
 
 def midpoint(u, v):
-    """Function that finds midpoint of two vectors u, v (tuple representation)
-    :returns: tuple vector"""
+    """
+    Function that finds midpoint of two vectors u, v (tuple representation)
+    :returns: tuple vector
+    """
     return (int((u[0] + v[0]) / 2), int((u[1] + v[1]) / 2))
 
 def exit_action(state, colour):

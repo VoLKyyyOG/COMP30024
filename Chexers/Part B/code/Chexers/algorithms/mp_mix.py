@@ -11,6 +11,7 @@ from math import inf
 from collections import OrderedDict
 # User-defined files
 from mechanics import *
+from .negaparanoid import paranoid
 
 """
 Concept adapted from:
@@ -50,7 +51,7 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
     opponents = get_opponents(state)
 
     # Defines tuples (colour/name, score) in an OrderedDict
-    scores = {PLAYER_NAMES[i] : raw_scores[i] for i in N_PLAYERS}
+    scores = {PLAYER_NAMES[i] : raw_scores[i] for i in range(N_PLAYERS)}
     scores = OrderedDict(sorted(scores.items(),
         reverse=True, key=lambda x: sorted(x, reverse=True)))
 
@@ -74,71 +75,13 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
         elif leader_edge >= defence_threshold:
             return paranoid(state, heuristic)
     elif turn_player == rival:
-        if leader_edge > loser_edge:
+        if leader_edge > rival_edge:
             return directed_offence(state, heuristic, leader)
     # Default, look strictly after your own interests
     return maxn_search(state, heuristic)
 
 def directed_offence(state, heuristic, target):
     return NotImplementedError
-
-"""
-minimisingPlayer = next_player(ignore_dead=True)
-
-"""
-
-def compare(u, v):
-    """
-    Function that compares new_eval (player) against alpha / beta (reduced opponents).
-    :parameter v: a tuple of alpha / beta evaluations
-    :parameter u: self evaluation
-    :returns: alpha, the best action for the specified player
-    """
-    return (u > sum(v)) - (v < sum(u))
-
-def fission(player_colour, vector):
-
-    player = PLAYER_HASH[player_colour["turn"]]
-    opponents = [PLAYER_HASH[i] for i in PLAYER_NAMES if i != player]
-    alpha = vector[player]
-    beta = [vector[i] for i in opponents]
-
-    return alpha, beta
-
-
-def negate(u):
-    """
-    Function that makes alpha / beta negative for the new evaluation.
-    """
-    return (-u[0], -u[1])
-
-
-def paranoid(state, heuristic, alpha=[-inf]*3, beta=[inf]*3, depth_left=6):
-    """Efficient minimax with alpha-beta pruning
-    Note that evaluations are with respect to the state turn, NOT a maximisingPlayer"""
-    if not depth_left:
-        return (heuristic(state), None) # Could be quiesence search, or simple eval
-    best_action = None
-
-
-    for action in possible_actions(state):
-        new_state = apply_action(state, action)
-
-        # Initial: new alpha is vector of infs, new beta is a vector if -infs
-        new_alpha = negate(beta)
-        new_beta = negate(alpha)
-
-        new_eval = -paranoid(new_state, heuristic, new_alpha, new_beta, depth_left - 1)[0]
-
-        """
-        alpha, beta = fission(state["turn"], vector)
-        """
-
-        if new_eval >= beta:
-            return (beta, best_action)    # You are worse than the worst case in previous subtree
-        if new_eval > alpha:  # Strictly greater so that you trim subtrees that a beta-cutoff occurred in
-            alpha, best_action = new_eval, action
-    return (alpha, best_action)
 
 def maxn_search(state, heuristic):
     return NotImplementedError
