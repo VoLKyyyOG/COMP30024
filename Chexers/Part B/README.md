@@ -2,10 +2,24 @@
 
 ## Notes to self (Callum)
 TODO:
-1. Finalise alphabeta
 2. Implement N-Player MC
 3. Streamline Algorithm Storage to work with states, and then with nodes
   - Eventual idea: want some data to remain, store this as a node bundle
+
+Other:
+- Be careful about negamax negation as you might accidentally negate your own valuation
+- Too complex a heuristic = can lose sight of reality. Quiescence/raw search power must always triumph. Simple > complex
+- Beware the relationships b/t heuristics: you don't want a case where (benefit from exiting) < (loss due to perceived desperation) (note that could never happen as exiting preserves desperation but still)
+- Choose transformations of 'raw' heuristics wisely e.g. does a +1 in desperation outweight a +0.2 in paris?
+- adjust achilles_h, paris_h, desperation:
+    - For a 0-1 uniform distribution (0 bad, 1 awesome), `achilles_h[i] = (potential_max_achilles - actual) / (potential_max_achilles - potential_min_achilles)` where potentials are unique to each player and to each state
+    - For a 0-1 uniform distribution (0 bad, 1 awesome), `paris_h[i] = (actual - potential_min_paris) / (potential_max_paris - potential_min_paris)` where potentials are unique to each player and to each state
+    - desperation[i] = actual * abs(actual)--> this way slight lead/loss is +-1, big lead/loss is += 4, etc.
+        - This and transformations of other allow a simple 'too awesome'/'too terrible' pruning schema where absolutely horrible positions are avoided
+- all heuristics can be informative in different ways:
+    - Achilles (as described above) just informs on your own proportional strength. However a high `achilles_leader_edge` means your opponents are very vulnerable and they won't attack you in the short term. Similarly a low `achilles_rival_edge` means the 'weaker' player may be in a position to attack the mid-range, which benefits the leader. This assumes they play a similar strategy though.
+    - Similarly a high `paris` could mean you are in an unstable, complex position and hence should go deeper on quiescence to 'get the right moves'.
+- paris is a short-term evaluation to detect complex playouts - if it is zero, your quiscence doesn't have to be as deep
 
 ## Motivations
 Since we wanted to test many different games before we attack Chexers,

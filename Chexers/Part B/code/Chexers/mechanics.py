@@ -81,6 +81,7 @@ NAMING_DICT.update({name: name[0] for name in PLAYER_NAMES})
 
 INITIAL_EXITED_PIECES = 0
 MAX_EXITS = 4
+MAX_ACTIONS_PER_PIECE = 6
 
 # For hashing
 NUM_HEXES = 37
@@ -223,7 +224,7 @@ def possible_actions(state, colour):
     actions.extend(jump_action(state, occupied_hexes, colour))
     actions.extend(exit_action(state, colour))
     actions.extend(move_action(state, occupied_hexes, colour))
-    
+
     if not actions:
         return [("PASS", None)]
     else:
