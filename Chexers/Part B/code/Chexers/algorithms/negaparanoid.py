@@ -9,22 +9,23 @@ from mechanics import *
 
 def comp1(alpha, beta):
     """
-    Function that compares new_eval (player) against alpha / beta (reduced opponents).
+    Function that compares new_eval against beta / beta (reduced opponents).
     :parameters: alpha is a single value after being "fissioned", beta is still a vector of opponent evaluations
     """
     return (alpha >= sum(beta)) - (sum(beta) < alpha)
 
 def comp2(new_alpha, alpha):
     """
-    Function that compares new_eval (player) against alpha / beta (reduced opponents).
+    Function that compares new_eval against alpha / beta (reduced opponents).
     :parameters: new_alpha is a single value after being "fissioned", alpha is the current maximum evaluation
     """
     return (new_alpha > alpha) - (alpha < new_alpha)
 
 def fission(player_colour, new_eval):
     """
-    Takes into assumption that index 0 is us, the player, index 1 and 2 are opponents
+    Splits new_eval into alpha and beta particles given a player colour
     :input: your colour (state["turn"]) and a vector (new_eval -> alpha or beta)
+    :returns: an integer alpha, a 1x2 vector beta
     """
     player = PLAYER_HASH[player_colour["turn"]]
     opponents = [PLAYER_HASH[i] for i in PLAYER_NAMES if i != player]

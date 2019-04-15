@@ -9,9 +9,11 @@ Implements an amazing 3-player algorithm
 from copy import deepcopy
 from math import inf
 from collections import OrderedDict
+
 # User-defined files
 from mechanics import *
 from .negaparanoid import paranoid
+from .max_n import max_n
 
 """
 Concept adapted from:
@@ -23,7 +25,7 @@ Inon Zuckerman, Ariel Felner
 Implemented by:
 Akira Wang, Callum Holmes
 
-Our take on MP-MIX:
+Current Agent Strategy:
 If we are leader:
 1. if a player has 1 piece we can eliminate them (within a close radius and heuristic?)
 2. else we will paranoid
@@ -67,6 +69,11 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
 
     # STRAT IDEAS:
     # IF in surplus, do a runner
+    # IF not enough, get a piece 
+    if len(state[turn_player]) < 4:
+        return directed_offence(state, heuristic, loser)
+        # return max(directed_offence(state, heuristic, loser), directed_offence(state, heuristic, leader))
+
     if turn_player == leader:
         # Go DirectedO on any weak player (1 piece left)
         if len(state[loser]) == 1:
@@ -78,10 +85,7 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
         if leader_edge > rival_edge:
             return directed_offence(state, heuristic, leader)
     # Default, look strictly after your own interests
-    return maxn_search(state, heuristic)
+    return max_n(state, heuristic, state["turn"])
 
 def directed_offence(state, heuristic, target):
-    return NotImplementedError
-
-def maxn_search(state, heuristic):
     return NotImplementedError

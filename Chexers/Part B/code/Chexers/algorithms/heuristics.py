@@ -93,11 +93,9 @@ def speed_demon(state):
     """The jump_heuristic that measures raw minimum moves required to get to goal
     This is raw displacemnt though: it does not make the relaxed assumption that jumping is always ok,
     as optimality is not a concern."""
-    return [
-        sum([MAX_COORDINATE_VAL - get_cubic(piece)[PLAYER_CODES[player]])
-            for piece in state[player]
-            for player in PLAYER_NAMES
-    ]
+    # sum of piece for piece in state[player] for player in player names
+    # [i for j in thing for i in other_thing]
+    return [sum([MAX_COORDINATE_VAL - get_cubic(piece)[PLAYER_CODES[player]]) for piece in state[player] for player in PLAYER_NAMES]
 
 def exit_diff_2_player(state):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""

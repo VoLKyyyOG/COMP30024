@@ -217,12 +217,12 @@ def possible_actions(state, colour):
     actions = list()
 
     # All occupied hexes (doesn't account for who's who)
-    occupied = occupied(state, PLAYER_NAMES)
+    occupied_hexes = occupied(state, PLAYER_NAMES)
 
     # Append exits, moves, jumps and passes respectively
-    actions.extend(jump_action(state, occupied))
-    actions.extend(exit_action(state))
-    actions.extend(move_action(state, occupied))
+    actions.extend(jump_action(state, occupied_hexes, colour))
+    actions.extend(exit_action(state, colour))
+    actions.extend(move_action(state, occupied_hexes, colour))
     
     if not actions:
         return [("PASS", None)]
