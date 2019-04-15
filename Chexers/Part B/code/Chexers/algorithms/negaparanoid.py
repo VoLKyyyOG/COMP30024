@@ -3,7 +3,6 @@
 Implements negamax version of a paranoid algorithm.
 
 """
-from copy import deepcopy
 from math import inf
 
 from mechanics import *
