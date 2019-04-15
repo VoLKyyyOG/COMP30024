@@ -198,11 +198,12 @@ def apply_action(state, action, ignore_dead=False):
     new_state['turn'] = next_player(state, ignore_dead)
     return new_state
 
-def is_capture(state, action):
+def is_capture(state, action, colour):
+    """Checks if an action to be applied to a state will capture"""
     atype, pieces = action
     if atype != "JUMP": return False
     old, new = pieces
-    return midpoint(old, new) not in state[player(state)]
+    return midpoint(old, new) not in state[colour]
 
 def possible_actions(state):
     """Returns list of possible actions for a given state"""
