@@ -205,7 +205,7 @@ def is_capture(state, action, colour):
     old, new = pieces
     return midpoint(old, new) not in state[colour]
 
-def possible_actions(state):
+def possible_actions(state, colour):
     """Returns list of possible actions for a given state"""
     actions = list()
 
@@ -215,9 +215,9 @@ def possible_actions(state):
         occupied.update(set(state[player]))
 
     # Append exits, moves, jumps and passes respectively
-    actions.extend(exit_action(state))
-    actions.extend(move_action(state, occupied))
-    actions.extend(jump_action(state, occupied))
+    actions.extend(exit_action(state, colour))
+    actions.extend(move_action(state, occupied, colour))
+    actions.extend(jump_action(state, occupied, colour))
     if not actions:
         return [("PASS",None)]
     else:
@@ -257,7 +257,7 @@ def log_action(state, action):
             captured = midpoint(old, new)
             for player in PLAYER_NAMES:
                 if captured in state[player]:
-                    capture_str = f" - CAPTURED {player}"
+                    capture_str = f" - you mad {player}?"
         else:
             capture_str = ""
         # Any other flags can go here

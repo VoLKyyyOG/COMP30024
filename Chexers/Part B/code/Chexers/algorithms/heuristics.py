@@ -7,6 +7,7 @@ Stores heuristics for use in Chexers, or any other game. (Callum is a keen boy)
 ########################### IMPORTS ##########################
 # Standard modules
 from queue import PriorityQueue as PQ
+from collections import defaultdict
 from math import inf
 # User-defined files
 from mechanics import *
@@ -23,16 +24,62 @@ def goal_eval_for_minimax(state):
         return 0
 
 ########################### CHEXERS ##########################
-def achilles(state):
+
+def desperation(state):
+    """Returns deficit/surplus in pieces vs exit"""
+    # How many pieces available - how many pieces needed to win
+    return [len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES]
+
+def paris(state):
+    """
+    Evaluates number of captures that you can perform
+    """
+    raise NotImplementedError
+
+def achilles(state, reality=False):
     """
     Evaluates number of attackable angles on your pieces.
     Ranges from 0 (all pieces in corners) to 6*N (all N pieces are isolated and not on an edge)
+    reality=True only returns actual about-to-kill-you opponents
     """
-    # Number of weakspots = possible_moves!
-    raise NotImplementedError
+    #### TODO: Make sure it works
+
+    threats = defaultdict(set)
+    for player in PLAYER_NAMES:
+        # All opponent pieces
+        if reality:
+            occupied = set()
+            for opponent in PLAYER_NAMES:
+                if player != opponent:
+                    occupied.update(set(state[opponent]))
+
+        for piece in state[player]:
+            possible_axes = POSSIBLE_DIRECTIONS[:3] # Three directions
+            for diagonal in possible_axes:
+                threat_1, threat_2 = add(piece, diagonal), sub(piece, diagonal)
+                # Only a threat if the diagonal is fully empty, and does not have your own pieces
+                if (threat_1, threat_2) in VALID_COORDINATES and (threat_1, threat_2) not in state[player]:
+                    if reality:
+                        if threat_1 in occupied:
+                            threats[player].add(threat_1)
+                        if threat_2 in occupied:
+                            threats[player].add(threat_2)
+                    else:
+                        threats[player].update(set(threat_1, threat_2))
+    return threats
 
 def david(state):
+    #### TODO: Make sure it works
     """Evaluates whether there is a sufficiently nearby enemy that could threaten your pieces"""
+    threats = defaultdict(set)
+    for player in PLAYER_NAMES:
+
+        for piece in state[state['turn']]:
+            # Get all enemy pieces in radius 2 or less
+            for direction in POSSIBLE_DIRECTIONS:
+                # Radius 1 check
+                hex = add(piece, direction)
+
     raise NotImplementedError
 
 def exit_diff_2_player(state):

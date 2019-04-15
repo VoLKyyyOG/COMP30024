@@ -60,6 +60,9 @@ def mp_mix(state, heuristic):
     rival_edge = medium - low
 
     # Strategy. Consider functionalising choose_directed(), choose_offence()
+
+    # STRAT IDEAS:
+    # IF in surplus, do a runner
     if turn_player == leader:
         # Go DirectedO on any weak player (1 piece left)
         if len(state[loser]) == 1:
