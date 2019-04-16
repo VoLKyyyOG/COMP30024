@@ -89,13 +89,13 @@ def achilles(state, reality=False):
                         threats[player].update(set(threat_1, threat_2))
     return threats
 
-def speed_demon(state):
+# def speed_demon(state):
     """The jump_heuristic that measures raw minimum moves required to get to goal
     This is raw displacemnt though: it does not make the relaxed assumption that jumping is always ok,
     as optimality is not a concern."""
     # sum of piece for piece in state[player] for player in player names
     # [i for j in thing for i in other_thing]
-    return [sum([MAX_COORDINATE_VAL - get_cubic(piece)[PLAYER_CODES[player]]) for piece in state[player] for player in PLAYER_NAMES]
+#     return [sum([MAX_COORDINATE_VAL - get_cubic(piece)[PLAYER_CODES[player]]) for piece in state[player] for player in PLAYER_NAMES]
 
 def exit_diff_2_player(state):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""
@@ -121,9 +121,9 @@ def exit_diff_3_player(state, maximisingPlayer, minimisingPlayer):
 ####       exit_diff_3_player probably won't be that useful
 ####       retrograde_dijkstra will have a high weighting
 
-def retrograde_dijkstra(state):
-    """Computes minimal traversal distance to exit for all N players"""
-    return [sum([dijkstra_board(state, player(state))[piece] for piece in player(state)]) for player in PLAYER_NAMES]
+# def retrograde_dijkstra(state):
+#     """Computes minimal traversal distance to exit for all N players"""
+#     return [sum([dijkstra_board(state, player(state))[piece] for piece in player(state)]) for player in PLAYER_NAMES]
 
 def dijkstra_board(state, colour):
     """Evaluates minimum cost to exit for each non-block position"""

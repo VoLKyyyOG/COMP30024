@@ -97,7 +97,7 @@ class GameObject:
         (assists validation).
         """
         # Find all possible actions and append to list a tuple of form ("CODE", data)
-        return possible_actions(self.state)
+        return possible_actions(self.state, colour)
 
     def _turn_detect_draw(self):
         """

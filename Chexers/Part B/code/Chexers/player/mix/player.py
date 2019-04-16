@@ -11,7 +11,7 @@ from random import choice
 # User-defined files
 from mechanics import *
 from algorithms.minimax import negamax_ab
-from algorithms.heuristics import retrograde_dijkstra, exit_diff_2_player
+from algorithms.heuristics import exit_diff_2_player #retrograde_dijkstra
 from algorithms.mp_mix import mp_mix as amazeballs
 
 ######################## MP-Mix Player #######################
