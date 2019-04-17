@@ -1,131 +1,144 @@
 """ MC.py
 
 Core functionality for Monte-Carlo tree searches and variants.
-Source: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carlo-tree-search/
 A more succinct implementation: https://github.com/brilee/python_uct/blob/master/numpy_impl.py
-Otherwise you'll just have to code it yourself :(
+Unused but still curious: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carlo-tree-search/
+
+Process:
+- 1. Select an unexpaned node by choosing highest scored branch iteratively, scoring with wins/visits via UCB1
+- 2. Expand this node and randomly choose a child.
+- 3. Simulate a game by randomly choosing actions, until depth_limit is reached or game finishes.
+        - Return either the outcome [1 0 0] for win, or who had the max (exits + desperation)
+- 4. Backpropagate outcome to re-evaluate wins and visits for parent nodes
 
 """
 
 ########################### IMPORTS ##########################
 # Standard modules
-import datetime
+import collections
+import numpy as np
+import math
 from random import choice
-from math import log, sqrt
 # User-defined files
 from mechanics import *
+from algorithms.node import Node
+from algorithms.heuristics import *
 
-class MonteCarlo(object):
-    def __init__(self, board, **kwargs):
-        self.board = board
-        self.states = []
-        self.max_moves = kwargs.get('max_moves', 100)
-        self.wins = {}
-        self.plays = {}
-        self.C = kwargs.get('C', 1.4)
+class UCTNode(Node):
+    total_visits = 0   # Tracks total UCT visits
+    scale = math.sqrt(2)    # Sets scaling for exploration in UCB1 equations
 
-        seconds = kwargs.get('time', 30)
-        self.calculation_time = datetime.timedelta(seconds=seconds)
+    # Number of times MC will select and simulate a node
+    # This is 'sample size' - larger sample size will give better estimates
+    iterations = 25
 
-    def update(self, state):
-        self.states.append(state)
+    # Number of moves made before cutting off a simulation with heuristic evaluation
+    depth_limit = 25
 
-    def get_play(self):
-        self.max_depth = 0
-        state = self.states[-1]
-        player = self.board.current_player(state)
-        legal = self.board.legal_plays(self.states[:])
+    def __init__(self, state, parent=None):
+        super().__init__(state, parent)
+        self.wins = np.zeros([N_PLAYERS], dtype=float)  # Total wins/player
 
-        # Bail out early if there is no real choice to be made.
-        if not legal:
-            return
-        if len(legal) == 1:
-            return legal[0]
+    @property
+    def visits(self):
+        """Returns total number of visits, inferring from children"""
+        return sum(self.wins)
 
-        games = 0
-        begin = datetime.datetime.utcnow()
-        while datetime.datetime.utcnow() - begin < self.calculation_time:
-            self.run_simulation()
-            games += 1
+    @property
+    def score(self):
+        """Computes UCB1 score, i.e. exploitation + exploration"""
+        return self.Q() + self.U()
 
-        moves_states = [(p, self.board.next_state(state, p)) for p in legal]
+    def Q(self):
+        """Fetches exploitation factor, i.e. measures whether this path wins"""
+        return self.wins[PLAYER_HASH[player(self.state)]] / (self.visits + 1)
 
-        # Display the number of calls of `run_simulation` and the
-        # time elapsed.
-        print(games, datetime.datetime.utcnow() - begin)
+    def U(self):
+        """Fetches exploration factor, i.e. measures extent of unexploration"""
+        return UCTNode.scale * np.sqrt(math.log(UCTNode.total_visits) / (self.visits + 1))
 
-        # Pick the move with the highest percentage of wins.
-        percent_wins, move = max(
-            (self.wins.get((player, S), 0) /
-             self.plays.get((player, S), 1),
-             p)
-            for p, S in moves_states
-        )
+    def select_simulation(self):
+        """Step 1 & 2 - recurse down to the best, unexpanded child.
+        Then expand it and pick a child to simulate
+        :returns: chosen state to simulate"""
+        current = self
+        while current.is_expanded:
+            scores = np.asarray([child.score for child in current.children])
+            current = current.children[np.argmax(scores)]
 
-        # Display the stats for each possible play.
-        for x in sorted(
-            ((100 * self.wins.get((player, S), 0) /
-              self.plays.get((player, S), 1),
-              self.wins.get((player, S), 0),
-              self.plays.get((player, S), 0), p)
-             for p, S in moves_states),
-            reverse=True
-        ):
-            print("{3}: {0:.2f}% ({1} / {2})".format(*x))
+        # Expand child and choose (randomly) a child of this to simulate
+        return choice(current.children)
 
-        print(f"Maximum depth searched: {self.max_depth}")
+    @staticmethod
+    def apply_heuristics(state):
+        """Evaluate a terminal simulation state with heuristics"""
+        total_exits = np.asarray(exits(state))
+        if game_over(state):
+            # Return who won e.g. 1 0 0 if red. Otherwise 0.33 0.33 0.33 if drawn
+            result = (total_exits == MAX_EXITS).astype(float)
+        else:
+            # Returns who is leading (or the tie)
+            total = total_exits + np.asarray(desperation(state)) + np.asarray(speed_demon(state))
+            result = (total == total.max()).astype(float)
+        return result / np.sum(result)
 
-        return move
+    def simulate(self):
+        """Run a simulation of this (unexpanded) node and return result"""
+        # TODO - Maybe quiescence search result to depth_limit is better?
+        # This would make MC more like A*
+        current = self.state
 
-    def run_simulation(self):
-        # A bit of an optimization here, so we have a local
-        # variable lookup instead of an attribute access each loop.
-        plays, wins = self.plays, self.wins
-
-        visited_states = set()
-        states_copy = self.states[:]
-        state = states_copy[-1]
-        player = self.board.current_player(state)
-
-        expand = True
-        for t in xrange(1, self.max_moves + 1):
-            legal = self.board.legal_plays(states_copy)
-            moves_states = [(p, self.board.next_state(state, p)) for p in legal]
-
-            if all(plays.get((player, S)) for p, S in moves_states):
-                # If we have stats on all of the legal moves here, use them.
-                log_total = log(
-                    sum(plays[(player, S)] for p, S in moves_states))
-                value, move, state = max(
-                    ((wins[(player, S)] / plays[(player, S)]) +
-                     self.C * sqrt(log_total / plays[(player, S)]), p, S)
-                    for p, S in moves_states
-                )
-            else:
-                # Otherwise, just make an arbitrary decision.
-                move, state = choice(moves_states)
-
-            states_copy.append(state)
-
-            # `player` here and below refers to the player
-            # who moved into that particular state.
-            if expand and (player, state) not in plays:
-                expand = False
-                plays[(player, state)] = 0
-                wins[(player, state)] = 0
-                if t > self.max_depth:
-                    self.max_depth = t
-
-            visited_states.add((player, state))
-
-            player = self.board.current_player(state)
-            winner = self.board.winner(states_copy)
-            if winner:
+        # IDEA: Push to depth_limit randomly and return heuristic evaluation
+        for _ in range(UCTNode.depth_limit):
+            try:
+                chosen_action = choice(possible_actions(current, player(current)))
+                current = apply_action(current, chosen_action)
+            except:
                 break
+                # No actions exist - the game is over
 
-        for player, state in visited_states:
-            if (player, state) not in plays:
-                continue
-            plays[(player, state)] += 1
-            if player == winner:
-                wins[(player, state)] += 1
+        return UCTNode.apply_heuristics(current)
+
+    def backpropagate(self, result):
+        """Updates parents recursively (note that visits is implicit on wins)
+        Assumes the simulated child has already updated"""
+        current = self
+        UCTNode.total_visits += sum(result)  # Result must total 1 due to evaluate function
+        while isinstance(current, UCTNode):
+            current.wins = current.wins + result
+            current = current.parent
+
+    def overthrow(self):
+        """Recursively kill down each subtree, side-effect of updating wins/visits"""
+        for sibling in self.parent.children:
+            if sibling != self:
+                UCTNode.total_visits -= sibling.visits
+                sibling.kill_tree()
+        del(self.parent)
+        self.parent = None
+
+    def search(self, iterations):
+        """Performs the UCT search on a node for given iterations
+        :returns: optimal action based on search"""
+        for _ in range(iterations):
+            leaf = self.select_simulation()  # Steps 1 and 2
+            result = leaf.simulate()  # Step 3
+            leaf.backpropagate(result)   # Step 4
+        # Return action of child that was most visited
+        #### TODO: Some sources say focus on visits, others say wins,
+        #### and one presumes others would say wins/visits. I don't know
+        #### What's best.
+        child_visits = np.asarray([child.visits for child in self.children])
+        chosen_action = self.children[np.argmax(child_visits)].action
+        return chosen_action
+
+    def __str__(self):
+        return "  > " * depth(self.state) +
+            f"{id(self)} inherits from {id(self.parent)} - wins ({self.wins})"
+
+    def recursive_print(self):
+        """Prints tree structure"""
+        print(self)
+        if self.is_expanded:
+            for child in self.children:
+                child.recursive_print()

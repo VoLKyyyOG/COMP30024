@@ -25,10 +25,14 @@ def goal_eval_for_minimax(state):
 
 ########################### CHEXERS ##########################
 
+def exits(state):
+    """Returns raw exit count as a tuple"""
+    return [state['exits'][player] for player in PLAYER_NAMES]
+
 def desperation(state):
     """Returns deficit/surplus in pieces vs exit"""
     # How many pieces available - how many pieces needed to win
-    return tuple([len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES])
+    return [len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES]
 
 def paris_vector(state):
     """
@@ -89,13 +93,15 @@ def achilles(state, reality=False):
                         threats[player].update(set(threat_1, threat_2))
     return threats
 
-# def speed_demon(state):
-    """The jump_heuristic that measures raw minimum moves required to get to goal
-    This is raw displacemnt though: it does not make the relaxed assumption that jumping is always ok,
-    as optimality is not a concern."""
-    # sum of piece for piece in state[player] for player in player names
-    # [i for j in thing for i in other_thing]
-#     return [sum([MAX_COORDINATE_VAL - get_cubic(piece)[PLAYER_CODES[player]]) for piece in state[player] for player in PLAYER_NAMES]
+def speed_demon(state):
+    """The jump_heuristic that measures average minimum moves to reach goal.
+    Average is taken so that player progression can be compared"""
+    #### TODO: coordinates must be then transformed so that changes in displacement
+    #### evaluation do not outweigh the benefit of having exited a piece."""
+    total_disp = lambda player: sum([get_cubic(piece)[PLAYER_HASH[player]] -
+        MAX_COORDINATE_VAL for piece in state[player]])
+    # Return average displacement, adding 0.5 to deal with dead players
+    return [total_disp(player) / (len(state[player]) + 0.5) for player in PLAYER_NAMES]
 
 def exit_diff_2_player(state):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""

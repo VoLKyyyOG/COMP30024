@@ -1,7 +1,7 @@
 """ player.py
 
-Base class for any RandomPlayer.
-Asks for inputs directly from command line.
+Base class for any MCPlayer.
+Runs a MC search using a cached tree - see the file for further details.
 
 """
 
@@ -10,21 +10,20 @@ Asks for inputs directly from command line.
 from random import choice
 # User-defined files
 from mechanics import *
+from algorithms.MC import *
 
-class RandomPlayer:
+class MCPlayer:
     def __init__(self, colour):
-        """
-        This method is called once at the beginning of the game to initialise
-        your player.
-        """
-        self.state = create_initial_state()
+        """Initialise the player"""
+        self.root = UCTNode.create_root(create_initial_state())
 
     def update(self, colour, action):
         """
         This method is called at the end of every turn (including your player’s
         turns) to inform your player about the most recent, assumedly correct,
         action."""
-        self.state = apply_action(self.state, action)
+        self.root = [x for x in self.root.children if x.action == action].pop()
+        self.root.overthrow()  # Delete all irrelevant siblings to free memory
 
     ################# DEFINE EVERY IMPLEMENTATION ################
 
@@ -33,4 +32,4 @@ class RandomPlayer:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        return choice(possible_actions(self.state, player(self.state)))
+        return self.root.search()

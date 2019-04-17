@@ -14,8 +14,6 @@ from moves import *
 
 ########################### GLOBALS ##########################
 
-"""Must be defined"""
-
 N_PLAYERS = 3 # Must be 2 minimum
 GAME_NAME = "Chexers"
 MAX_TURNS = 256 # per player
@@ -37,6 +35,7 @@ TEMPLATE_NORMAL = """*   scores: {0}
 *         '-._.-'-._.-'-._.-'-._.-'-._.-'
 *            |{04:}|{09:}|{15:}|{22:}|
 *            '-._.-'-._.-'-._.-'-._.-'"""
+
 TEMPLATE_DEBUG = """*   scores: {0}
 *   board:       ,-' `-._,-' `-._,-' `-._,-' `-.
 *               | {16:} | {23:} | {29:} | {34:} |
@@ -62,9 +61,6 @@ TEMPLATE_DEBUG = """*   scores: {0}
 *                `-._,-' `-._,-' `-._,-' `-._,-'     `-._,-'"""
 
 ##################### CODES FOR PLAYERS ######################
-"""
-Do NOT need to be redefined.
-"""
 
 # A default list of all the player names: note the auto-slicing
 PLAYER_NAMES = [
@@ -99,7 +95,7 @@ PLAYER_HASH.update(dict(zip(PLAYER_HASH.values(), PLAYER_HASH.keys())))
 
 """After defining what a state data structure is, code the following
 
-state = {red=list(), green=list(), blue=list(), exits=dict(), turn=str}
+state = {red=list(), green=list(), blue=list(), exits=dict(), turn=str, depth=0}
 action = (MOVE, (loc_1, loc_2)), (JUMP, (loc_1, loc_2)), (EXIT, (loc_1)),  (PASS, None)
 
 # Must be copyable
@@ -114,11 +110,16 @@ def create_initial_state():
     initial_state = deepcopy(STARTS)
     initial_state['exits'] = {name: INITIAL_EXITED_PIECES for name in PLAYER_NAMES}
     initial_state['turn'] = 'red'
+    initial_state['depth'] = 0
     return initial_state
 
 def player(state):
     """Retrieves current player"""
     return state['turn']
+
+def depth(state):
+    """Returns number of turns"""
+    return state['depth']
 
 def occupied(state, colours):
     """Fetches set of all pieces for all colours"""
@@ -158,21 +159,18 @@ def game_drawn(state):
     #### TODO: do we need to pass through self.turn_count and the TT?
     # if self.turn_count == 256 or state in visited_states (4 times):
     #     return True
+    return depth(state) == MAX_TURNS * N_PLAYERS
     raise NotImplementedError
 
 def game_over(state):
     """Determines if a game is won"""
-    return (MAX_EXITS in state['exits'].values())# or game_drawn(state))
+    return (MAX_EXITS in state['exits'].values()) or game_drawn(state)
 
 #### TODO: May be redundant
 def is_winner(state, colour):
+    raise NotImplementedError
     """Returns True if player represented by colour has won"""
     return (state['exits'][NAMING_DICT[colour]] == MAX_EXITS)
-
-#### TODO: May be redundant since possible actions only gives valid moves
-def valid_action(state, action):
-    """Checks validity of an action to be applied to a State, returns boolean"""
-    raise NotImplementedError
 
 def apply_action(state, action, ignore_dead=False):
     """Applies an action to a State object, returns new state"""
@@ -204,6 +202,7 @@ def apply_action(state, action, ignore_dead=False):
 
     # Update turn player
     new_state['turn'] = next_player(state, ignore_dead)
+    new_state['depth'] += 1
     return new_state
 
 def is_capture(state, action, colour):
@@ -216,6 +215,9 @@ def is_capture(state, action, colour):
 def possible_actions(state, colour):
     """Returns list of possible actions for a given state"""
     actions = list()
+
+    if game_over(state) or game_drawn(state):
+        return actions
 
     # All occupied hexes (doesn't account for who's who)
     occupied_hexes = occupied(state, PLAYER_NAMES)
@@ -254,22 +256,22 @@ def log_action(state, action):
     E.g. 'TYPE, from X to Z'"""
     flag, pieces = action
     base_str = f"chose to {flag}"
+    capture_str = ""
     if (flag == "PASS"):
         return base_str
     elif flag == "EXIT":
-        return base_str + f" {pieces}"
+        return base_str + f" {pieces}" + f" - exits now {state['exits']}"
     else:
         if flag == "JUMP" and is_capture(state, action, state['turn']):
             old, new  = pieces
             captured = midpoint(old, new)
             for player in PLAYER_NAMES:
                 if captured in state[player]:
-                    capture_str = f" - you mad {player}?"
-        else:
-            capture_str = ""
+                    total_pieces = ', '.join([str(len(state[x])) for x in PLAYER_NAMES])
+                    capture_str = f" - you mad {player}? Piece totals {total_pieces}"
+
         # Any other flags can go here
-        new_str = base_str + f" {pieces[0]} to {pieces[1]}{capture_str}"
-        return new_str
+        return base_str + f" {pieces[0]} to {pieces[1]}{capture_str}"
 
 def get_template(debug=False):
     """Returns the desired template for printing."""
