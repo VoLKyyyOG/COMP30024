@@ -27,7 +27,7 @@ class GreedyPlayer:
         This method is called at the end of every turn (including your player’s
         turns) to inform your player about the most recent, assumedly correct,
         action."""
-        self.state = apply_action(self.state, action, self.colour)
+        self.state = apply_action(self.state, action, colour)
 
     ################# DEFINE EVERY IMPLEMENTATION ################
 

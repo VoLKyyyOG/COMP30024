@@ -179,7 +179,6 @@ def apply_action(state, action, ignore_dead=False):
 
     print("\n\nPRINTING STATE AND NEW STATE")
     print(state)
-    print(new_state)
 
     turn_player = new_state['turn']
 
@@ -224,7 +223,7 @@ def apply_action(state, action, ignore_dead=False):
     # Update turn player
     new_state['turn'] = next_player(state, ignore_dead)
     new_state['depth'] += 1
-
+    print(new_state)
     return new_state
 
 def is_capture(state, action, colour):
@@ -246,7 +245,7 @@ def possible_actions(state, colour):
 
     # Append exits, moves, jumps and passes respectively
     actions.extend(jump_action(state, occupied_hexes, colour))
-    
+
     actions.extend(move_action(state, occupied_hexes, colour))
 
     # AKIRA - DEBUGGING THE PIECES THAT HAVE BEEN CAPTURED BUT ARE STILL IN OUR STATE

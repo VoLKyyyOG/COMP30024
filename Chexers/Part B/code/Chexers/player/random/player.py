@@ -24,6 +24,9 @@ class RandomPlayer:
         This method is called at the end of every turn (including your player’s
         turns) to inform your player about the most recent, assumedly correct,
         action."""
+        assert(self.state is not None)
+        assert(colour == self.state['turn'])
+
         self.state = apply_action(self.state, action)
 
     ################# DEFINE EVERY IMPLEMENTATION ################
