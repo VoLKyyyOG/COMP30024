@@ -1,4 +1,22 @@
 # Guide to Part B Folders
+## DEBUGGING AS OF 19/4
+- Playing the greedy algorithms against itself will ALWAYS 100% end up in a draw 
+  - This is because instead of capturing an opponent piece, it will always prefer to move away from a capturing position
+  - Repeated for 4 times and the game is forced to end in a draw
+  - DEBUG: added some print stuff in `apply_action`
+  
+- Greedy's apply_action and state seems to be dodgy - passing `ignore_dead=True` seemed to fix it for apply_actions but then cause more bugs (explained below)
+- Random player's actions are very dodgy. The turns are not updating properly once there is a dead player...
+  - DEBUG: added a catch code block in `possible_actions`
+  - RESULT:  
+  
+{'red': [], 'green': [(3, -3), (1, 0), (0, 1), (3, -2), (0, 0), (0, -2)], 'blue': [(1, 1), (3, 0), (0, 2), (-2, 1)], 'exits': {'red': 2, 'green': 0, 'blue': 0}, 'turn': 'blue', 'depth': 100}
+
+green player's action, ('MOVE', ((-2, 1), (-1, 0))), is not well-formed or not available. See specification and game rules for details, or consider currently available actions:
+
+![alt text](https://github.com/akiratwang/COMP30024/blob/master/Chexers/Part%20B/debug.PNG)
+
+**NOTE THAT THE TURN IS BLUE IN OUR STATE EVEN THOUGH IT'S MEANT TO BE GREE'S TURN**
 
 ## Notes to self (Callum)
 TODO:
