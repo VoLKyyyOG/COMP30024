@@ -9,11 +9,13 @@
 - Random player's actions are very dodgy. The turns are not updating properly once there is a dead player...
   - DEBUG: added a catch code block in `possible_actions`
   - RESULT:  
-  
+
+#### Case 1 - Turn not updated correctly (ignore_dead=True)
 {'red': [], 'green': [(3, -3), (1, 0), (0, 1), (3, -2), (0, 0), (0, -2)], 'blue': [(1, 1), (3, 0), (0, 2), (-2, 1)], 'exits': {'red': 2, 'green': 0, 'blue': 0}, 'turn': 'blue', 'depth': 100}
 
 green player's action, ('MOVE', ((-2, 1), (-1, 0))), is not well-formed or not available. See specification and game rules for details, or consider currently available actions:
 
+#### Case 2 - None state (ignore_dead=False)
 ![alt text](https://github.com/akiratwang/COMP30024/blob/master/Chexers/Part%20B/debug.PNG)
 
 **NOTE THAT THE TURN IS BLUE IN OUR STATE EVEN THOUGH IT'S MEANT TO BE GREE'S TURN**
