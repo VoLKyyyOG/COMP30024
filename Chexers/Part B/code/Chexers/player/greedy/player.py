@@ -27,7 +27,7 @@ class GreedyPlayer:
         This method is called at the end of every turn (including your player’s
         turns) to inform your player about the most recent, assumedly correct,
         action."""
-        self.state = apply_action(self.state, action, colour)
+        self.state = apply_action(self.state, action)
 
     ################# DEFINE EVERY IMPLEMENTATION ################
 
@@ -38,9 +38,10 @@ class GreedyPlayer:
         """
         best_eval, best_action = -inf, None
         for action in possible_actions(self.state, self.colour):
-            new_state = apply_action(self.state, action, self.colour)
-            new_eval = speed_demon(self.state)[PLAYER_HASH[self.colour]]
-            if best_eval > new_eval:
+            new_state = apply_action(self.state, action)
+            new_eval = speed_demon(new_state)[PLAYER_HASH[self.colour]]
+            if new_eval > best_eval:
                 best_eval = new_eval
                 best_action = action
+
         return best_action

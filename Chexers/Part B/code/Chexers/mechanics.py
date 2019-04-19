@@ -264,8 +264,8 @@ def possible_actions(state, colour):
                 if opponent != colour and coordinate[0] in state[opponent]:
                     print(f"It's actually {opponent}'s piece...")
     """
-    print(f"\n\t\t\t\t\t\t\t\t Our internal state suggests it is turn {state['turn']}\n")
-    print(state)
+    #print(f"\n\t\t\t\t\t\t\t\t AKIRA - POSSIBLE ACTIONS: Our internal state suggests it is turn {state['turn']}\n")
+    #print(f"POSSIBLE ACTIONS PRINT {state}")
     ##################################################################################
 
     actions.extend(exit_action(state, colour))
