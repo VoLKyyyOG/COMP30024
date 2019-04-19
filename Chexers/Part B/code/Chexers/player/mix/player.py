@@ -26,15 +26,13 @@ class MPMixPlayer:
         self.colour = colour
         self.colour_code = colour[0] # This will be 'r', 'g', 'b' (save space)
         self.state = create_initial_state()
-        self.turn_count = 0
-        self.run_2_player_depth = 6 # Controls the depth of negamax
+        self.run_2_player_depth = 6 # Controls the depth of negascout
 
     def update(self, colour, action):
         """
         Updates a players action and adds a turn count.
         """
         self.state = apply_action(self.state, action)
-        self.turn_count += 1
 
     def action(self):
         """

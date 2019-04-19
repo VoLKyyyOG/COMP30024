@@ -105,9 +105,6 @@ def speed_demon(state):
     total_disp = lambda player: sum([get_cubic(piece)[PLAYER_HASH[player]] -
         MAX_COORDINATE_VAL for piece in state[player]])
 
-
-
-
     # Return average displacement, adding 0.5 to deal with dead players
     return [total_disp(player) / (len(state[player]) + 0.5) for player in PLAYER_NAMES]
 

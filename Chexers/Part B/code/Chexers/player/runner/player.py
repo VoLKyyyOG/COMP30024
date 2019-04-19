@@ -11,6 +11,8 @@ Uses number_of_pieces_lost = 0 and retrograde_dijkstra as heuristic
 from random import choice
 # User-defined files
 from mechanics import *
+from algorithms.negaparanoid import paranoid
+from algorithms.heuristics import *
 
 class RunnerPlayer:
     def __init__(self, colour):
@@ -34,4 +36,4 @@ class RunnerPlayer:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        return choice(possible_actions(self.state))
+        return paranoid(self.state, speed_demon, print_debug=True)[1]

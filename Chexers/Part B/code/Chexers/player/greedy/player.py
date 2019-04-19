@@ -18,6 +18,9 @@ class GreedyPlayer:
         """
         This method is called once at the beginning of the game to initialise
         your player.
+
+        "I am speed" - Lightning McQueen
+        
         """
         self.colour = colour
         self.state = create_initial_state()

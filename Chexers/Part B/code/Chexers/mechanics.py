@@ -153,24 +153,20 @@ def get_score(state, colour):
     """Retrieves score for player in a state."""
     return state['exits'][colour]
 
-#### TODO: May be redundant
-def game_drawn(state):
-    """Returns True if game is tied else false"""
-    #### TODO: do we need to pass through self.turn_count and the TT?
-    # if self.turn_count == 256 or state in visited_states (4 times):
-    #     return True
-    return depth(state) == MAX_TURNS * N_PLAYERS
-    raise NotImplementedError
-
 def game_over(state):
-    """Determines if a game is won"""
-    return (MAX_EXITS in state['exits'].values()) or game_drawn(state)
+    """
+    Determines if a game is over.
+    Conditions:
+    - A player has exited all pieces
+    - 2 players have been eliminated
+    - 256 move max for each player has been exceeded
+    - A state has been visited 4 times
+    """
+    draw = depth(state) == MAX_TURNS * N_PLAYERS
+    all_dead = sum([bool(state[colour]) for colour in PLAYER_NAMES]) == 1
+    winner = MAX_EXITS in state['exits'].values()
 
-#### TODO: May be redundant
-def is_winner(state, colour):
-    raise NotImplementedError
-    """Returns True if player represented by colour has won"""
-    return (state['exits'][NAMING_DICT[colour]] == MAX_EXITS)
+    return winner or draw or all_dead
 
 def apply_action(state, action, ignore_dead=False):
     """Applies an action to a State object, returns new state"""
@@ -233,42 +229,29 @@ def is_capture(state, action, colour):
     old, new = pieces
     return midpoint(old, new) not in state[colour]
 
-def possible_actions(state, colour):
+def possible_actions(state, colour, paranoid_ordering=False):
     """Returns list of possible actions for a given state"""
     actions = list()
 
-    if game_over(state) or game_drawn(state):
+    if game_over(state):
         return actions
 
     # All occupied hexes (doesn't account for who's who)
     occupied_hexes = occupied(state, PLAYER_NAMES)
 
     # Append exits, moves, jumps and passes respectively
-    actions.extend(jump_action(state, occupied_hexes, colour))
-
-    actions.extend(move_action(state, occupied_hexes, colour))
-
-    # AKIRA - DEBUGGING THE PIECES THAT HAVE BEEN CAPTURED BUT ARE STILL IN OUR STATE
-    """
-    for (move, coordinate) in actions:
-        print(coordinate[0])
-        if coordinate[0] in state[colour]:
-            pass
-        else:
-            print("Yikes we have a piece in our state that we shouldn't have...")
-            print(f"This is piece {coordinate[0]}")
-            print(f"Our current pieces according to our internal board is")
-            print(state[colour])
-
-            for opponent in state:
-                if opponent != colour and coordinate[0] in state[opponent]:
-                    print(f"It's actually {opponent}'s piece...")
-    """
-    #print(f"\n\t\t\t\t\t\t\t\t AKIRA - POSSIBLE ACTIONS: Our internal state suggests it is turn {state['turn']}\n")
-    #print(f"POSSIBLE ACTIONS PRINT {state}")
-    ##################################################################################
-
-    actions.extend(exit_action(state, colour))
+    if paranoid_ordering:
+        possible_exits = exit_action(state, colour)
+        if bool(possible_exits):
+            actions.extend(possible_exits)
+            return actions
+        actions.extend(jump_action(state, occupied_hexes, colour))
+        actions.extend(move_action(state, occupied_hexes, colour))
+        return actions
+    else:
+        actions.extend(jump_action(state, occupied_hexes, colour))
+        actions.extend(move_action(state, occupied_hexes, colour))
+        actions.extend(exit_action(state, colour))
 
     if not actions:
         return [("PASS", None)]
