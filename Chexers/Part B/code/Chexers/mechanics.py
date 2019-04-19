@@ -176,12 +176,33 @@ def apply_action(state, action, ignore_dead=False):
     """Applies an action to a State object, returns new state"""
     flag, pieces = action
     new_state = deepcopy(state)
+
+    print("\n\nPRINTING STATE AND NEW STATE")
+    print(state)
+    print(new_state)
+
     turn_player = new_state['turn']
+
     player_pieces = new_state[turn_player]
     if flag in ("MOVE", "JUMP"):
         old, new = pieces
+
+        # AKIRA DEBUG - GREEDY IS BROKEN AFTER SOME SEVERAL NUMBER OF MOVES
+        """
+        line 183, in apply_action
         player_pieces.remove(old)
-        player_pieces.append(new)
+        ValueError: list.remove(x): x not in list
+        """
+        try:
+            player_pieces.remove(old)
+            player_pieces.append(new)
+        except ValueError:
+            print(f"Flag was found - {flag}")
+            print(player_pieces)
+            print("Old is",old)
+            print("New is",new)
+            return None
+        #######################################################################
 
         # Check for captures
         if flag == "JUMP":
@@ -203,6 +224,7 @@ def apply_action(state, action, ignore_dead=False):
     # Update turn player
     new_state['turn'] = next_player(state, ignore_dead)
     new_state['depth'] += 1
+
     return new_state
 
 def is_capture(state, action, colour):
@@ -224,8 +246,30 @@ def possible_actions(state, colour):
 
     # Append exits, moves, jumps and passes respectively
     actions.extend(jump_action(state, occupied_hexes, colour))
-    actions.extend(exit_action(state, colour))
+    
     actions.extend(move_action(state, occupied_hexes, colour))
+
+    # AKIRA - DEBUGGING THE PIECES THAT HAVE BEEN CAPTURED BUT ARE STILL IN OUR STATE
+    """
+    for (move, coordinate) in actions:
+        print(coordinate[0])
+        if coordinate[0] in state[colour]:
+            pass
+        else:
+            print("Yikes we have a piece in our state that we shouldn't have...")
+            print(f"This is piece {coordinate[0]}")
+            print(f"Our current pieces according to our internal board is")
+            print(state[colour])
+
+            for opponent in state:
+                if opponent != colour and coordinate[0] in state[opponent]:
+                    print(f"It's actually {opponent}'s piece...")
+    """
+    print(f"\n\t\t\t\t\t\t\t\t Our internal state suggests it is turn {state['turn']}\n")
+    print(state)
+    ##################################################################################
+
+    actions.extend(exit_action(state, colour))
 
     if not actions:
         return [("PASS", None)]

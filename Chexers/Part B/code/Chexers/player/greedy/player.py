@@ -1,13 +1,14 @@
 """ player.py
 
-Base class for any RandomPlayer.
-Asks for inputs directly from command line.
+Base class for a Greedy Player.
 
 """
 
 ########################### IMPORTS ##########################
 # Standard modules
 from random import choice
+from math import inf
+
 # User-defined files
 from mechanics import *
 from algorithms.heuristics import speed_demon
@@ -18,6 +19,7 @@ class GreedyPlayer:
         This method is called once at the beginning of the game to initialise
         your player.
         """
+        self.colour = colour
         self.state = create_initial_state()
 
     def update(self, colour, action):
@@ -34,10 +36,10 @@ class GreedyPlayer:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        best_eval, best_action = None
+        best_eval, best_action = -inf, None
         for action in possible_actions(self.state, self.colour):
             new_state = apply_action(self.state, action, self.colour)
-            new_eval = speed_demon(state)[PLAYER_HASH[self.colour]]
+            new_eval = speed_demon(self.state)[PLAYER_HASH[self.colour]]
             if best_eval < new_eval:
                 best_eval = new_eval
                 best_action = action

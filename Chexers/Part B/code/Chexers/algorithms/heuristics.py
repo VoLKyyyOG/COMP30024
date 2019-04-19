@@ -58,7 +58,7 @@ def paris(state):
 def achilles_vector(state, reality=False):
     """
     achilles_vector returns the number of threats for each player.
-    - reality: if True, counts actual opponents that could capture
+    :FLAG reality: if True, counts actual opponents that could capture
     :returns: [val_red, val_green, val_blue]
     """
     raw = achilles(state, reality)
@@ -67,8 +67,8 @@ def achilles_vector(state, reality=False):
 def achilles(state, reality=False):
     """
     Evaluates number of attackable angles on your pieces.
+    :FLAG reality: True only returns actual about-to-kill-you opponents
     Ranges from 0 (all pieces in corners) to 6*N (all N pieces are isolated and not on an edge)
-    reality=True only returns actual about-to-kill-you opponents
     """
     #### TODO: Make sure it works
 
@@ -94,12 +94,20 @@ def achilles(state, reality=False):
     return threats
 
 def speed_demon(state):
-    """The jump_heuristic that measures average minimum moves to reach goal.
-    Average is taken so that player progression can be compared"""
-    #### TODO: coordinates must be then transformed so that changes in displacement
-    #### evaluation do not outweigh the benefit of having exited a piece."""
+    """
+    Heuristic that uses uses a relaxed version of the game board by assuming a piece can always jump with or without a piece.
+    The average is taken so that the player progression can be compared
+
+    TODO: Coordinates must be then transformed so that changes in displacement
+    evaluation do not outweigh the benefit of having exited a piece.
+    """
+
     total_disp = lambda player: sum([get_cubic(piece)[PLAYER_HASH[player]] -
         MAX_COORDINATE_VAL for piece in state[player]])
+
+
+
+
     # Return average displacement, adding 0.5 to deal with dead players
     return [total_disp(player) / (len(state[player]) + 0.5) for player in PLAYER_NAMES]
 
