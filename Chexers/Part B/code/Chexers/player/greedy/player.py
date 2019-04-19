@@ -40,7 +40,7 @@ class GreedyPlayer:
         for action in possible_actions(self.state, self.colour):
             new_state = apply_action(self.state, action, self.colour)
             new_eval = speed_demon(self.state)[PLAYER_HASH[self.colour]]
-            if best_eval < new_eval:
+            if best_eval > new_eval:
                 best_eval = new_eval
                 best_action = action
-        return action
+        return best_action
