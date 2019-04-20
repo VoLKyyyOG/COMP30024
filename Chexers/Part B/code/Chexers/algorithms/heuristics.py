@@ -1,7 +1,7 @@
-""" heuristics.py
-
-Stores heuristics for use in Chexers, or any other game. (Callum is a keen boy)
-
+""" 
+:filename: heuristics.py
+:summary: Stores all heuristic and evaluation function related functions.
+:authors: Akira Wang (913391), Callum Holmes (XXXXXX)
 """
 
 ########################### IMPORTS ##########################
@@ -9,6 +9,7 @@ Stores heuristics for use in Chexers, or any other game. (Callum is a keen boy)
 from queue import PriorityQueue as PQ
 from collections import defaultdict
 from math import inf
+
 # User-defined files
 from mechanics import *
 from moves import *
@@ -27,11 +28,15 @@ def goal_eval_for_minimax(state):
 ########################### CHEXERS ##########################
 
 def exits(state):
-    """Returns raw exit count as a tuple"""
+    """
+    Returns raw exit count as a tuple
+    """
     return [state['exits'][player] for player in PLAYER_NAMES]
 
 def desperation(state):
-    """Returns deficit/surplus in pieces vs exit"""
+    """
+    Returns deficit/surplus in pieces vs exit
+    """
     # How many pieces available - how many pieces needed to win
     return [len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES]
 
@@ -111,29 +116,57 @@ def speed_demon(state):
 
 
 def exit_diff_2_player(state):
-    """Calculates as exits(self) - exits(only_remaining_opponent)"""
+    """
+    Calculates as exits(self) - exits(only_remaining_opponent)
+    """
     if not state[state['turn']]: # Checks if you are dead already
         return -inf
     else:
         opponent = get_opponents(state).pop()
         return state['exits'][state['turn']] - state['exits'][opponent]
 
-def exit_diff_3_player(state, maximisingPlayer, minimisingPlayer):
-    """Temporary 3 player mp-mix heuristic"""
-    if not state[state['turn']]:
+def exit_diff_3_player(state):
+    """
+    Temporary 3 player variant 
+    """
+    turn_player = state['turn']
+    if not state[turn_player]:
         print(f"EXIT_DIFF_3_PLAYER ERROR: I, {state['turn']} am dead - I have {state[state['turn']]} pieces..")
-        return -inf
+        return [state['exits'][colour] if bool(state[colour]) else -inf for colour in PLAYER_NAMES]
     else:
-        if maximisingPlayer == minimisingPlayer: # this is us so return number of exits
-            return state['exits'][maximisingPlayer]
-        return state['exits'][maximisingPlayer] - state['exits'][minimisingPlayer]
+        return [state['exits'][colour] for colour in PLAYER_NAMES]
 
+def winning_move(state):
+    """
+    Returns the number of exits given a state.
+    """
+    return [state['exits'][colour] for colour in PLAYER_NAMES]
+
+def master(state):
+    """
+    Master heuristic which evaluates several heuristics.
+    - exit_diff_3_player
+    - speed_demon
+    - winning_move
+    """
+    cost = [exit_diff_3_player(state), speed_demon(state), winning_move(state)]
+    print(f"\n\t\t\t\t\t\t\t\tCost is {cost}\n")
+    weights = [0.8, 0.8, 1]
+    new_cost = [w*(x + y + z) for w, x, y, z in zip(weights, cost[0], cost[1], cost[2])]
+    print(f"\n\t\t\t\t\t\t\t\tNew Cost is {new_cost}\n")
+    return new_cost
+
+
+
+"""
+THIS NEEDS TO BE ADJUSTED.
+Although it has been fixed to work now, it accounts for EVERY piece (from Part A we had assumed a max of 4 pieces).
+Hypothetically just need to add the closest (4 - number_of_exits) pieces into retrograde_dijkstra.
+"""
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""
     cost = [sum(dijkstra_board(state, state["turn"])[piece] for piece in state[colour]) for colour in PLAYER_NAMES]
-    print(cost)
     return cost
-    
 
 def dijkstra_board(state, colour):
     """Evaluates minimum cost to exit for each non-block position"""
