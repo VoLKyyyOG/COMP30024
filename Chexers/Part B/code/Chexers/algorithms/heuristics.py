@@ -11,6 +11,7 @@ from collections import defaultdict
 from math import inf
 # User-defined files
 from mechanics import *
+from moves import *
 
 ######################### INDEPENDENT ########################
 def goal_eval_for_minimax(state):
@@ -100,8 +101,6 @@ def speed_demon(state):
 
     TODO: Coordinates must be then transformed so that changes in displacement
     evaluation do not outweigh the benefit of having exited a piece.
-
-    TODO: Breaks when there is a dead player and it is used as a heuristic. 
     """
 
     total_disp = lambda player: sum([get_cubic(piece)[PLAYER_HASH[player]] -
@@ -109,6 +108,7 @@ def speed_demon(state):
 
     # Return average displacement, adding 0.5 to deal with dead players
     return [total_disp(player) / (len(state[player]) + 0.5) for player in PLAYER_NAMES]
+
 
 def exit_diff_2_player(state):
     """Calculates as exits(self) - exits(only_remaining_opponent)"""
@@ -128,24 +128,27 @@ def exit_diff_3_player(state, maximisingPlayer, minimisingPlayer):
             return state['exits'][maximisingPlayer]
         return state['exits'][maximisingPlayer] - state['exits'][minimisingPlayer]
 
-#### TODO: heuristic = exit_diff_3_player + number_of_pieces_captured + number_of_pieces_lost + retrograde_dijkstra
-####       if we have more than 4 pieces, number_of_pieces_lost can have the smallest weighting
-####       if we have less than 4 pieces, number_of_pieces_captured has the max weighting
-####       exit_diff_3_player probably won't be that useful
-####       retrograde_dijkstra will have a high weighting
-
-# def retrograde_dijkstra(state):
-#     """Computes minimal traversal distance to exit for all N players"""
-#     return [sum([dijkstra_board(state, player(state))[piece] for piece in player(state)]) for player in PLAYER_NAMES]
+def retrograde_dijkstra(state):
+    """Computes minimal traversal distance to exit for all N players"""
+    cost = [sum(dijkstra_board(state, state["turn"])[piece] for piece in state[colour]) for colour in PLAYER_NAMES]
+    print(cost)
+    return cost
+    
 
 def dijkstra_board(state, colour):
     """Evaluates minimum cost to exit for each non-block position"""
     #### TODO: Given dynamic board, forcing 'moves only' i.e. jump_heuristic may be more accurate
     #### Otherwise this is a forward unto death greedy heuristic
-    occupied = set() # Stores enemy pieces
+
+    occupied = set() # stores all pieces
+    valid_goals = set(GOALS[colour])
+    
     for player in PLAYER_NAMES:
-         if player != colour:
-            valid_goals.difference_update(set(state[player]))
+        occupied.union(set(state[player]))
+    
+    for player in [i for i in PLAYER_NAMES if i != colour]:
+        valid_goals.difference_update(set(state[player]))
+
     valid_goals = set(GOALS[colour]).difference(occupied) # Stores empty goal positions
 
     visited = set() # Flags if visited or not
@@ -162,10 +165,14 @@ def dijkstra_board(state, colour):
         curr_cost, curr = queue.get()
         if curr not in visited:
             visited.add(curr)
-            poss_neighbours = set(move_action(state, occupied)).union(set(jump_action(state, occupied)))
-            for new in poss_neighbours:
+            poss_neighbours = set(move_action(state, occupied, colour)).union(set(jump_action(state, occupied, colour)))
+            for flag, coord in poss_neighbours:
+                if flag != "EXIT":
+                    current, destination = coord[0], coord[1]
+                else:
+                    current = coord
                 est_cost = curr_cost + 1
-                if est_cost < cost[new]: # Better path than previous
-                    cost[new] = est_cost
-                queue.put((cost[new], new))
+                if est_cost < cost[current]: # Better path than previous
+                    cost[current] = est_cost
+                queue.put((cost[current], current))
     return cost

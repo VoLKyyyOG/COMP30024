@@ -241,6 +241,7 @@ def possible_actions(state, colour, paranoid_play=False):
     can_exit = bool(possible_exits)
 
     if can_exit and paranoid_play:
+        print("Paranoid play and we can exit")
         return possible_exits
 
     actions.extend(possible_exits)

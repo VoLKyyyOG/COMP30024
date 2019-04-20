@@ -1,7 +1,7 @@
-""" max_n.py
-
-Implements 3-player minimax (max^n)
-
+""" 
+:filename: max_n.py
+:summary: Implementation of Max^n
+:authors: Akira Wang (913391), Callum Holmes (XXXXXX)
 """
 from math import inf
 from mechanics import *

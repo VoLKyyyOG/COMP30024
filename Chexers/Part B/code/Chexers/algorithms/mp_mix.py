@@ -1,7 +1,7 @@
-""" mp_mix.py
-
-Implements an amazing 3-player algorithm
-
+""" 
+:filename: mp_mix.py
+:summary: Defines the core structure of an MP-MIX agent
+:authors: Akira Wang (913391), Callum Holmes (XXXXXX)
 """
 
 ########################### IMPORTS ##########################
