@@ -1,12 +1,10 @@
 # Guide to Part B Folders
 ## Akira - To Date
-- Negaparanoid was implemented in the Runner player
-- `possible_actions` now has a `paranoid_ordering=False` flag as a hotfix to allow for exiting
-- Uses the `speed_demon` heuristic for now, dominates over `greedy` and `random` anyways
-
-#### Todo / Errors / Debug
-- `NoneType` is returned for some reason somewhere in negaparanoid. Means that when its fed back up the depth the error is thrown.
-- Usually occurs between `depth_left` 2 to 5
+- Negaparanoid now fully works
+- Runner was implemented with negaparanoid
+- A couple functions were cleaned / fix (notably all_dead has been fixed to trigger for when TWO players are dead, not one)
+- Original referee was added back in, the modified one is now called `referee_mod` and can be called the same as usual
+- Possible actions now has a `paranoid_play` flag, will most likely require a `offensive_play` flag which calls `paris` if `True`
 
 ## Notes to self (Callum)
 TODO:
