@@ -8,6 +8,8 @@ import gc
 import time
 import importlib
 
+SEP = " " * 60 + "| "
+
 class PlayerWrapper:
     """
     Wraps a real Player class, providing essentially the same interface:
@@ -20,11 +22,11 @@ class PlayerWrapper:
     def __init__(self, colour, player_loc, options):
         self.colour = colour
         self.output = options.verbosity > 0
-        
+
         # create some context managers for resource limiting
         self.timer = _CountdownTimer(options.time, self.colour)
         self.space = _MemoryWatcher(options.space)
-        
+
         # import the Player class from given package
         player_pkg, player_cls = player_loc
         self._message(f"importing {self.colour} player's player class "
@@ -45,15 +47,17 @@ class PlayerWrapper:
         with self.space, self.timer:
             # ask the real player
             action = self.player.action()
-        self._message(f"  {self.colour} player returned action: {action!r}")
+        # self._message(f"  {self.colour} player returned action: {action!r}")
+        self._message(f"{self.colour} player returned action: {action!r}")
         self._message(self.timer.status())
         self._message(self.space.status())
         # give back the result
         return action
 
     def update(self, colour, action):
-        self._message(f"updating {self.colour} player with {colour}'s "
-            f"action {action}...")
+        self._message(f"updating {self.colour}...")
+        # self._message(f"updating {self.colour} player with {colour}'s "
+        #   f"action {action}...")
         with self.space, self.timer:
             # forward to the real player
             self.player.update(colour, action)
@@ -62,7 +66,7 @@ class PlayerWrapper:
 
     def _message(self, message):
         if self.output and message:
-            print("*", message)
+            print(f"* {SEP}", message)
 
 def _load_player_class(package_name, class_name):
     """
@@ -78,19 +82,18 @@ def _load_player_class(package_name, class_name):
 class ResourceLimitException(Exception):
     """For when players exceed specified time / space limits."""
 
-
 class _CountdownTimer:
     """
     Reusable context manager for timing specific sections of code
 
     * measures CPU time, not wall-clock time
-    * if limit is not 0, throws an exception upon exiting the context after the 
+    * if limit is not 0, throws an exception upon exiting the context after the
       allocated time has passed
     """
     def __init__(self, limit, colour):
         """
         Create a new countdown timer with time limit `limit`, in seconds
-        (0 for unlimited time)
+        (0 is 'false' flag, i.e. for unlimited time)
         """
         self.colour = colour
         self.limit = limit
@@ -100,14 +103,13 @@ class _CountdownTimer:
         self._status = status
     def status(self):
         return self._status
-    
     def __enter__(self):
         # clean up memory off the clock
         gc.collect()
         # then start timing
         self.start = time.process_time()
         return self # unused
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         # accumulate elapsed time since __enter__
         elapsed = time.process_time() - self.start
@@ -137,7 +139,7 @@ class _MemoryWatcher:
         self._status = status
     def status(self):
         return self._status
-    
+
     def __enter__(self):
         return self # unused
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -147,7 +149,7 @@ class _MemoryWatcher:
         """
         if _SPACE_ENABLED:
             curr_usage, peak_usage = _get_space_usage()
-    
+
             # adjust measurements to reflect usage of players and referee, not
             # the Python interpreter itself
             curr_usage -= _DEFAULT_MEM_USAGE
@@ -166,7 +168,7 @@ def _get_space_usage():
     """
     Find the current and peak Virtual Memory usage of the current process, in MB
     """
-    # on linux, we can find the memory usage of our program we are looking for 
+    # on linux, we can find the memory usage of our program we are looking for
     # inside /proc/self/status (specifically, fields VmSize and VmPeak)
     with open("/proc/self/status") as proc_status:
         for line in proc_status:
@@ -185,12 +187,12 @@ def set_space_line():
     measure this first to later subtract from all measurements
     """
     global _SPACE_ENABLED, _DEFAULT_MEM_USAGE
-    
+
     try:
         _DEFAULT_MEM_USAGE, _ = _get_space_usage()
         _SPACE_ENABLED = True
     except:
-        # this also gives us a chance to detect if our space-measuring method 
+        # this also gives us a chance to detect if our space-measuring method
         # will work on this platform, and notify the user if not.
         print("* NOTE: unable to measure memory usage on this platform "
             "(try dimefox)")

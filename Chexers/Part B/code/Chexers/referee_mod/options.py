@@ -5,31 +5,7 @@ Provide a command-line argument parsing function using argparse
 --------------------------------------------------------------------------------
 usage: referee [-h] [-V] [-d [delay]] [-s [space_limit]] [-t [time_limit]]
                [-D] [-v [{0,1,2,3}]] [-l [LOGFILE]]
-               red green blue
-
-Conducts a game of Chexers between three Player classes.
-
-player package/class specifications (positional arguments):
-  
-  The first 3 arguments are 'package specifications'. These specify which Python
-  package/module to import and search for a class named 'Player' (to instantiate
-  for each player in the game). When we test your programs this will just be
-  your top-level package (i.e. 'your_team_name').
-  
-  If you want to play games with another player class from another package (e.g.
-  while you develop your player), you can use any absolute module name (as used
-  with import statements, e.g. 'your_team_name.player2') or relative path (to a
-  file or directory containing the Python module, e.g. 'your_team_name/player3'
-  or 'your_team_name/players/player4.py').
-  
-  Either way, the referee will attempt to import the specified package/module
-  and then load a class named 'Player'. If you want the referee to look for a
-  class with some other name you can put the alternative class name after a ':'
-  (e.g. 'your_team_name:DifferentPlayer').
-
-  red                   location of Red's Player class (e.g. package name)
-  green                 location of Green's Player class (e.g. package name)
-  blue                  location of Blue's Player class (e.g. package name)
+               red green (... etc)
 
 optional arguments:
   -h, --help            show this message
@@ -56,14 +32,17 @@ optional arguments:
 """
 
 import argparse
+from referee.game import (
+    GAME_NAME, N_PLAYERS, PLAYER_NAMES, PLAYER_CODES
+)
 
 # Program information:
 PROGRAM = "referee"
-VERSION = "1.0 (released Apr 12 2019)"
-DESCRIP = "Conducts a game of Chexers between three Player classes."
+VERSION = "1.0 (released Apr 12 2019)" + f" (for {GAME_NAME})"
+DESCRIP = f"Conducts a game of {GAME_NAME} between {N_PLAYERS} Player classes."
 
 WELCOME = f"""==================================================================
-welcome to Chexers referee version {VERSION}.
+welcome to {GAME_NAME} referee version {VERSION}.
 {DESCRIP}
 run `python referee --help` for additional usage information.
 ==================================================================
@@ -89,8 +68,8 @@ VERBOSITY_NOVALUE = 3 # highest level, debug board
 LOGFILE_DEFAULT = None
 LOGFILE_NOVALUE = "game.log"
 
-PKG_SPEC_HELP = """
-The first 3 arguments are 'package specifications'. These specify which Python
+PKG_SPEC_HELP = f"""
+The first {N_PLAYERS} arguments are 'package specifications'. These specify which Python
 package/module to import and search for a class named 'Player' (to instantiate
 for each player in the game). When we test your programs this will just be
 your top-level package (i.e. 'your_team_name').
@@ -119,16 +98,16 @@ def get_options():
     positionals = parser.add_argument_group(
         title="player package/class specifications (positional arguments)",
         description=PKG_SPEC_HELP)
-    positionals.add_argument('playerR_loc', metavar='red',
-        help="location of Red's Player class (e.g. package name)",
-        action=PackageSpecAction)
-    positionals.add_argument('playerG_loc', metavar='green',
-        help="location of Green's Player class (e.g. package name)",
-        action=PackageSpecAction)
-    positionals.add_argument('playerB_loc', metavar='blue',
-        help="location of Blue's Player class (e.g. package name)",
-        action=PackageSpecAction)
-    
+
+    for i in range(N_PLAYERS):
+        name = PLAYER_NAMES[i]
+        letter_cap = PLAYER_CODES[i].upper()
+        arg_name_str = f"player{letter_cap}_loc"
+        metavar_str = f"{name}"
+        help_str = f"location of {name.capitalize()}'s Player class (e.g. package name)"
+        positionals.add_argument(arg_name_str, metavar=metavar_str,
+            help=help_str, action=PackageSpecAction)
+
     # optional arguments used for configuration:
     optionals = parser.add_argument_group(title="optional arguments")
     optionals.add_argument('-h','--help',action='help',help="show this message")
@@ -154,14 +133,14 @@ def get_options():
         help="switch to printing the debug board (with coordinates) "
             "(overrides -v option; equivalent to -v or -v3)")
     optionals.add_argument('-v', '--verbosity',
-        type=int, choices=range(0, VERBOSITY_LEVELS), nargs='?', 
+        type=int, choices=range(0, VERBOSITY_LEVELS), nargs='?',
         default=VERBOSITY_DEFAULT, const=VERBOSITY_NOVALUE,
         help="control the level of output (not including output from "
             "players). 0: no output except result; 1: commentary, but no"
             " board display; 2: (default) commentary and board display; "
             "3: (equivalent to -D) larger board showing coordinates.")
 
-    optionals.add_argument('-l', '--logfile', 
+    optionals.add_argument('-l', '--logfile',
         type=str, nargs='?',
         default=LOGFILE_DEFAULT, const=LOGFILE_NOVALUE, metavar="LOGFILE",
         help="if you supply this flag the referee will create a log of all "
@@ -182,7 +161,7 @@ def get_options():
 class PackageSpecAction(argparse.Action):
     def __call__(self, parser, namespace, values, option_string=None):
         pkg_spec = values
-        
+
         # detect alternative class:
         if ":" in pkg_spec:
             pkg, cls = pkg_spec.split(':', maxsplit=1)
@@ -197,4 +176,3 @@ class PackageSpecAction(argparse.Action):
 
         # save the result in the arguments namespace as a tuple
         setattr(namespace, self.dest, (mod, cls))
-    

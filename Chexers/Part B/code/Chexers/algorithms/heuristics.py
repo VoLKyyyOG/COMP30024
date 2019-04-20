@@ -100,6 +100,8 @@ def speed_demon(state):
 
     TODO: Coordinates must be then transformed so that changes in displacement
     evaluation do not outweigh the benefit of having exited a piece.
+
+    TODO: Breaks when there is a dead player and it is used as a heuristic. 
     """
 
     total_disp = lambda player: sum([get_cubic(piece)[PLAYER_HASH[player]] -

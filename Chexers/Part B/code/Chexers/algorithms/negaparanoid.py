@@ -24,32 +24,24 @@ def paranoid(state, heuristic, alpha=[-inf]*3, beta=[inf]*3, depth_left=6, print
     if not depth_left:
         if print_debug:
             print(f"\n\t\t\t\t\t\t\t\tReached max depth {depth_left}")
-
         return heuristic(state)
     
     best_action = None  
 
-    for action in possible_actions(state, state["turn"], paranoid_ordering=True):
+    for action in possible_actions(state, state["turn"], paranoid_play=True):
         new_state = apply_action(state, action) # apply the new state
 
         # new_eval is negaparanoid
-        try:
-            new_eval = -paranoid(new_state, heuristic, nega(beta), nega(alpha), depth_left - 1)[0]
-        except TypeError:
-            print("NoneType Error was thrown!")
-            print(f"depth_left {depth_left}")
-            print(f"Alpha: {alpha}, Beta: {beta}, Current Action {action}, Best action {best_action}")
-            print("NOW TERMINATING...")
-            exit()
-
+        new_eval = -paranoid(new_state, heuristic, nega(beta), nega(alpha), depth_left - 1)[0]
+            
         if print_debug:
             print(f"\n\t\t\t\t\t\t\t\tNew Evaluation is {new_eval}\n")
 
         if new_eval >= sum(beta):
             if print_debug:
                 print(f"\n\t\t\t\t\t\t\t\tRETURNING BETA {beta, best_action}")
-
             return (beta, best_action)
+        
         if len(alpha) == N_PLAYERS:
             alpha = -inf
             if new_eval > alpha:

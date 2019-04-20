@@ -153,51 +153,46 @@ def get_score(state, colour):
     """Retrieves score for player in a state."""
     return state['exits'][colour]
 
-def game_over(state):
+def game_over(state, print_debug=False):
     """
     Determines if a game is over.
     Conditions:
     - A player has exited all pieces
-    - 2 players have been eliminated
     - 256 move max for each player has been exceeded
     - A state has been visited 4 times
+
+    TODO: ALL_DEAD IS NOT AN ACTUAL GAME OVER SCENARIO
     """
-    draw = depth(state) == MAX_TURNS * N_PLAYERS
-    all_dead = sum([bool(state[colour]) for colour in PLAYER_NAMES]) == 1
+    draw = depth(state) == MAX_TURNS
+    all_dead = sum([bool(state[colour]) for colour in PLAYER_NAMES]) == 2
     winner = MAX_EXITS in state['exits'].values()
 
-    return winner or draw or all_dead
+    if print_debug:
+        print(f"\n\nDraw: {draw}, All Dead: {all_dead}, Winner: {winner}\n\n")
+        return None
+
+    return winner or draw
+
+def is_dead(state, colour):
+    return not bool(state[colour])
 
 def apply_action(state, action, ignore_dead=False):
     """Applies an action to a State object, returns new state"""
     flag, pieces = action
     new_state = deepcopy(state)
 
-    print("\n\nPRINTING STATE AND NEW STATE")
-    print(state)
-
     turn_player = new_state['turn']
+
+    if is_dead(new_state, turn_player):
+        print("Player dead and skipping state")
+        new_state['turn'] = next_player(state, ignore_dead)
+        return new_state
 
     player_pieces = new_state[turn_player]
     if flag in ("MOVE", "JUMP"):
         old, new = pieces
-
-        # AKIRA DEBUG - GREEDY IS BROKEN AFTER SOME SEVERAL NUMBER OF MOVES
-        """
-        line 183, in apply_action
         player_pieces.remove(old)
-        ValueError: list.remove(x): x not in list
-        """
-        try:
-            player_pieces.remove(old)
-            player_pieces.append(new)
-        except ValueError:
-            print(f"Flag was found - {flag}")
-            print(player_pieces)
-            print("Old is",old)
-            print("New is",new)
-            return None
-        #######################################################################
+        player_pieces.append(new)
 
         # Check for captures
         if flag == "JUMP":
@@ -219,7 +214,7 @@ def apply_action(state, action, ignore_dead=False):
     # Update turn player
     new_state['turn'] = next_player(state, ignore_dead)
     new_state['depth'] += 1
-    print(new_state)
+
     return new_state
 
 def is_capture(state, action, colour):
@@ -229,29 +224,28 @@ def is_capture(state, action, colour):
     old, new = pieces
     return midpoint(old, new) not in state[colour]
 
-def possible_actions(state, colour, paranoid_ordering=False):
+def possible_actions(state, colour, paranoid_play=False):
     """Returns list of possible actions for a given state"""
     actions = list()
 
     if game_over(state):
-        return actions
+        print("OUR GAME OVER FLAG WAS EXECUTED WHEN CONSIDERING POSSIBLE ACTIONS")
+        game_over(state, print_debug=True)
+        # return actions
 
     # All occupied hexes (doesn't account for who's who)
     occupied_hexes = occupied(state, PLAYER_NAMES)
 
     # Append exits, moves, jumps and passes respectively
-    if paranoid_ordering:
-        possible_exits = exit_action(state, colour)
-        if bool(possible_exits):
-            actions.extend(possible_exits)
-            return actions
-        actions.extend(jump_action(state, occupied_hexes, colour))
-        actions.extend(move_action(state, occupied_hexes, colour))
-        return actions
-    else:
-        actions.extend(jump_action(state, occupied_hexes, colour))
-        actions.extend(move_action(state, occupied_hexes, colour))
-        actions.extend(exit_action(state, colour))
+    possible_exits = exit_action(state, colour)
+    can_exit = bool(possible_exits)
+
+    if can_exit and paranoid_play:
+        return possible_exits
+
+    actions.extend(possible_exits)
+    actions.extend(jump_action(state, occupied_hexes, colour))
+    actions.extend(move_action(state, occupied_hexes, colour))
 
     if not actions:
         return [("PASS", None)]
