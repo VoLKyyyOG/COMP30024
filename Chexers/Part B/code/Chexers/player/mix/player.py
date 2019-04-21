@@ -7,17 +7,19 @@
 ########################### IMPORTS ##########################
 # Standard modules
 from random import choice
+from math import inf
 
 # User-defined files
 from mechanics import *
 from algorithms.minimax import negamax_ab
-from algorithms.heuristics import exit_diff_2_player #retrograde_dijkstra
+from algorithms.heuristics import *
 from algorithms.mp_mix import mp_mix as amazeballs
+from algorithms.negaparanoid import *
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
     MID_GAME_THRESHOLD = 18
-    END_GAME_THRESHOLD = 99
+    END_GAME_THRESHOLD = 256 # originally 99
 
     def __init__(self, colour):
         """
@@ -37,7 +39,7 @@ class MPMixPlayer:
     def action(self):
         """
         Returns an action given conditions.
-        """
+        
         if not self.state[self.colour]:
             return ("PASS", None)
         elif two_players_left(self.state):
@@ -48,17 +50,17 @@ class MPMixPlayer:
             return self.mid_game()
         else:
             return self.early_game()
+        """
+        if self.start_mid_game():
+            return self.mid_game()
+        else:
+            return self.early_game()
 
     def mid_game(self):
         """
         Runs the MP-Mix Algorithm.
         """
-        return self.random_action()
-
-        #### TODO: mp_mix(state, heuristic, defenceThreshold, offenceThreshold, maximisingPlayer)
-        ####       heuristic = exited_pieces + number_of_pieces_captured + number_of_pieces_lost + distance_to_goal
-        ####       will need to add weighting to each of them. ideally, we want number of pieces captured > 0, number of pieces = 0
-        ####       return amazeballs(self.state, exit_diff_2_player, 0, 0, self.colour)
+        return paranoid(self.state, speed_demon, print_debug=True)[1]
 
     def run_2_player(self):
         """
@@ -70,9 +72,9 @@ class MPMixPlayer:
     def early_game(self):
         """
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
-        FOR NOW: random choices.
+        FOR NOW: greedy actions
         """
-        return self.random_action()
+        return self.greedy_action()
 
     def end_game(self):
         """
@@ -86,21 +88,35 @@ class MPMixPlayer:
         Determines when to shift strategy to the mid game given deciding factors.
         TODO: Add a flag once a player piece has been captured
         """
-        if self.turn_count == self.MID_GAME_THRESHOLD:
+        if self.state["depth"] == self.MID_GAME_THRESHOLD:
             print(f"* ({self.colour}) is switching to midgame")
-        return (self.turn_count >= self.MID_GAME_THRESHOLD)
+        return (self.state["depth"] >= self.MID_GAME_THRESHOLD)
 
     def start_end_game(self):
         """
         Determines when to shift strategy to the end game given deciding factors.
         TODO: Add a flag once a player has been eliminated
         """
-        if self.turn_count == self.END_GAME_THRESHOLD:
+        if self.state["depth"] == self.END_GAME_THRESHOLD:
             print(f"* ({self.colour}) is switching to endgame")
-        return (self.turn_count >= self.END_GAME_THRESHOLD)
+        return (self.state["depth"] >= self.END_GAME_THRESHOLD)
 
     def random_action(self):
         """
         Function that chooses a random action given a set of possible actions.
         """
         return choice(possible_actions(self.state, self.state["turn"]))
+
+    def greedy_action(self):
+        """
+        Function that chooses the best action without considering opponent moves.
+        """
+        best_eval, best_action = -inf, None
+        for action in possible_actions(self.state, self.colour):
+            new_state = apply_action(self.state, action)
+            new_eval = speed_demon(new_state)[PLAYER_HASH[self.colour]]
+            if new_eval > best_eval:
+                best_eval = new_eval
+                best_action = action
+
+        return best_action

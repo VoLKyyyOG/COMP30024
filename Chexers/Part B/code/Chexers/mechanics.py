@@ -164,11 +164,11 @@ def game_over(state, print_debug=False):
     TODO: ALL_DEAD IS NOT AN ACTUAL GAME OVER SCENARIO
     """
     draw = depth(state) == MAX_TURNS
-    all_dead = sum([bool(state[colour]) for colour in PLAYER_NAMES]) == 2
+    all_dead = sum([bool(state[colour]) for colour in PLAYER_NAMES]) == 1
     winner = MAX_EXITS in state['exits'].values()
 
     if print_debug:
-        print(f"\n\nDraw: {draw}, All Dead: {all_dead}, Winner: {winner}\n\n")
+        print(f"\n\t\t\t\t\t\t\t\tDraw: {draw}, All Dead: {all_dead}, Winner: {winner}")
         return None
 
     return winner or draw
@@ -184,7 +184,7 @@ def apply_action(state, action, ignore_dead=False):
     turn_player = new_state['turn']
 
     if is_dead(new_state, turn_player):
-        print("Player dead and skipping state")
+        print(f"\n\t\t\t\t\t\t\t\tPlayer {turn_player} is dead and skipping state")
         new_state['turn'] = next_player(state, ignore_dead)
         return new_state
 

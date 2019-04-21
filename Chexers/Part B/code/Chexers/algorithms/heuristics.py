@@ -150,10 +150,10 @@ def master(state):
     - winning_move
     """
     cost = [exit_diff_3_player(state), speed_demon(state), winning_move(state)]
-    print(f"\n\t\t\t\t\t\t\t\tCost is {cost}\n")
+    print(f"\n\t\t\t\t\t\t\t\tCost for {state['turn']} is {cost}\n")
     weights = [0.8, 0.8, 1]
     new_cost = [w*(x + y + z) for w, x, y, z in zip(weights, cost[0], cost[1], cost[2])]
-    print(f"\n\t\t\t\t\t\t\t\tNew Cost is {new_cost}\n")
+    print(f"\n\t\t\t\t\t\t\t\tNew Cost for {state['turn']} is {new_cost}\n")
     return new_cost
 
 

@@ -36,8 +36,8 @@ def paranoid(state, heuristic, alpha=[-inf]*3, beta=[inf]*3, depth_left=12, prin
 
         if new_eval >= sum(beta):
             if print_debug:
-                print(f"\n\t\t\t\t\t\t\t\tRETURNING BETA {beta, best_action}")
-            return (beta, best_action)
+                print(f"\n\t\t\t\t\t\t\t\tRETURNING BETA {sum(beta), best_action}")
+            return (sum(beta), best_action)
         
         if len(alpha) == N_PLAYERS:
             alpha = -inf
