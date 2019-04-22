@@ -9,19 +9,25 @@ from math import inf
 # User-defined files
 from mechanics import *
 
+MAX_DEPTH = 12
+CODES = {
+    "red": 0,
+    "green": 1,
+    "blue": 2
+}
+
 def nega(u):
     """
     Function that negates a vector.
     """
     return [-i for i in u]
 
-def paranoid(state, heuristic, alpha=[-inf]*3, beta=[inf]*3, depth_left=12, print_debug=False):
+def paranoid(state, heuristic, alpha=[-inf]*N_PLAYERS, beta=[inf]*N_PLAYERS, depth_left=MAX_DEPTH, print_debug=False):
     if not depth_left:
         if print_debug:
             print(f"\n\t\t\t\t\t\t\t\tReached max depth {depth_left}")
         cost = heuristic(state)
-        print(cost)
-        return cost
+        return [cost]
     
     best_action = None  
 
@@ -29,21 +35,22 @@ def paranoid(state, heuristic, alpha=[-inf]*3, beta=[inf]*3, depth_left=12, prin
         new_state = apply_action(state, action) # apply the new state
 
         # new_eval is negaparanoid
-        new_eval = -paranoid(new_state, heuristic, nega(beta), nega(alpha), depth_left - 1)[0]
-            
+        new_eval = nega(paranoid(new_state, heuristic, nega(beta), nega(alpha), depth_left - 1)[0])
+
+        player_eval = new_eval[CODES[state["turn"]]]
+
         if print_debug:
             print(f"\n\t\t\t\t\t\t\t\tNew Evaluation is {new_eval}\n")
 
-        if new_eval >= sum(beta):
+        if player_eval >= sum(beta): # check if new_alpha >= beta
             if print_debug:
-                print(f"\n\t\t\t\t\t\t\t\tRETURNING BETA {sum(beta), best_action}")
-            return (sum(beta), best_action)
+                print(f"\n\t\t\t\t\t\t\t\tRETURNING BETA {beta , best_action} (sum of beta is {sum(beta)})")
+            return (beta, best_action)
         
-        if len(alpha) == N_PLAYERS:
-            alpha = -inf
-            if new_eval > alpha:
-                alpha, best_action = new_eval, action
+        if player_eval > sum(alpha): # check if new_alpha > current_max_alpha
+            alpha, best_action = new_eval, action
+
         if print_debug:
-            print(f"\n\t\t\t\t\t\t\t\tRETURNING ALPHA {alpha, best_action}")
+            print(f"\n\t\t\t\t\t\t\t\tRETURNING ALPHA {alpha, best_action} (sum of alpha is {sum(alpha)})")
 
         return (alpha, best_action)

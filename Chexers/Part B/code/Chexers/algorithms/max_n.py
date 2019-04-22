@@ -3,27 +3,31 @@
 :summary: Implementation of Max^n
 :authors: Akira Wang (913391), Callum Holmes (XXXXXX)
 """
+# Standard modules
 from math import inf
+
+# User-defined files
 from mechanics import *
 
-def max_n(state, heuristic, colour, depth_left=6):
-    # uses PLAYER_HASH to get index (r -> g -> b)
-    if not depth_left:
-        return (heuristic, None)
+MAX_DEPTH = 3
 
-    player_evals = [-inf*N_PLAYERS]
-    current_player = state["turn"]
-    
+def max_n(state, heuristic, depth_left=MAX_DEPTH, print_debug=False):
+    max_player_evals = {name: -inf for name in PLAYER_NAMES}
     best_action = None
+    turn_player = state["turn"]
 
-
-    for action in possible_actions(state, current_player):
-        new_state = apply_action(state, action)
-        next_player = next_player(state)
-
-        new_eval = max_n(new_state, heuristic, next_player, depth_left-1)
-
-        if new_eval[current_player] > player_evals[current_player]:
-            player_evals, best_action = new_eval[0], new_eval[1]
+    if not depth_left:
+        if print_debug:
+            print(f"\n\t\t\t\t\t\t\t\tReached max depth {depth_left}")
+        cost = heuristic(state)[PLAYER_HASH[turn_player]]
+        return (cost, None)
     
-    return (player_evals, best_action)
+    for action in possible_actions(state, turn_player, paranoid_play=False):
+        new_state = apply_action(state, action)
+
+        new_player_eval = max_n(new_state, heuristic, depth_left-1)[0]
+
+        if new_player_eval > max_player_evals[turn_player]:
+            max_player_evals[turn_player], best_action = new_player_eval, action
+
+    return (max_player_evals[turn_player], best_action)

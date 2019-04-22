@@ -184,7 +184,7 @@ def apply_action(state, action, ignore_dead=False):
     turn_player = new_state['turn']
 
     if is_dead(new_state, turn_player):
-        print(f"\n\t\t\t\t\t\t\t\tPlayer {turn_player} is dead and skipping state")
+        # print(f"\n\t\t\t\t\t\t\t\tPlayer {turn_player} is dead and skipping state")
         new_state['turn'] = next_player(state, ignore_dead)
         return new_state
 
@@ -238,9 +238,9 @@ def possible_actions(state, colour, paranoid_play=False):
 
     # Append exits, moves, jumps and passes respectively
     possible_exits = exit_action(state, colour)
-    can_exit = bool(possible_exits)
+    can_exit = len(possible_exits)
 
-    if can_exit and paranoid_play:
+    if can_exit > 1 and paranoid_play:
         print("Paranoid Play FLAG=TRUE. We will now exit")
         return possible_exits
 

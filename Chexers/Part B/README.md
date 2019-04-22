@@ -1,19 +1,20 @@
 # Guide to Part B Folders
 ## Akira - To Date
-- Negaparanoid now fully works given a heuristic and was used for the `Runner` agent
-- A couple functions were cleaned / fixed (notably all_dead has been fixed to trigger for when TWO players are dead, not one - oops my bad)
+- `Runner` agent uses Paranoid with `speed_demon` heuristics.
+- A couple functions were cleaned / fixed (notably `all_dead` has been fixed to trigger for when TWO players are dead, not one - oops my bad)
 - Original referee was added back in, the modified one is now called `referee_mod` and can be called the same as usual
-  - Will need to fix the `game_over` trigger. For some reason I broke it yikes.
-- Possible actions now has a `paranoid_play` flag, will most likely require a `offensive_play` flag which calls `paris` if `True`
-- `retrograde_dijkstra` and `dijkstra_board` was changed to work for Part B. I've assumed occupied to now be any piece.
+- Possible actions now has a `paranoid_play` flag, will most likely require a `offensive_play` flag which calls `paris` if `True`.
+  - This is broken for now (for some reason it returns `None` even though it shouldnt...)
+- `retrograde_dijkstra` and `dijkstra_board` was changed to work for Part B. I've assumed `occupied` to now be any piece.
   - Problem is that our assumption from Part A where we have at most 4 pieces is incorrect (`retrograde_dijkstra` will sum all pieces we have)
   - Hypothetically just need to add the closest (4 - number_of_exits) pieces into retrograde_dijkstra.
   - Maybe `speed_demon` also suffers the same issue. After several runs with `Runner` against `Greedy` or `Random`, I've found that `speed_demon` will almost always end in a repeated state (4 times causing a draw) since it tries to make every piece closer to the goal. The fix should be the same for `retrograde_dijkstra`
 - Added a `master` heuristic which acts as the evaluation function for `negaparanoid` and most likely `mp_mix`.
   - Essentially has a list of costs per player, for each heuristic we decide to use.
   - Returns a "weighted" sum of the heuristic costs
-  - Not sure if this helps but added a `winning_move` heuristic that should return `inf` if the state ends up with you exiting
-  - For now `exit_diff_3_player`, `speed_demon`, `winning_move` are being used
+- `max_n` was implemented and works. 3-ply is very fast, but 4-ply is insanely slow but yields great results. 
+  - WIll look into lazy evaluation (but that's related to the heuristic), immediate pruning (still need to find what the `max` utility value will be, and can only be done after heuristics are finalised), shallow pruning (need to do more research on this...)
+- `mp-mix` Agent now uses a mix of `negaparanoid` and `max_n` and switches based on the logic we've implemented. Any `DirectedOffence` call has been redirected to just use `max_n`
 
 ## Notes to self (Callum)
 TODO:

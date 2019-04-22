@@ -54,8 +54,10 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
 
     # Defines tuples (colour/name, score) in an OrderedDict
     scores = {PLAYER_NAMES[i] : raw_scores[i] for i in range(N_PLAYERS)}
+    """
     scores = OrderedDict(sorted(scores.items(),
         reverse=True, key=lambda x: sorted(x, reverse=True)))
+    """
 
     # Hierarchy
     leader, rival, loser = scores.keys()
@@ -71,21 +73,28 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
     # IF in surplus, do a runner
     # IF not enough, get a piece 
     if len(state[turn_player]) < 4:
-        return directed_offence(state, heuristic, loser)
+        pass
+        # return directed_offence(state, heuristic, loser)
         # return max(directed_offence(state, heuristic, loser), directed_offence(state, heuristic, leader))
 
     if turn_player == leader:
         # Go DirectedO on any weak player (1 piece left)
         if len(state[loser]) == 1:
-            return directed_offence(state, heuristic, loser)
+            print("ONE PIECE REMAINING")
+            pass
+            # return directed_offence(state, heuristic, loser)
         # Else, go paranoid if sufficiently threatening
         elif leader_edge >= defence_threshold:
-            return paranoid(state, heuristic)
+            print(f"\n\t\t\t\t\t\t\t\tUSING PARANOID")
+            return paranoid(state, heuristic)[1]
     elif turn_player == rival:
         if leader_edge > rival_edge:
-            return directed_offence(state, heuristic, leader)
+            print("LEADER EDGE GREATER THAN RIVAL EDGE")
+            pass
+            # return directed_offence(state, heuristic, leader)
     # Default, look strictly after your own interests
-    return max_n(state, heuristic, state["turn"])
+    print(f"\n\t\t\t\t\t\t\t\tUSING MAX_N")
+    return max_n(state, heuristic)[1]
 
 def directed_offence(state, heuristic, target):
     return NotImplementedError

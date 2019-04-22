@@ -13,8 +13,9 @@ from math import inf
 from mechanics import *
 from algorithms.minimax import negamax_ab
 from algorithms.heuristics import *
-from algorithms.mp_mix import mp_mix as amazeballs
 from algorithms.negaparanoid import *
+from algorithms.max_n import *
+from algorithms.mp_mix import *
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
@@ -60,7 +61,7 @@ class MPMixPlayer:
         """
         Runs the MP-Mix Algorithm.
         """
-        return paranoid(self.state, speed_demon, print_debug=True)[1]
+        return mp_mix(self.state, speed_demon)
 
     def run_2_player(self):
         """
