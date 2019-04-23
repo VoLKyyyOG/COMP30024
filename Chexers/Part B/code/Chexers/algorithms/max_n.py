@@ -23,6 +23,12 @@ def max_n(state, heuristic, depth_left=MAX_DEPTH, print_debug=False):
         return (cost, None)
     
     for action in possible_actions(state, turn_player, paranoid_play=False):
+        # If action is exit just exit...
+        if action[0] == "EXIT":
+            max_player_evals[turn_player] = inf
+            return (max_player_evals[turn_player], action)
+        ################################
+
         new_state = apply_action(state, action)
 
         new_player_eval = max_n(new_state, heuristic, depth_left-1)[0]

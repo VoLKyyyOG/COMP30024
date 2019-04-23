@@ -23,19 +23,18 @@ def nega(u):
     return [-i for i in u]
 
 def paranoid(state, heuristic, alpha=[-inf]*N_PLAYERS, beta=[inf]*N_PLAYERS, depth_left=MAX_DEPTH, print_debug=False):
+    best_action = None
     if not depth_left:
         if print_debug:
             print(f"\n\t\t\t\t\t\t\t\tReached max depth {depth_left}")
         cost = heuristic(state)
-        return [cost]
-    
-    best_action = None  
+        return (cost, best_action)
 
     for action in possible_actions(state, state["turn"], paranoid_play=True):
         new_state = apply_action(state, action) # apply the new state
 
-        # new_eval is negaparanoid
-        new_eval = nega(paranoid(new_state, heuristic, nega(beta), nega(alpha), depth_left - 1)[0])
+        score, move = paranoid(new_state, heuristic, nega(beta), nega(alpha), depth_left - 1)
+        new_eval = nega(score)
 
         player_eval = new_eval[CODES[state["turn"]]]
 

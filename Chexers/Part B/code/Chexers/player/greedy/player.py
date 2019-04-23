@@ -37,10 +37,12 @@ class GreedyPlayer:
     def action(self):
         """
         This method is called at the beginning of each of your turns to request
-        a choice of action from your program.
+        a choice of action from your program. Made it so greedy will always prefer exit moves
         """
         best_eval, best_action = -inf, None
         for action in possible_actions(self.state, self.colour):
+            if action[0] == "EXIT":
+                return action
             new_state = apply_action(self.state, action)
             new_eval = speed_demon(new_state)[PLAYER_HASH[self.colour]]
             if new_eval > best_eval:

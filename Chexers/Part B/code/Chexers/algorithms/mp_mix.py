@@ -12,7 +12,7 @@ from collections import OrderedDict
 
 # User-defined files
 from mechanics import *
-from .negaparanoid import paranoid
+from .negascoutanoid import negascoutanoid
 from .max_n import max_n
 
 """
@@ -86,7 +86,7 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
         # Else, go paranoid if sufficiently threatening
         elif leader_edge >= defence_threshold:
             print(f"\n\t\t\t\t\t\t\t\tUSING PARANOID")
-            return paranoid(state, heuristic)[1]
+            return negascoutanoid(state, heuristic)[1]
     elif turn_player == rival:
         if leader_edge > rival_edge:
             print("LEADER EDGE GREATER THAN RIVAL EDGE")
@@ -97,4 +97,11 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
     return max_n(state, heuristic)[1]
 
 def directed_offence(state, heuristic, target):
+    """
+    goals = coordinates of state[target]
+    for action in possible_actions:
+        if capture -> do it
+        if closer to goals -> do it
+        
+    """
     return NotImplementedError

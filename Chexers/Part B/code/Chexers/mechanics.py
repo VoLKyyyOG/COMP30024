@@ -238,14 +238,13 @@ def possible_actions(state, colour, paranoid_play=False):
 
     # Append exits, moves, jumps and passes respectively
     possible_exits = exit_action(state, colour)
-    can_exit = len(possible_exits)
+    
 
-    if can_exit > 1 and paranoid_play:
-        print("Paranoid Play FLAG=TRUE. We will now exit")
+    if len(possible_exits) > 1 and paranoid_play: # and not capturable
         return possible_exits
 
-    actions.extend(possible_exits)
     actions.extend(jump_action(state, occupied_hexes, colour))
+    actions.extend(possible_exits)
     actions.extend(move_action(state, occupied_hexes, colour))
 
     if not actions:
