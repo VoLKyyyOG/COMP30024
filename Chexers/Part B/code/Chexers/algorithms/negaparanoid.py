@@ -10,11 +10,6 @@ from math import inf
 from mechanics import *
 
 MAX_DEPTH = 12
-CODES = {
-    "red": 0,
-    "green": 1,
-    "blue": 2
-}
 
 def nega(u):
     """
@@ -30,13 +25,13 @@ def paranoid(state, heuristic, alpha=[-inf]*N_PLAYERS, beta=[inf]*N_PLAYERS, dep
         cost = heuristic(state)
         return (cost, best_action)
 
-    for action in possible_actions(state, state["turn"], paranoid_play=True):
+    for action in possible_actions(state, state["turn"], force_exit=True):
         new_state = apply_action(state, action) # apply the new state
 
         score, move = paranoid(new_state, heuristic, nega(beta), nega(alpha), depth_left - 1)
         new_eval = nega(score)
 
-        player_eval = new_eval[CODES[state["turn"]]]
+        player_eval = new_eval[PLAYER_HASH[state["turn"]]]
 
         if print_debug:
             print(f"\n\t\t\t\t\t\t\t\tNew Evaluation is {new_eval}\n")

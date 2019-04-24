@@ -14,7 +14,9 @@
   - Returns a "weighted" sum of the heuristic costs
 - `max_n` was implemented and works. 3-ply is very fast, but 4-ply is insanely slow but yields great results. 
   - WIll look into lazy evaluation (but that's related to the heuristic), immediate pruning (still need to find what the `max` utility value will be, and can only be done after heuristics are finalised), shallow pruning (need to do more research on this...)
-- `mp-mix` Agent now uses a mix of `negaparanoid` and `max_n` and switches based on the logic we've implemented. Any `DirectedOffence` call has been redirected to just use `max_n`
+- `negascoutanoid` variant was created (uses a `negascout` format)
+- `directed offensive` was created
+- `mp-mix` will lose against a `BLUE` player that uses `greedy` agent.
 
 ## Notes to self (Callum)
 TODO:

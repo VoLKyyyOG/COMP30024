@@ -12,7 +12,7 @@ from random import choice
 
 # User-defined files
 from mechanics import *
-from algorithms.negaparanoid import paranoid
+from algorithms.negascoutanoid import negascoutanoid
 from algorithms.heuristics import *
 
 class RunnerPlayer:
@@ -37,4 +37,4 @@ class RunnerPlayer:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        return paranoid(self.state, speed_demon, print_debug=True)[1]
+        return negascoutanoid(self.state, speed_demon)[1]

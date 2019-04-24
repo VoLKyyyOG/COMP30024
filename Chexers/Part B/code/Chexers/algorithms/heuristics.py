@@ -33,12 +33,12 @@ def exits(state):
     """
     return [state['exits'][player] for player in PLAYER_NAMES]
 
-def desperation(state):
+def desperation(state, colour):
     """
     Returns deficit/surplus in pieces vs exit
     """
     # How many pieces available - how many pieces needed to win
-    return [len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES]
+    return MAX_EXITS - state['exits'][colour]
 
 def paris_vector(state):
     """
@@ -46,7 +46,8 @@ def paris_vector(state):
     :returns: [val_red, val_green, val_blue]
     """
     raw = paris(state)
-    return [len(raw[player]) for player in PLAYER_NAMES]
+    capturable = [len(raw[player]) for player in PLAYER_NAMES]
+    return capturable
 
 def paris(state):
     """
@@ -54,10 +55,10 @@ def paris(state):
     :returns: {player: list_of_capturing_actions for each player}
     """
     captures = defaultdict(list)
+    occupied_hexes = occupied(state, PLAYER_NAMES)
     for player in PLAYER_NAMES:
-        for action in possible_actions(state):
-            flag, pieces = action
-            if flag == "JUMP" and is_capture(state, action, player):
+        for action in jump_action(state, occupied_hexes, player):
+            if is_capture(state, action, player):
                 captures[player].append(action)
     return captures
 
@@ -82,7 +83,9 @@ def achilles(state, reality=False):
     for player in PLAYER_NAMES:
         # All opponent pieces
         if reality:
-            occupied = occupied(state, get_opponents(player))
+            occupied = set()
+            for player in PLAYER_NAMES:
+                occupied.union(set(state[player]))
 
         for piece in state[player]:
             possible_axes = POSSIBLE_DIRECTIONS[:3] # Three directions
@@ -112,7 +115,7 @@ def speed_demon(state):
         MAX_COORDINATE_VAL for piece in state[player]])
 
     # Return average displacement, adding 0.5 to deal with dead players
-    return [total_disp(player) / (len(state[player]) + 0.5) for player in PLAYER_NAMES]
+    return [total_disp(player) / len(state[player])  if len(state[player]) > 0 else inf for player in PLAYER_NAMES]
 
 
 def exit_diff_2_player(state):
@@ -125,21 +128,19 @@ def exit_diff_2_player(state):
         opponent = get_opponents(state).pop()
         return state['exits'][state['turn']] - state['exits'][opponent]
 
-def exit_diff_3_player(state):
-    """
-    Temporary 3 player variant 
-    """
-    turn_player = state['turn']
-    if not state[turn_player]:
-        print(f"EXIT_DIFF_3_PLAYER ERROR: I, {state['turn']} am dead - I have {state[state['turn']]} pieces..")
-        return [state['exits'][colour] if bool(state[colour]) else -inf for colour in PLAYER_NAMES]
-    else:
-        return [state['exits'][colour] for colour in PLAYER_NAMES]
-"""
-THIS NEEDS TO BE ADJUSTED.
-Although it has been fixed to work now, it accounts for EVERY piece (from Part A we had assumed a max of 4 pieces).
-Hypothetically just need to add the closest (4 - number_of_exits) pieces into retrograde_dijkstra.
-"""
+def no_pieces(state):
+    return [len(state[player]) for player in PLAYER_NAMES]
+
+def no_exits(state):
+    return [state['exits'][player] for player in PLAYER_NAMES]
+
+def mega_heuristic(state, two_player=False):
+    if not two_player:
+        e = [paris_vector(state), speed_demon(state), no_pieces(state), no_exits(state)]
+        return [h1+h2+h3+h4 for h1,h2,h3,h4 in zip(e[0], e[1], e[2], e[3])]
+    return [h1+h2 for h1,h2 in zip(no_pieces(state), no_exits(state))]
+
+
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""
     cost = [sum(dijkstra_board(state, state["turn"])[piece] for piece in state[colour]) for colour in PLAYER_NAMES]

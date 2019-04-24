@@ -13,14 +13,15 @@ from math import inf
 from mechanics import *
 from algorithms.minimax import negamax_ab
 from algorithms.heuristics import *
-from algorithms.negaparanoid import *
-from algorithms.max_n import *
-from algorithms.mp_mix import *
+from algorithms.negascoutanoid import negascoutanoid
+from algorithms.max_n import max_n
+from algorithms.mp_mix import mp_mix
+from algorithms.negascout import negascout
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
     MID_GAME_THRESHOLD = 18
-    END_GAME_THRESHOLD = 256 # originally 99
+    END_GAME_THRESHOLD = 100 # originally 99
 
     def __init__(self, colour):
         """
@@ -40,9 +41,13 @@ class MPMixPlayer:
     def action(self):
         """
         Returns an action given conditions.
-        
+        """
         if not self.state[self.colour]:
             return ("PASS", None)
+        for player in PLAYER_NAMES:
+            if is_dead(self.state, player):
+                return self.run_2_player()
+        """
         elif two_players_left(self.state):
             return self.run_2_player()
         elif self.start_end_game():
@@ -61,14 +66,14 @@ class MPMixPlayer:
         """
         Runs the MP-Mix Algorithm.
         """
-        return mp_mix(self.state, speed_demon)
+        return mp_mix(self.state, mega_heuristic, defence_threshold=0, offence_threshold=0)
 
     def run_2_player(self):
         """
         Now that one player is dead, the problem reduces to a 2-player problem.
         :strategy: run a negamax algorithm with alpha-beta pruning.
         """
-        return negamax_ab(self.state, exit_diff_2_player, depth_left=self.run_2_player_depth)[1]
+        return negascout(self.state, mega_heuristic)[1]
 
     def early_game(self):
         """

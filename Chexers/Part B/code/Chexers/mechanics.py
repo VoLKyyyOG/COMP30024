@@ -9,6 +9,7 @@ game-specific functions and variables.
 ########################### IMPORTS ##########################
 # Standard modules
 from copy import deepcopy
+from collections import defaultdict
 # User-defined files
 from moves import *
 
@@ -224,7 +225,20 @@ def is_capture(state, action, colour):
     old, new = pieces
     return midpoint(old, new) not in state[colour]
 
-def possible_actions(state, colour, paranoid_play=False):
+def paris(state):
+    """
+    Evaluates captures that each player could perform
+    :returns: {player: list_of_capturing_actions for each player}
+    """
+    captures = defaultdict(list)
+    occupied_hexes = occupied(state, PLAYER_NAMES)
+    for player in PLAYER_NAMES:
+        for action in jump_action(state, occupied_hexes, player):
+            if is_capture(state, action, player):
+                captures[player].append(action)
+    return captures
+
+def possible_actions(state, colour, force_exit=False, force_capture=False):
     """Returns list of possible actions for a given state"""
     actions = list()
 
@@ -238,13 +252,17 @@ def possible_actions(state, colour, paranoid_play=False):
 
     # Append exits, moves, jumps and passes respectively
     possible_exits = exit_action(state, colour)
+    possible_jumps = jump_action(state, occupied_hexes, colour)
+    possible_captures = paris(state)[PLAYER_HASH[colour]]
     
+    if force_capture and len(possible_captures) > 1:
+        possible_jumps = possible_captures
 
-    if len(possible_exits) > 1 and paranoid_play: # and not capturable
+    if force_exit and len(possible_exits) > 1:
         return possible_exits
 
-    actions.extend(jump_action(state, occupied_hexes, colour))
     actions.extend(possible_exits)
+    actions.extend(possible_jumps)
     actions.extend(move_action(state, occupied_hexes, colour))
 
     if not actions:
