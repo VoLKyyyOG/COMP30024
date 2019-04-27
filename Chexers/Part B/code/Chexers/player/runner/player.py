@@ -7,12 +7,9 @@ Uses number_of_pieces_lost = 0 and retrograde_dijkstra as heuristic
 """
 
 ########################### IMPORTS ##########################
-# Standard modules
-from random import choice
-
 # User-defined files
 from mechanics import *
-from algorithms.negascoutanoid import negascoutanoid
+from algorithms.paranoid import paranoid
 from algorithms.heuristics import *
 
 class RunnerPlayer:
@@ -22,6 +19,7 @@ class RunnerPlayer:
         your player.
         """
         self.state = create_initial_state()
+        self.colour = colour
 
     def update(self, colour, action):
         """
@@ -37,4 +35,4 @@ class RunnerPlayer:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        return negascoutanoid(self.state, speed_demon)[1]
+        return paranoid(self.state, mega_heuristic, self.colour)[1]

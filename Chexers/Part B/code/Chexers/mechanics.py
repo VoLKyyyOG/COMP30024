@@ -238,31 +238,15 @@ def paris(state):
                 captures[player].append(action)
     return captures
 
-def possible_actions(state, colour, force_exit=False, force_capture=False):
+def possible_actions(state, colour):
     """Returns list of possible actions for a given state"""
     actions = list()
-
-    if game_over(state):
-        print("OUR GAME OVER FLAG WAS EXECUTED WHEN CONSIDERING POSSIBLE ACTIONS")
-        game_over(state, print_debug=True)
-        # return actions
 
     # All occupied hexes (doesn't account for who's who)
     occupied_hexes = occupied(state, PLAYER_NAMES)
 
-    # Append exits, moves, jumps and passes respectively
-    possible_exits = exit_action(state, colour)
-    possible_jumps = jump_action(state, occupied_hexes, colour)
-    possible_captures = paris(state)[PLAYER_HASH[colour]]
-    
-    if force_capture and len(possible_captures) > 1:
-        possible_jumps = possible_captures
-
-    if force_exit and len(possible_exits) > 1:
-        return possible_exits
-
-    actions.extend(possible_exits)
-    actions.extend(possible_jumps)
+    actions.extend(exit_action(state, colour))
+    actions.extend(jump_action(state, occupied_hexes, colour))
     actions.extend(move_action(state, occupied_hexes, colour))
 
     if not actions:

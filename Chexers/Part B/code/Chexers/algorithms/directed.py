@@ -11,41 +11,37 @@ from mechanics import *
 
 MAX_DEPTH = 3
 
-def directed_offensive(state, heuristic, prey, victim, depth_left=MAX_DEPTH):
-    max_player_evals = [-inf]*N_PLAYERS
-    best_action = None
-    turn_player = state["turn"]
-
+def directed_offensive(state, heuristic, us, target, depth_left=MAX_DEPTH):
     if not depth_left:
         cost = heuristic(state)
         return (cost, None)
+    
+    max_player_evals = [-inf, -inf, -inf]
+    best_action = None
+    p = state["turn"]
 
-    if turn_player == prey:
-        generated_actions = possible_actions(state, turn_player, force_exit=False, force_capture=True)
-    else:
-        generated_actions = possible_actions(state, turn_player, force_exit=True, force_capture=False)
+    generated_actions = possible_actions(state, p)
 
     for action in generated_actions:
         new_state = apply_action(state, action)
 
-        new_player_evals = directed_offensive(new_state, heuristic, prey, victim, depth_left-1)[0]
+        player_eval = directed_offensive(new_state, heuristic, us, target, depth_left-1)[0]
 
         # If this is not us, then they will want to just maximise themselves
-        if turn_player != prey:
-
-            if new_player_evals[PLAYER_HASH[turn_player]] > max_player_evals[PLAYER_HASH[turn_player]]:
-                max_player_evals[PLAYER_HASH[turn_player]], best_action = new_player_evals[PLAYER_HASH[turn_player]], action
+        if p != us:
+            if player_eval[PLAYER_HASH[p]] > max_player_evals[PLAYER_HASH[p]]:
+                max_player_evals, best_action = player_eval, action
         
         # If this is us:
-        if turn_player == prey:
+        if p == us:
             # If this new eval lowers our target eval, then update our path with this action
-            if new_player_evals[PLAYER_HASH[victim]] < max_player_evals[PLAYER_HASH[victim]]:
-                max_player_evals[PLAYER_HASH[prey]], best_action = new_player_evals[PLAYER_HASH[prey]], action
+            if player_eval[PLAYER_HASH[target]] < max_player_evals[PLAYER_HASH[target]]:
+                max_player_evals, best_action = player_eval, action
             
             # Elif target eval was not lowered, then see if we can maximise our own path with this action
-            elif new_player_evals[PLAYER_HASH[prey]] > max_player_evals[PLAYER_HASH[prey]]:
-                max_player_evals[PLAYER_HASH[prey]], best_action = new_player_evals[PLAYER_HASH[prey]], action
-            # Otherwise our current best action is whatever the first action is
+            elif player_eval[PLAYER_HASH[us]] > max_player_evals[PLAYER_HASH[us]]:
+                max_player_evals, best_action = player_eval, action
+            # Otherwise our current best action is whatever the first action is assuming good ordering
             else:
                 best_action = generated_actions[0]
 

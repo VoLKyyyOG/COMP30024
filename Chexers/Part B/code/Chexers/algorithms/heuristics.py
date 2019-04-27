@@ -129,16 +129,29 @@ def exit_diff_2_player(state):
         return state['exits'][state['turn']] - state['exits'][opponent]
 
 def no_pieces(state):
-    return [len(state[player]) for player in PLAYER_NAMES]
+    """
+    What proportion of pieces do we currently own.
+    """
+    num_pieces = [len(state[player]) for player in PLAYER_NAMES]
+    return num_pieces
 
-def no_exits(state):
-    return [state['exits'][player] for player in PLAYER_NAMES]
+def can_exit(state):
+    """
+    If we can exit, return the number of possible exit pieces.
+    """
+    return [len(exit_action(state, colour)) for colour in PLAYER_NAMES]
 
-def mega_heuristic(state, two_player=False):
-    if not two_player:
-        e = [paris_vector(state), speed_demon(state), no_pieces(state), no_exits(state)]
-        return [h1+h2+h3+h4 for h1,h2,h3,h4 in zip(e[0], e[1], e[2], e[3])]
-    return [h1+h2 for h1,h2 in zip(no_pieces(state), no_exits(state))]
+def corner_hexes(state):
+    return [len([i for i in state[player] if i in CORNER_HEXES]) for player in PLAYER_NAMES]
+    
+
+def mega_heuristic(state, runner=False):
+    e = [no_pieces(state), can_exit(state), corner_hexes(state), achilles_vector(state, reality=True)]
+    if runner:
+        return [h1+100*h2 for h1,h2 in zip(e[0],e[1])]
+
+    cost = [h1+100*h2-2*h4 for h1,h2,h3,h4 in zip(e[0], e[1], e[2], e[3])]
+    return cost
 
 
 def retrograde_dijkstra(state):
