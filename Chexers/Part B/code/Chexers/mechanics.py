@@ -122,7 +122,7 @@ def depth(state):
     """Returns number of turns"""
     return state['depth']
 
-def occupied(state, colours):
+def function_occupied(state, colours):
     """Fetches set of all pieces for all colours"""
     occupied = set()
     for player in colours:
@@ -243,7 +243,7 @@ def possible_actions(state, colour):
     actions = list()
 
     # All occupied hexes (doesn't account for who's who)
-    occupied_hexes = occupied(state, PLAYER_NAMES)
+    occupied_hexes = function_occupied(state, PLAYER_NAMES)
 
     actions.extend(exit_action(state, colour))
     actions.extend(jump_action(state, occupied_hexes, colour))

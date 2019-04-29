@@ -10,6 +10,7 @@ from random import choice
 from math import inf
 
 # User-defined files
+from algorithms.IDA import *
 from mechanics import *
 from algorithms.minimax import negamax_ab
 from algorithms.heuristics import *
@@ -17,7 +18,7 @@ from algorithms.paranoid import paranoid
 from algorithms.max_n import max_n
 from algorithms.mp_mix import mp_mix
 
-global PATH = None
+PATH = list()
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
@@ -82,7 +83,7 @@ class MPMixPlayer:
         :strategy: If everyone is dead, it becomes Part A
         """
         global PATH
-        if PATH is not None:
+        if not bool(PATH):
             optimal_node = IDA_control_loop(self.state, retrograde_dijkstra)
             node_temp = optimal_node
 
@@ -90,6 +91,7 @@ class MPMixPlayer:
             while (node_temp is not None):
                 PATH.append(node_temp.action)
                 node_temp = node_temp.parent
+            print(PATH)
             PATH.sort(reverse=True)
 
         return PATH.pop()
