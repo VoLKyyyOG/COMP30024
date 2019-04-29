@@ -1,4 +1,4 @@
-""" 
+"""
 :filename: player.py
 :summary: Base class for any MPMixPlayer (Chexers)
 :authors: Akira Wang (913391), Callum Holmes (XXXXXX)
@@ -16,6 +16,8 @@ from algorithms.heuristics import *
 from algorithms.paranoid import paranoid
 from algorithms.max_n import max_n
 from algorithms.mp_mix import mp_mix
+
+global PATH = None
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
@@ -41,11 +43,11 @@ class MPMixPlayer:
         """
         if not self.state[self.colour]:
             return ("PASS", None)
-        
+
         for player in PLAYER_NAMES:
             if is_dead(self.state, player):
                 return self.run_2_player()
-        
+
         if sum([is_dead(state, i) for i in PLAYER_NAMES]) == 2:
             return self.all_dead()
 
@@ -78,6 +80,18 @@ class MPMixPlayer:
         """
         :strategy: If everyone is dead, it becomes Part A
         """
+        global PATH
+        if PATH is not None:
+            optimal_node = IDA_control_loop(self.state, retrograde_dijkstra)
+            node_temp = optimal_node
+
+            # Re-assemble path taken
+            while (node_temp is not None):
+                PATH.append(node_temp.action)
+                node_temp = node_temp.parent
+            PATH.sort(reverse=True)
+
+        return PATH.pop()
         # return dijkstra for the closest (4 - number_of_exit) pieces
 
     def run_2_player(self):
