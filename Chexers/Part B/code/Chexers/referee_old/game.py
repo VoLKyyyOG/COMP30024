@@ -49,59 +49,59 @@ if sys.stdout.isatty():
     }
 else:
     _DISPLAY = { # something 5 characters wide for each colour:
-        'r': "  R  ", 
+        'r': "  R  ",
         'g': "  G  ",
         'b': "  B  ",
         ' ': "     "
     }
 
-_TEMPLATE_NORMAL = """scores: {0}
-board:    .-'-._.-'-._.-'-._.-'-.
-         |{16:}|{23:}|{29:}|{34:}|
-       .-'-._.-'-._.-'-._.-'-._.-'-.
-      |{10:}|{17:}|{24:}|{30:}|{35:}|
-    .-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-   |{05:}|{11:}|{18:}|{25:}|{31:}|{36:}|
- .-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-|{01:}|{06:}|{12:}|{19:}|{26:}|{32:}|{37:}|
-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-   |{02:}|{07:}|{13:}|{20:}|{27:}|{33:}|
-   '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-      |{03:}|{08:}|{14:}|{21:}|{28:}|
-      '-._.-'-._.-'-._.-'-._.-'-._.-'
-         |{04:}|{09:}|{15:}|{22:}|
-         '-._.-'-._.-'-._.-'-._.-'"""
-_TEMPLATE_DEBUG = """scores: {0}
-board:       ,-' `-._,-' `-._,-' `-._,-' `-.
-            | {16:} | {23:} | {29:} | {34:} |
-            |  0,-3 |  1,-3 |  2,-3 |  3,-3 |
-         ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-        | {10:} | {17:} | {24:} | {30:} | {35:} |
-        | -1,-2 |  0,-2 |  1,-2 |  2,-2 |  3,-2 |
-     ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-    | {05:} | {11:} | {18:} | {25:} | {31:} | {36:} |
-    | -2,-1 | -1,-1 |  0,-1 |  1,-1 |  2,-1 |  3,-1 |
- ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-| {01:} | {06:} | {12:} | {19:} | {26:} | {32:} | {37:} |
-| -3, 0 | -2, 0 | -1, 0 |  0, 0 |  1, 0 |  2, 0 |  3, 0 |
- `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
-    | {02:} | {07:} | {13:} | {20:} | {27:} | {33:} |
-    | -3, 1 | -2, 1 | -1, 1 |  0, 1 |  1, 1 |  2, 1 |
-     `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
-        | {03:} | {08:} | {14:} | {21:} | {28:} |
-        | -3, 2 | -2, 2 | -1, 2 |  0, 2 |  1, 2 | key:
-         `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' ,-' `-.
-            | {04:} | {09:} | {15:} | {22:} |   | input |
-            | -3, 3 | -2, 3 | -1, 3 |  0, 3 |   |  q, r |
-             `-._,-' `-._,-' `-._,-' `-._,-'     `-._,-'"""
+_TEMPLATE_NORMAL = """*   scores: {0}
+*   board:    .-'-._.-'-._.-'-._.-'-.
+*            |{16:}|{23:}|{29:}|{34:}|
+*          .-'-._.-'-._.-'-._.-'-._.-'-.
+*         |{10:}|{17:}|{24:}|{30:}|{35:}|
+*       .-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
+*      |{05:}|{11:}|{18:}|{25:}|{31:}|{36:}|
+*    .-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
+*   |{01:}|{06:}|{12:}|{19:}|{26:}|{32:}|{37:}|
+*   '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
+*      |{02:}|{07:}|{13:}|{20:}|{27:}|{33:}|
+*      '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
+*         |{03:}|{08:}|{14:}|{21:}|{28:}|
+*         '-._.-'-._.-'-._.-'-._.-'-._.-'
+*            |{04:}|{09:}|{15:}|{22:}|
+*            '-._.-'-._.-'-._.-'-._.-'"""
+_TEMPLATE_DEBUG = """*   scores: {0}
+*   board:       ,-' `-._,-' `-._,-' `-._,-' `-.
+*               | {16:} | {23:} | {29:} | {34:} |
+*               |  0,-3 |  1,-3 |  2,-3 |  3,-3 |
+*            ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
+*           | {10:} | {17:} | {24:} | {30:} | {35:} |
+*           | -1,-2 |  0,-2 |  1,-2 |  2,-2 |  3,-2 |
+*        ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
+*       | {05:} | {11:} | {18:} | {25:} | {31:} | {36:} |
+*       | -2,-1 | -1,-1 |  0,-1 |  1,-1 |  2,-1 |  3,-1 |
+*    ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
+*   | {01:} | {06:} | {12:} | {19:} | {26:} | {32:} | {37:} |
+*   | -3, 0 | -2, 0 | -1, 0 |  0, 0 |  1, 0 |  2, 0 |  3, 0 |
+*    `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
+*       | {02:} | {07:} | {13:} | {20:} | {27:} | {33:} |
+*       | -3, 1 | -2, 1 | -1, 1 |  0, 1 |  1, 1 |  2, 1 |
+*        `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
+*           | {03:} | {08:} | {14:} | {21:} | {28:} |
+*           | -3, 2 | -2, 2 | -1, 2 |  0, 2 |  1, 2 | key:
+*            `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' ,-' `-.
+*               | {04:} | {09:} | {15:} | {22:} |   | input |
+*               | -3, 3 | -2, 3 | -1, 3 |  0, 3 |   |  q, r |
+*                `-._,-' `-._,-' `-._,-' `-._,-'     `-._,-'"""
 
 
 class Chexers:
     """
     Represent the evolving state of a game of Chexers. Main useful methods
-    are __init__, update, over, end, and __str__.
+    are __init__, update, display, over and end.
     """
-    def __init__(self, logfilename=None, debugboard=False):
+    def __init__(self, logfilename):
         # initialise game board state:
         ran = range(-3, +3+1)
         self.hexes = {(q,r) for q in ran for r in ran if -q-r in ran}
@@ -109,7 +109,7 @@ class Chexers:
         for colour in "rgb":
             for qr in _STARTING_HEXES[colour]:
                 self.board[qr] = colour
-        
+
         # also keep track of some other state variables for win/draw
         # detection (score, number of turns, state history)
         self.score = {'r': 0, 'g': 0, 'b': 0}
@@ -117,16 +117,13 @@ class Chexers:
         self.nturns  = 0
         self.history = defaultdict(int, {self._snap(): 1})
 
-        # when we print the board, should we show coordinates?
-        self.debugboard = debugboard
-
         # and we might like to log actions!
         if logfilename is not None:
-            self._logfile = open(logfilename, 'w', 1)
+            self._logfile = open(logfilename, 'w')
             self._log("game", "Start Chexers game log at", time.asctime())
         else:
             self._logfile = None
-        
+
     def update(self, colour, action):
         """
         Submit an action to the game for validation and application.
@@ -191,13 +188,13 @@ class Chexers:
         return available_actions
     def _turn_detect_draw(self):
         """
-        Register that a turn has passed: Update turn counts and 
+        Register that a turn has passed: Update turn counts and
         detect repeated game states.
         """
         self.nturns += 1
         if self.nturns >= _MAX_TURNS * 3:
             self.drawmsg = "maximum number of turns reached."
-        
+
         state = self._snap()
         self.history[state] += 1
         if self.history[state] >= 4:
@@ -239,9 +236,9 @@ class Chexers:
             self._end_log()
             return result
 
-    def __str__(self):
+    def display(self, debug=False):
         """Create and return a representation of board for printing."""
-        if self.debugboard:
+        if debug:
             template = _TEMPLATE_DEBUG
         else:
             template = _TEMPLATE_NORMAL

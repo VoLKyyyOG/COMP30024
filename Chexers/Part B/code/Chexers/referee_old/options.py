@@ -7,7 +7,7 @@ usage: referee [-h] [-V] [-d [delay]] [-s [space_limit]] [-t [time_limit]]
                [-D] [-v [{0,1,2,3}]] [-l [LOGFILE]]
                red green blue
 
-conducts a game of Chexers between three Player classes.
+Conducts a game of Chexers between three Player classes.
 
 player package/class specifications (positional arguments):
   
@@ -59,14 +59,17 @@ import argparse
 
 # Program information:
 PROGRAM = "referee"
-VERSION = "1.1 (released Apr 27 2019)"
-DESCRIP = "conducts a game of Chexers between three Player classes."
+VERSION = "1.0 (released Apr 12 2019)"
+DESCRIP = "Conducts a game of Chexers between three Player classes."
 
-WELCOME = f"""******************************************************************
+WELCOME = f"""==================================================================
 welcome to Chexers referee version {VERSION}.
 {DESCRIP}
-run `python -m referee --help` for additional usage information.
-******************************************************************"""
+run `python referee --help` for additional usage information.
+==================================================================
+* from this line, all messages printed by the referee begin with *
+* (any other lines of output must be from your Player classes).
+* """
 
 # default values (to use if flag is not provided)
 # and missing values (to use if flag is provided, but with no value)

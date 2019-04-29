@@ -17,53 +17,52 @@ class PlayerWrapper:
       methods of the same name.
     Each method enforces resource limits on the real Player's computation.
     """
-    def __init__(self, name, player_loc, options, out):
-        self.out  = out
-        self.name = name
+    def __init__(self, colour, player_loc, options):
+        self.colour = colour
+        self.output = options.verbosity > 0
         
         # create some context managers for resource limiting
-        self.timer = _CountdownTimer(options.time, self.name)
+        self.timer = _CountdownTimer(options.time, self.colour)
         self.space = _MemoryWatcher(options.space)
         
         # import the Player class from given package
         player_pkg, player_cls = player_loc
-        self.out.comment(f"importing {self.name}'s player class '{player_cls}' "
-            f"from package '{player_pkg}'")
+        self._message(f"importing {self.colour} player's player class "
+            f"'{player_cls}' from package '{player_pkg}'")
         self.Player = _load_player_class(player_pkg, player_cls)
 
-    def init(self, colour):
-        self.colour = colour
-        player_cls = str(self.Player).strip('<class >')
-        self.out.comment(f"initialising {self.colour} player as a {player_cls}")
+    def init(self):
+        self._message(f"initialising {self.colour} player as a "
+            f"{str(self.Player).strip('<class >')}")
         with self.space, self.timer:
             # construct/initialise the player class
-            self.player = self.Player(colour)
-        self.comment_if(self.timer.status(), pad=1)
-        self.comment_if(self.space.status(), pad=1)
+            self.player = self.Player(self.colour)
+        self._message(self.timer.status())
+        self._message(self.space.status())
 
     def action(self):
-        self.out.comment(f"asking {self.name} for next action...")
+        self._message(f"asking {self.colour} player for next action...")
         with self.space, self.timer:
             # ask the real player
             action = self.player.action()
-        self.out.comment(f"{self.name} returned action: {action!r}", pad=1)
-        self.comment_if(self.timer.status(), pad=1)
-        self.comment_if(self.space.status(), pad=1)
+        self._message(f"  {self.colour} player returned action: {action!r}")
+        self._message(self.timer.status())
+        self._message(self.space.status())
         # give back the result
         return action
 
     def update(self, colour, action):
-        self.out.comment(f"updating {self.name} with {colour}'s action {action}"
-            "...")
+        self._message(f"updating {self.colour} player with {colour}'s "
+            f"action {action}...")
         with self.space, self.timer:
             # forward to the real player
             self.player.update(colour, action)
-        self.comment_if(self.timer.status(), pad=1)
-        self.comment_if(self.space.status(), pad=1)
+        self._message(self.timer.status())
+        self._message(self.space.status())
 
-    def comment_if(self, message, **kwargs):
-        if message:
-            self.out.comment(message, **kwargs)
+    def _message(self, message):
+        if self.output and message:
+            print("*", message)
 
 def _load_player_class(package_name, class_name):
     """
@@ -85,16 +84,16 @@ class _CountdownTimer:
     Reusable context manager for timing specific sections of code
 
     * measures CPU time, not wall-clock time
-    * unless time_limit is 0, throws an exception upon exiting the context after
-      the allocated time has passed
+    * if limit is not 0, throws an exception upon exiting the context after the 
+      allocated time has passed
     """
-    def __init__(self, time_limit, name):
+    def __init__(self, limit, colour):
         """
         Create a new countdown timer with time limit `limit`, in seconds
         (0 for unlimited time)
         """
-        self.name  = name
-        self.limit = time_limit
+        self.colour = colour
+        self.limit = limit
         self.clock = 0
         self._status = ""
     def _set_status(self, status):
@@ -113,12 +112,14 @@ class _CountdownTimer:
         # accumulate elapsed time since __enter__
         elapsed = time.process_time() - self.start
         self.clock += elapsed
-        self._set_status(f"time:  +{elapsed:6.3f}s  (just elapsed)  "
+        self._set_status(f"  time:  +{elapsed:6.3f}s  (just elapsed)  "
             f"{self.clock:7.3f}s  (game total)")
 
         # if we are limited, let's hope we aren't out of time!
         if self.limit and self.clock > self.limit:
-            raise ResourceLimitException(f"{self.name} exceeded available time")
+            raise ResourceLimitException(f"{self.colour} player exceeded "
+                "available time")
+
 
 class _MemoryWatcher:
     """
@@ -152,7 +153,7 @@ class _MemoryWatcher:
             curr_usage -= _DEFAULT_MEM_USAGE
             peak_usage -= _DEFAULT_MEM_USAGE
 
-            self._set_status(f"space: {curr_usage:7.3f}MB (current usage) "
+            self._set_status(f"  space: {curr_usage:7.3f}MB (current usage) "
                 f"{peak_usage:7.3f}MB (max usage) (shared)")
 
             # if we are limited, let's hope we are not out of space!
@@ -174,6 +175,7 @@ def _get_space_usage():
             elif 'VmPeak:' in line:
                 peak_usage = int(line.split()[1]) / 1024 # kB -> MB
     return curr_usage, peak_usage
+
 
 _DEFAULT_MEM_USAGE = 0
 _SPACE_ENABLED = False
