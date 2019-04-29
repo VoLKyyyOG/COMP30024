@@ -89,7 +89,13 @@ class MPMixPlayer:
             state['colour'] = self.colour
             state['pieces']  = self.state[self.colour][:4]
             state['blocks'] = list()
-            PATH = part_A_search(state)
+            PATH = list(map(lambda x: x.action_made, part_A_search(state)))[::-1]
+
+            # (pos, flag, new_pos=None)
+            FLAGS = ["MOVE", "JUMP", "EXIT"]
+            PATH = [(FLAGS[x[1]], x[0]) if FLAGS[x[1]] == "EXIT" else (FLAGS[x[1]], (x[0], x[2])) for x in PATH]
+
+            # (FLAG_str: (pos1, pos2=None))
 
         return PATH.pop()
         # return dijkstra for the closest (4 - number_of_exit) pieces
