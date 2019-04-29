@@ -87,7 +87,7 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
     # If we are the leader, then we can paranoid our way out (runner)
     if max_player == leader and leader_edge >= defence_threshold:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING PARANOID")
-        return paranoid(state, heuristic, max_player, depth_left=4 )[1]
+        return paranoid(state, heuristic, max_player, depth_left=depth)[1]
     
     # If we are the rival player against the leader then attack them
     if max_player == rival and leader_edge > rival_edge and leader_edge >= offence_threshold:

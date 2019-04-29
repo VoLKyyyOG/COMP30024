@@ -72,7 +72,7 @@ def exit_action(state, colour):
     """
     return [("EXIT", piece) for piece in state[colour] if piece in GOALS[colour]]
 
-def move_action(state, occupied, colour):
+def move_action(state, _occupied, colour):
     """
     Function to see if a move action is possible.
     :returns: list of possible move directions.
@@ -82,12 +82,12 @@ def move_action(state, occupied, colour):
     for piece in state[colour]:
         for direction in POSSIBLE_DIRECTIONS:
             adjacent_hex = add(piece, direction)
-            if adjacent_hex in VALID_COORDINATES and adjacent_hex not in occupied:
+            if adjacent_hex in VALID_COORDINATES and adjacent_hex not in _occupied:
                 possible_moves.append(("MOVE", (piece, adjacent_hex)))
 
     return sorted(possible_moves)
 
-def jump_action(state, occupied, colour):
+def jump_action(state, _occupied, colour):
     """
     Function to see if a jump action is possible.
     :returns: list of possible jump directions.
@@ -98,8 +98,8 @@ def jump_action(state, occupied, colour):
         for direction in POSSIBLE_DIRECTIONS:
             adjacent_hex = add(piece, direction)
             target_hex = add(adjacent_hex, direction)
-            if adjacent_hex in occupied:
-                if target_hex in VALID_COORDINATES and target_hex not in occupied:
+            if adjacent_hex in _occupied:
+                if target_hex in VALID_COORDINATES and target_hex not in _occupied:
                     possible_jumps.append(("JUMP", (piece, target_hex)))
 
     return sorted(possible_jumps)

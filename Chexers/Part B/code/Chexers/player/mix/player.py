@@ -44,11 +44,12 @@ class MPMixPlayer:
         if not self.state[self.colour]:
             return ("PASS", None)
 
-        for player in PLAYER_NAMES:
-            if is_dead(self.state, player):
-                return self.run_2_player()
+        if sum([bool(self.state[colour]) for colour in PLAYER_NAMES]) == 2:
+            print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| 2 PLAYER GAME MINIMAX LETS GO")
+            return self.run_2_player()
 
-        if sum([is_dead(state, i) for i in PLAYER_NAMES]) == 2:
+        if sum([is_dead(self.state, i) for i in PLAYER_NAMES]) == 2:
+            print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* |||1  PLAYER GAME DIJKSTRA LETS GO")
             return self.all_dead()
 
         if self.start_mid_game():
@@ -99,7 +100,7 @@ class MPMixPlayer:
         Now that one player is dead, the problem reduces to a 2-player problem.
         :strategy: run a minimax algorithm with alpha-beta pruning.
         """
-        return paranoid(self.state, mega_heuristic, self.colour, depth_left = 30)[1]
+        return paranoid(self.state, mega_heuristic, self.colour, depth_left = 6)[1]
 
     def start_mid_game(self):
         """

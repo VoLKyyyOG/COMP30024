@@ -153,7 +153,6 @@ def mega_heuristic(state, runner=False):
     cost = [h1+100*h2-2*h4 for h1,h2,h3,h4 in zip(e[0], e[1], e[2], e[3])]
     return cost
 
-
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""
     cost = [sum(dijkstra_board(state, state["turn"])[piece] for piece in state[colour]) for colour in PLAYER_NAMES]
@@ -164,7 +163,6 @@ def dijkstra_board(state, colour):
     #### TODO: Given dynamic board, forcing 'moves only' i.e. jump_heuristic may be more accurate
     #### Otherwise this is a forward unto death greedy heuristic
 
-    occupied = set() # stores all pieces
     valid_goals = set(GOALS[colour])
 
     for player in PLAYER_NAMES:
@@ -172,8 +170,6 @@ def dijkstra_board(state, colour):
 
     for player in [i for i in PLAYER_NAMES if i != colour]:
         valid_goals.difference_update(set(state[player]))
-
-    valid_goals = set(GOALS[colour]).difference(occupied) # Stores empty goal positions
 
     visited = set() # Flags if visited or not
     cost = {x: inf for x in VALID_COORDINATES} # Stores costs
