@@ -13,8 +13,7 @@ from json import load
 from sys import argv
 
 # User-defined files
-from formatting import convert_to_tuples, pikawin
-from algorithms import *
+from .algorithms import *
 
 ######################### FUNCTIONS ##########################
 

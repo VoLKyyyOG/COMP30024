@@ -87,8 +87,8 @@ class MPMixPlayer:
             # Create part_A appropriate data
             state = dict()
             state['colour'] = self.colour
-            state['pieces']  = self.state[self.colour]
-            self['blocks'] = list()
+            state['pieces']  = self.state[self.colour][:4]
+            state['blocks'] = list()
             PATH = part_A_search(state)
 
         return PATH.pop()

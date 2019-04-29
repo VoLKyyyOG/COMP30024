@@ -11,7 +11,7 @@ from queue import PriorityQueue as PQ
 from copy import deepcopy
 
 # User-defined files
-from classes import *
+from .classes import *
 
 ########################## GLOBALS ###########################
 INF = float('inf')
@@ -117,8 +117,3 @@ def dijkstra_board(state):
                     cost[new] = est_cost
                 queue.put((cost[new], new))
     return cost
-
-
-
-def move_action(state, occupied):
-    

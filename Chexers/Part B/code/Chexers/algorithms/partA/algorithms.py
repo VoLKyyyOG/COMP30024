@@ -11,7 +11,7 @@ from queue import PriorityQueue as PQ
 from collections import defaultdict
 
 # User-defined files
-from moves import *
+from .moves import *
 
 ###################### NODE BASE CLASS #######################
 
