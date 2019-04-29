@@ -10,6 +10,7 @@ from random import choice
 from math import inf
 
 # User-defined files
+from algorithms.partA.search import part_A_search
 from mechanics import *
 from algorithms.minimax import negamax_ab
 from algorithms.heuristics import *
@@ -83,14 +84,12 @@ class MPMixPlayer:
         """
         global PATH
         if PATH is not None:
-            optimal_node = IDA_control_loop(self.state, retrograde_dijkstra)
-            node_temp = optimal_node
-
-            # Re-assemble path taken
-            while (node_temp is not None):
-                PATH.append(node_temp.action)
-                node_temp = node_temp.parent
-            PATH.sort(reverse=True)
+            # Create part_A appropriate data
+            state = dict()
+            state['colour'] = self.colour
+            state['pieces']  = self.state[self.colour]
+            self['blocks'] = list()
+            PATH = part_A_search(state)
 
         return PATH.pop()
         # return dijkstra for the closest (4 - number_of_exit) pieces
