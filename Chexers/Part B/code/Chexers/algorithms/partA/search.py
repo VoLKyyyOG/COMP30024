@@ -54,7 +54,7 @@ def part_A_search(data):
 
     print("# Prepare for amazingness")
     optimal_solution = IDA_control_loop(data, dijkstra_heuristic)
-
+    print(data)
     if (optimal_solution is not None):
         print(f'# A solution was found! Cost: {optimal_solution.depth}\n# Sequence of moves:')
         path = list()
@@ -63,6 +63,7 @@ def part_A_search(data):
         # Re-assemble path taken
         while (node_temp is not None):
             path.append(node_temp)
+            print(node_temp.action_made)
             node_temp = node_temp.parent
 
         return path[::-1]

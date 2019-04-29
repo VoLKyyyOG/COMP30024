@@ -7,6 +7,7 @@
 ########################### IMPORTS ##########################
 # Standard modules
 from random import choice
+from copy import deepcopy
 from math import inf
 
 # User-defined files
@@ -80,16 +81,21 @@ class MPMixPlayer:
 
     def all_dead(self):
         """
-        :strategy: If everyone is dead, it becomes Part A
+        :strategy: If everyone is dead, it becomes Part A. Literally Part A code...
         """
         global PATH
-        if PATH is not None:
+
+        if not bool(PATH):
             # Create part_A appropriate data
             state = dict()
-            state['colour'] = self.colour
-            state['pieces']  = self.state[self.colour][:4]
-            state['blocks'] = list()
-            PATH = list(map(lambda x: x.action_made, part_A_search(state)))[::-1]
+            state['colour'] = deepcopy(self.colour)
+
+            # TODO: Calculate jump distance for each piece and then return closest pieces for exit
+            state['pieces']  = deepcopy(self.state[self.colour][:4])
+            state['blocks'] = list(self.state[self.colour][4:])
+
+
+            PATH = list(map(lambda x: x.action_made, part_A_search(state)))[1:]
 
             # (pos, flag, new_pos=None)
             FLAGS = ["MOVE", "JUMP", "EXIT"]
@@ -97,7 +103,7 @@ class MPMixPlayer:
 
             # (FLAG_str: (pos1, pos2=None))
 
-        return PATH.pop()
+        return PATH.pop(0)
         # return dijkstra for the closest (4 - number_of_exit) pieces
 
     def run_2_player(self):
