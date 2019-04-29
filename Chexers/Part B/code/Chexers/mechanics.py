@@ -164,7 +164,7 @@ def game_over(state, print_debug=False):
 
     TODO: ALL_DEAD IS NOT AN ACTUAL GAME OVER SCENARIO
     """
-    draw = depth(state) == MAX_TURNS
+    draw = depth(state) == MAX_TURNS * 3
     all_dead = sum([bool(state[colour]) for colour in PLAYER_NAMES]) == 1
     winner = MAX_EXITS in state['exits'].values()
 
