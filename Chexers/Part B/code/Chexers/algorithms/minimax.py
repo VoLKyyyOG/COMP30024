@@ -11,6 +11,8 @@ from math import inf
 # User-defined files
 from mechanics import *
 
+MAX_DEPTH = 4
+
 def negamax_ab(state, heuristic, N_max=False, alpha=-inf, beta=inf, depth_left=6):
     """Efficient minimax with alpha-beta pruning
     Note that evaluations are with respect to the state turn, NOT a maximisingPlayer"""

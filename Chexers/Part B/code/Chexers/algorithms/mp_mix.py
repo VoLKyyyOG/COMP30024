@@ -17,6 +17,8 @@ from .paranoid import paranoid
 from .directed import directed_offensive
 from .max_n import max_n
 
+MAX_DEPTH = 4
+
 """
 Concept adapted from:
 The MP-MIX algorithm: Dynamic Search Strategy Selection in Multi-Player Adversarial Search
@@ -42,11 +44,11 @@ If offence or defence threshold not met:
 
 def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
     """
-    If defence_threshold = offence_threshold = 0, it will degenerate to:
-    1. Paranoid when winning
-    2. Offensive when losing
+    :thresholds: If defence_threshold or offence_threshold are 0, it will degenerate to:
+                 1. Paranoid when winning
+                 2. Offensive when losing
+    :strategy: Determine whether the agent should be paranoid (1 vs all), maxn (everyone will maximise themself), offence (minimise a target)
     """
-    depth = 4
 
     # Heuristic scores for each player
     raw_scores = heuristic(state) # 3-player heuristics should output vectors
@@ -81,19 +83,24 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0):
 
     # If we are not the leader, then attempt to capture with a slightly higher threshold
     if max_player != leader and len(state[loser]) == 1 and len(state[loser]) > 0:
-        print("\n\t\t\t\t\t\t\t\t* ||| A TARGET HAS ONE PIECE REMAINING")
-        return directed_offensive(state, heuristic, max_player, loser, depth_left=depth)[1]
+        print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LOSER {loser} | DEPTH = {MAX_DEPTH}")
+        return directed_offensive(state, heuristic, max_player, loser, depth_left=MAX_DEPTH)[1]
 
     # If we are the leader, then we can paranoid our way out (runner)
     if max_player == leader and leader_edge >= defence_threshold:
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING PARANOID")
-        return paranoid(state, heuristic, max_player, depth_left=depth)[1]
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING PARANOID | DEPTH = {MAX_DEPTH}")
+        return paranoid(state, heuristic, max_player, depth_left=MAX_DEPTH)[1]
     
     # If we are the rival player against the leader then attack them
     if max_player == rival and leader_edge > rival_edge and leader_edge >= offence_threshold:
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE")
-        return directed_offensive(state, heuristic, max_player, leader, depth_left=depth)[1]
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER {leader} | DEPTH = {MAX_DEPTH}")
+        return directed_offensive(state, heuristic, max_player, leader, depth_left=MAX_DEPTH)[1]
+
+    # Attack the player with 3 exits
+    if state["exits"][leader] == 3 and max_player != leader:
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST PLAYER {leader} WITH 3 EXITS | DEPTH = {MAX_DEPTH}")
+        return directed_offensive(state, heuristic, max_player, leader, depth_left=MAX_DEPTH)[1]
 
     # Otherwise, we just default to using max_n
-    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING MAX_N")
-    return max_n(state, heuristic, depth_left=depth)[1]
+    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING MAX_N | DEPTH = {MAX_DEPTH}")
+    return max_n(state, heuristic, depth_left=MAX_DEPTH)[1]
