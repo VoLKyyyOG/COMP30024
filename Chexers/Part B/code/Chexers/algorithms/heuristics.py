@@ -1,4 +1,4 @@
-""" 
+"""
 :filename: heuristics.py
 :summary: Stores all heuristic and evaluation function related functions.
 :authors: Akira Wang (913391), Callum Holmes (XXXXXX)
@@ -33,12 +33,12 @@ def exits(state):
     """
     return [state['exits'][player] for player in PLAYER_NAMES]
 
-def desperation(state, colour):
+def desperation(state):
     """
     Returns deficit/surplus in pieces vs exit
     """
     # How many pieces available - how many pieces needed to win
-    return MAX_EXITS - state['exits'][colour]
+    return [len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES]
 
 def paris_vector(state):
     """
@@ -143,7 +143,7 @@ def can_exit(state):
 
 def corner_hexes(state):
     return [len([i for i in state[player] if i in CORNER_HEXES]) for player in PLAYER_NAMES]
-    
+
 
 def mega_heuristic(state, runner=False):
     e = [no_pieces(state), can_exit(state), corner_hexes(state), achilles_vector(state, reality=True)]
@@ -166,10 +166,10 @@ def dijkstra_board(state, colour):
 
     occupied = set() # stores all pieces
     valid_goals = set(GOALS[colour])
-    
+
     for player in PLAYER_NAMES:
         occupied.union(set(state[player]))
-    
+
     for player in [i for i in PLAYER_NAMES if i != colour]:
         valid_goals.difference_update(set(state[player]))
 
