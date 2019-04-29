@@ -156,6 +156,7 @@ def mega_heuristic(state, runner=False):
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""
     cost = [sum(dijkstra_board(state, state["turn"])[piece] for piece in state[colour]) for colour in PLAYER_NAMES]
+    print(cost)
     return cost
 
 def dijkstra_board(state, colour):
@@ -164,9 +165,7 @@ def dijkstra_board(state, colour):
     #### Otherwise this is a forward unto death greedy heuristic
 
     valid_goals = set(GOALS[colour])
-
-    for player in PLAYER_NAMES:
-        occupied.union(set(state[player]))
+    occupied = set()
 
     for player in [i for i in PLAYER_NAMES if i != colour]:
         valid_goals.difference_update(set(state[player]))

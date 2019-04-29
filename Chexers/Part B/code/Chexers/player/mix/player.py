@@ -18,7 +18,7 @@ from algorithms.paranoid import paranoid
 from algorithms.max_n import max_n
 from algorithms.mp_mix import mp_mix
 
-global PATH = None
+PATH = list()
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:

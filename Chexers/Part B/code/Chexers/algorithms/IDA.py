@@ -1,8 +1,15 @@
+from .node import *
+from mechanics import *
+from math import inf as INF
+from collections import defaultdict
+from queue import PriorityQueue as PQ
+
 class IDA_Node(Node):
     """IDA* Node definition with inbuilt attributes for heuristic/total cost"""
 
-    def __init__(self, parent):
-        super().__init__(parent)
+    def __init__(self, state, parent):
+        super().__init__(state, parent)
+        self.depth = 0 if not parent else parent.depth + 1
         self.total_cost = 0 # Total cost factors in depth (total_cost = depth + exit_cost)
 
     def __lt__(self, other):
@@ -13,20 +20,8 @@ def IDA(node, heuristic, TT, threshold, new_threshold, debug_flag=False):
     """Implements IDA*, using IDA_node.depth as g(n) and sum(heuristics) as h(n)"""
 
     queue = PQ() # Gets item with lowest total_cost
-    if not node.is_expanded and not node.is_dead:
-        # Initialize children, with trimming
-        for child in node.children:
-            my_hash = encode(child.state)
-            if my_hash in TT.keys():
-                if child.depth >= TT[my_hash].depth and child != TT[my_hash]:
-                    child.is_dead = True
-                    continue
 
-            # Evaluate heuristics, append to queue
-            child.total_cost = child.depth + heuristic(child.state)
-            queue.put(child)
-            TT[my_hash] = child
-    elif not node.is_dead:
+    if not node.is_dead:
         for child in node.children:
             queue.put(child)
     # Expand children, preferring those of least (estimated) total_cost
@@ -55,9 +50,11 @@ def IDA_control_loop(initial_state, heuristic):
     """Runs IDA*. Must use a heuristic that works with Nodes and returns goal if found"""
 
     initial_node = IDA_Node.create_root(initial_state)
-    initial_node.total_cost = threshold = heuristic(initial_state)
+    initial_node.total_cost = threshold = heuristic(initial_state)[PLAYER_HASH[player(initial_state)]]
     TT = dict() # Transposition Table
     TT[Z_hash(initial_node.state)] = initial_node
+
+    print(threshold)
 
     root = None
     while root is None:
@@ -67,3 +64,4 @@ def IDA_control_loop(initial_state, heuristic):
         if root is None: # Update threshold, the goal hasn't been found
             threshold = new_threshold[0]
     return root
+
