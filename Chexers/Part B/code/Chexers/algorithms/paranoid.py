@@ -12,9 +12,9 @@ from mechanics import *
 MAX_DEPTH = 4
 
 def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
-    
+
     if not depth_left:
-        cost = heuristic(state, runner=True)
+        cost = heuristic(state)
         return (cost, None)
 
     best_action = None
