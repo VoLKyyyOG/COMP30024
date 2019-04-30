@@ -14,18 +14,8 @@ from math import inf
 from mechanics import *
 from moves import *
 
-######################### INDEPENDENT ########################
-def goal_eval_for_minimax(state):
-    """Returns +1 if maximisingPlayer wins, -1 if other player, or 0 for draw"""
-    if game_over(state):
-        if is_winner(state, state['turn']):
-            return +1
-        else:
-            return -1
-    else:
-        return 0
-
-########################### CHEXERS ##########################
+from algorithms.partA.search import part_A_search
+##############################################################
 
 def exits(state):
     """
@@ -55,7 +45,7 @@ def paris(state):
     :returns: {player: list_of_capturing_actions for each player}
     """
     captures = defaultdict(list)
-    occupied_hexes = occupied(state, PLAYER_NAMES)
+    occupied_hexes = function_occupied(state, PLAYER_NAMES)
     for player in PLAYER_NAMES:
         for action in jump_action(state, occupied_hexes, player):
             if is_capture(state, action, player):
@@ -117,17 +107,6 @@ def speed_demon(state):
     # Return average displacement, adding 0.5 to deal with dead players
     return [total_disp(player) / len(state[player])  if len(state[player]) > 0 else inf for player in PLAYER_NAMES]
 
-
-def exit_diff_2_player(state):
-    """
-    Calculates as exits(self) - exits(only_remaining_opponent)
-    """
-    if not state[state['turn']]: # Checks if you are dead already
-        return -inf
-    else:
-        opponent = get_opponents(state).pop()
-        return state['exits'][state['turn']] - state['exits'][opponent]
-
 def no_pieces(state):
     """
     What proportion of pieces do we currently own.
@@ -142,16 +121,33 @@ def can_exit(state):
     return [len(exit_action(state, colour)) for colour in PLAYER_NAMES]
 
 def corner_hexes(state):
+    """
+    See if a piece is in a corner hex (untakeable)
+    TODO: MAKE IT ENEMY GOAL HEX POSITION
+    """
     return [len([i for i in state[player] if i in CORNER_HEXES]) for player in PLAYER_NAMES]
 
-
 def mega_heuristic(state, runner=False):
-    e = [no_pieces(state), can_exit(state), corner_hexes(state), achilles_vector(state, reality=True)]
+    """
+    Current utility function: (we want to maximise, so distance is negative)
+    Number of Pieces, Exit Possible?, Number of pieces that are capturable
+    """
+    evals = [no_pieces(state), can_exit(state), achilles_vector(state, reality=True), paris_vector(state)]
     if runner:
-        return [h1+100*h2 for h1,h2 in zip(e[0],e[1])]
+        return [h1+100*h2 for h1,h2 in zip(evals[0],evals[1])]
 
-    cost = [h1+100*h2-2*h4 for h1,h2,h3,h4 in zip(e[0], e[1], e[2], e[3])]
-    return cost
+    weighted_evals = [h1 + 100*h2 - 80*h3 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+    
+    return weighted_evals
+
+def end_game_heuristic(state):
+    """
+    A heuristic designed to always win against a greedy algorithm
+    """
+    evals = [desperation(state), paris_vector(state), no_pieces(state)]
+
+    summed = [h1 + h2 + 3*h3 for h1,h2,h3 in zip(evals[0], evals[1], evals[2])]
+    return [i if i > 0 else -inf for i in summed]
 
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""

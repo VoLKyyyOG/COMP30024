@@ -12,30 +12,35 @@ from math import inf
 
 # User-defined files
 from algorithms.partA.search import part_A_search
+from algorithms.IDA import *
 from mechanics import *
 from algorithms.heuristics import *
-from algorithms.paranoid import paranoid
-from algorithms.max_n import max_n
 from algorithms.mp_mix import mp_mix
 
 PATH = list()
 
-############## TEMP IM SORRY DONT HATE ME
+###################### ACTION FUNCTIONS ######################
 def get_cubic(tup):
-    """Converts axial coordinates to cubic coordinates"""
+    """
+    Converts axial coordinates to cubic coordinates
+    """
     return (tup[0], -tup[0]-tup[1], tup[1])
 
 def get_axial(tup):
-    """Converts axial coordinates to cubic coordinates"""
+    """
+    Converts axial coordinates to cubic coordinates
+    """
     return (tup[0], tup[2])
 
 def num_opponents_dead(state):
-    """Find the number of dead players"""
+    """
+    Find the number of dead players
+    """
     return sum([is_dead(state, i) for i in PLAYER_NAMES])
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 2
+    MID_GAME_THRESHOLD = 0
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
@@ -59,12 +64,11 @@ class MPMixPlayer:
             return ("PASS", None)
 
         if num_opponents_dead(self.state) == 1:
-            print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| 2 PLAYER! USING ALPHA-BETA | DEPTH = {8}")
             return self.run_2_player()
 
         if num_opponents_dead(self.state) == 2:
             print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| GG! 1 PLAYER GAME DIJKSTRA")
-            return self.all_dead()
+            return self.djikstra()
 
         if self.start_mid_game():
             return self.mid_game()
@@ -87,14 +91,36 @@ class MPMixPlayer:
         """
         :strategy: Use booking or a stronger quiesence search
         """
-        return self.random_action()
+        return self.greedy_action()
 
-    def all_dead(self):
+    def djikstra(self, single_player=True):
         """
         :strategy: If everyone is dead, it becomes Part A. Literally Part A code...
         """
         global PATH
+        FLAGS = ["MOVE", "JUMP", "EXIT"]
 
+        # AKIRA - RETURN DIJKSTRA'S GIVEN A PLAYER IS STILL ALIVE
+        if not single_player:
+            state = dict()
+            state['colour'] = deepcopy(self.colour)
+
+            # TODO: Calculate jump distance for each piece and then return closest pieces for exit
+            n_exited = self.state["exits"][self.colour]
+            n = 4 - n_exited
+        
+            opponents = get_opponents(self.state)
+            alive_opponent = [i for i in opponents if not is_dead(self.state, i)][0]
+
+            temp = sorted([get_cubic(tup) for tup in self.state[self.colour]], reverse=True)
+            state['pieces'] = [get_axial(tup) for tup in temp[:n]]
+            state['blocks'] = [get_axial(tup) for tup in temp[n:]] + self.state[alive_opponent]
+
+            action = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1] # attempting the runner so take first move
+            # (pos, flag, new_pos=None)
+
+            return (FLAGS[action[1]], action[0]) if FLAGS[action[1]] == "EXIT" else (FLAGS[action[1]], (action[0], action[2]))
+            
         if not bool(PATH):
             # Create part_A appropriate data
             state = dict()
@@ -108,16 +134,14 @@ class MPMixPlayer:
             state['pieces'] = [get_axial(tup) for tup in temp[:n]]
             state['blocks'] = [get_axial(tup) for tup in temp[n:]]
 
-            PATH = list(map(lambda x: x.action_made, part_A_search(state)))[1:]
+            PATH = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1:]
 
             # (pos, flag, new_pos=None)
-            FLAGS = ["MOVE", "JUMP", "EXIT"]
             PATH = [(FLAGS[x[1]], x[0]) if FLAGS[x[1]] == "EXIT" else (FLAGS[x[1]], (x[0], x[2])) for x in PATH]
 
             # (FLAG_str: (pos1, pos2=None))
 
         return PATH.pop(0)
-        # return dijkstra for the closest (4 - number_of_exit) pieces
 
     def run_2_player(self):
         """
@@ -125,7 +149,10 @@ class MPMixPlayer:
                    This works because paranoid defaults to alpha-beta by ignoring
                    dead players.
         """
-        return paranoid(self.state, mega_heuristic, self.colour, depth_left = 8)[1]
+        action = mp_mix(self.state, end_game_heuristic, defence_threshold=0, offence_threshold=0, two_player=True)
+        if action is False: # If we deem we are way ahead
+            action =  self.djikstra(single_player=False)
+        return action
 
     def start_mid_game(self):
         """
