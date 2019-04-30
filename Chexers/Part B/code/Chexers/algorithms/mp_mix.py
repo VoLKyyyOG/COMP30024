@@ -51,7 +51,7 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
 
     if two_player:
         alive_opponent = [i for i in opponents if not is_dead(state, i)][0]
-        if state["exits"][alive_opponent] < 2 and leader_edge >= 6: # at least 6 utility value ahead
+        if state["exits"][alive_opponent] < 2 and leader_edge >= defence_threshold: # at least 6 utility value ahead
             return False
                 
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| ALPHA-BETA AGAINST REMAINING PLAYER | DEPTH = {MAX_DEPTH + 3}")

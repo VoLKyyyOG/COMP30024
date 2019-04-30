@@ -149,7 +149,7 @@ class MPMixPlayer:
                    This works because paranoid defaults to alpha-beta by ignoring
                    dead players.
         """
-        action = mp_mix(self.state, end_game_heuristic, defence_threshold=0, offence_threshold=0, two_player=True)
+        action = mp_mix(self.state, end_game_heuristic, defence_threshold=6, offence_threshold=0, two_player=True)
         if action is False: # If we deem we are way ahead
             action =  self.djikstra(single_player=False)
         return action
