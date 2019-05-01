@@ -85,7 +85,7 @@ def move_action(state, _occupied, colour):
             if adjacent_hex in VALID_COORDINATES and adjacent_hex not in _occupied:
                 possible_moves.append(("MOVE", (piece, adjacent_hex)))
 
-    return sorted(possible_moves)
+    return possible_moves
 
 def jump_action(state, _occupied, colour):
     """
@@ -102,4 +102,4 @@ def jump_action(state, _occupied, colour):
                 if target_hex in VALID_COORDINATES and target_hex not in _occupied:
                     possible_jumps.append(("JUMP", (piece, target_hex)))
 
-    return sorted(possible_jumps)
+    return possible_jumps

@@ -9,8 +9,23 @@ Uses number_of_pieces_lost = 0 and retrograde_dijkstra as heuristic
 ########################### IMPORTS ##########################
 # User-defined files
 from mechanics import *
-from algorithms.paranoid import paranoid
+from algorithms.mp_mix import paranoid
 from algorithms.heuristics import *
+from algorithms.partA.search import part_A_search
+
+PATH = list()
+
+def get_cubic(tup):
+    """
+    Converts axial coordinates to cubic coordinates
+    """
+    return (tup[0], -tup[0]-tup[1], tup[1])
+
+def get_axial(tup):
+    """
+    Converts axial coordinates to cubic coordinates
+    """
+    return (tup[0], tup[2])
 
 class RunnerPlayer:
     def __init__(self, colour):
@@ -29,10 +44,45 @@ class RunnerPlayer:
         self.state = apply_action(self.state, action)
 
     ################# DEFINE EVERY IMPLEMENTATION ################
+    
+    def dijkstra(self, single_player=True):
+        """
+        :strategy: If everyone is dead, it becomes Part A. Literally Part A code...
+        """
+        global PATH
+        FLAGS = ["MOVE", "JUMP", "EXIT"]
+
+        if not bool(PATH):
+            # Create part_A appropriate data
+            state = dict()
+            state['colour'] = deepcopy(self.colour)
+
+            # TODO: Calculate jump distance for each piece and then return closest pieces for exit
+            n_exited = self.state["exits"][self.colour]
+            n = 4 - n_exited
+
+            temp = sorted([get_cubic(tup) for tup in self.state[self.colour]], reverse=True)
+            state['pieces'] = [get_axial(tup) for tup in temp[:n]]
+            state['blocks'] = [get_axial(tup) for tup in temp[n:]]
+
+            PATH = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1:]
+
+            # (pos, flag, new_pos=None)
+            PATH = [(FLAGS[x[1]], x[0]) if FLAGS[x[1]] == "EXIT" else (FLAGS[x[1]], (x[0], x[2])) for x in PATH]
+
+            # (FLAG_str: (pos1, pos2=None))
+
+        return PATH.pop(0)
 
     def action(self):
         """
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        return paranoid(self.state, mega_heuristic, self.colour)[1]
+        if is_dead(self.state, self.colour):
+            return ("PASS", None)
+
+        if sum([is_dead(self.state, i) for i in PLAYER_NAMES]) == 2:
+            return self.dijkstra()
+
+        return paranoid(self.state, end_game_heuristic, self.colour)[1]

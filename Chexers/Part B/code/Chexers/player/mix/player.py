@@ -15,7 +15,7 @@ from algorithms.partA.search import part_A_search
 from algorithms.IDA import *
 from mechanics import *
 from algorithms.heuristics import *
-from algorithms.mp_mix import mp_mix
+from algorithms.mp_mix import mp_mix, paranoid
 
 PATH = list()
 
@@ -40,7 +40,7 @@ def num_opponents_dead(state):
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 0
+    MID_GAME_THRESHOLD = 8
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
@@ -79,7 +79,7 @@ class MPMixPlayer:
         """
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
         """
-        return self.greedy_action()
+        return paranoid(self.state, achilles_vector, self.colour, depth_left=3)[1]
 
     def mid_game(self):
         """

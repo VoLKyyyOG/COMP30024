@@ -52,7 +52,7 @@ def paris(state):
                 captures[player].append(action)
     return captures
 
-def achilles_vector(state, reality=False):
+def achilles_vector(state, reality=True):
     """
     achilles_vector returns the number of threats for each player.
     :FLAG reality: if True, counts actual opponents that could capture
@@ -134,9 +134,9 @@ def mega_heuristic(state, runner=False):
     """
     evals = [no_pieces(state), can_exit(state), achilles_vector(state, reality=True), paris_vector(state)]
     if runner:
-        return [h1+100*h2 for h1,h2 in zip(evals[0],evals[1])]
+        return [h1+h2 for h1,h2 in zip(evals[0],evals[1])]
 
-    weighted_evals = [h1 + 100*h2 - 80*h3 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+    weighted_evals = [h1 + h2 - 80*h3 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
     
     return weighted_evals
 
@@ -144,10 +144,11 @@ def end_game_heuristic(state):
     """
     A heuristic designed to always win against a greedy algorithm
     """
-    evals = [desperation(state), paris_vector(state), no_pieces(state)]
+    evals = [desperation(state), paris_vector(state), no_pieces(state), can_exit(state)]
 
-    summed = [h1 + h2 + 3*h3 for h1,h2,h3 in zip(evals[0], evals[1], evals[2])]
-    return [i if i > 0 else -inf for i in summed]
+    summed = [h1 + h2 + h3 + 2*h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+    return [i if i > -4 else -inf for i in summed] # desdperation is -4 if dead
+
 
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""

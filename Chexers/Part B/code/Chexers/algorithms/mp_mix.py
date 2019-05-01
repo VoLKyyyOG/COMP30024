@@ -24,6 +24,8 @@ from mechanics import *
 from .heuristics import *
 ########################### GLOBALS ##########################
 MAX_DEPTH = 3
+MAXN_MAX_DEPTH = 3
+PARANOID_MAX_DEPTH = 5
 MAX_UTIL_VAL = 6 # TODO: Calculate a max utility value!
 ##############################################################
 """
@@ -32,7 +34,7 @@ MP-Mix Core Implementation
 def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_player = False):
     # Heuristic scores for each player
     raw_scores = heuristic(state) # 3-player heuristics should output vectors
-    print(f"\n\t\t\t\t\t\t\t\t* ||| Initial Evaluations {raw_scores}")
+    print(f"\n\t\t\t\t\t\t\t\t* ||| Initial Evaluations {raw_scores} using {heuristic}")
 
     # List of opponents, irrespective of whether they are dead
     max_player = state["turn"]
@@ -54,8 +56,8 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
         if state["exits"][alive_opponent] < 2 and leader_edge >= defence_threshold: # at least 6 utility value ahead
             return False
                 
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| ALPHA-BETA AGAINST REMAINING PLAYER | DEPTH = {MAX_DEPTH + 3}")
-        return paranoid(state, heuristic, max_player, depth_left=MAX_DEPTH + 3)[1]
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| ALPHA-BETA AGAINST REMAINING PLAYER | DEPTH = {PARANOID_MAX_DEPTH}")
+        return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
     """
     1. If we are the leader -> Paranoid given Defence Threshold
@@ -67,23 +69,23 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
     :else: Default to a Maxn algorithm
     """
     if max_player == leader and leader_edge >= defence_threshold:
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING PARANOID | DEPTH = {MAX_DEPTH}")
-        return paranoid(state, heuristic, max_player, depth_left=MAX_DEPTH)[1]
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
+        return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
     if max_player == rival and leader_edge > second_edge and leader_edge >= offence_threshold:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER {leader} | DEPTH = {MAX_DEPTH}")
         return directed_offensive(state, heuristic, max_player, leader, depth_left=MAX_DEPTH)[1]
 
+    if max_player == loser and second_edge >= defence_threshold:
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
+        return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
+
     if len(state[loser]) == 1:
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LOSER {loser} | DEPTH = {MAX_DEPTH}")
         return directed_offensive(state, heuristic, max_player, loser, depth_left=MAX_DEPTH)[1]
-    
-    if state["exits"][leader] == 3 and max_player != leader:
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST PLAYER {leader} WITH 3 EXITS | DEPTH = {MAX_DEPTH}")
-        return directed_offensive(state, heuristic, max_player, leader, depth_left=MAX_DEPTH)[1]
 
-    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING MAX_N | DEPTH = {MAX_DEPTH}")
-    return max_n(state, heuristic, depth_left=MAX_DEPTH)[1]
+    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DEFAULTING USING MAX_N | DEPTH = {MAX_DEPTH}")
+    return max_n(state, heuristic, depth_left=MAXN_MAX_DEPTH)[1]
 
 """
 Paranoid Implementation using Alpha-Beta Pruning
