@@ -127,26 +127,21 @@ def corner_hexes(state):
     """
     return [len([i for i in state[player] if i in CORNER_HEXES]) for player in PLAYER_NAMES]
 
-def mega_heuristic(state, runner=False):
+def simple_heuristic(state):
     """
-    Current utility function: (we want to maximise, so distance is negative)
-    Number of Pieces, Exit Possible?, Number of pieces that are capturable
+    Simple Greedy Heuristic
     """
-    evals = [no_pieces(state), can_exit(state), achilles_vector(state, reality=True), paris_vector(state)]
-    if runner:
-        return [h1+h2 for h1,h2 in zip(evals[0],evals[1])]
+    evals = [speed_demon(state), no_pieces(state), exits(state)]
 
-    weighted_evals = [h1 + h2 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
-    
-    return weighted_evals
+    return [h1 + 2*h2 + h3 for h1,h2,h3 in zip(evals[0], evals[1], evals[2])]
 
 def end_game_heuristic(state):
     """
-    A heuristic designed to always win against a greedy algorithm
+    Tribute to Marvel's End Game. This is the heuristic used for our mp-mix algorithm
     """
-    evals = [desperation(state), paris_vector(state), no_pieces(state), can_exit(state)]
+    evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state)]
 
-    summed = [h1 + h2 + h3 + 2*h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+    summed = [h1 + h2 + 2*h3 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
     return [i if i > -4 else -inf for i in summed] # desdperation is -4 if dead
 
 

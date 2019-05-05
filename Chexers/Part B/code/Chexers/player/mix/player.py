@@ -40,7 +40,7 @@ def num_opponents_dead(state):
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 8
+    MID_GAME_THRESHOLD = 3
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
@@ -85,7 +85,7 @@ class MPMixPlayer:
         """
         :strategy: Runs the MP-Mix Algorithm.
         """
-        return mp_mix(self.state, mega_heuristic, defence_threshold=0, offence_threshold=0)
+        return mp_mix(self.state, end_game_heuristic, defence_threshold=0, offence_threshold=0)
 
     def end_game(self):
         """

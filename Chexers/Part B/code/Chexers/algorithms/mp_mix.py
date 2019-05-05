@@ -68,8 +68,12 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
 
     :else: Default to a Maxn algorithm
     """
+    if max_player != leader and state['exits'][leader] == 3:
+        print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST 3 EXIT PLAYER {leader} | DEPTH = {MAX_DEPTH + 1}")
+        return directed_offensive(state, heuristic, max_player, leader, depth_left=MAX_DEPTH + 1)[1]
+
     if max_player == leader and leader_edge >= defence_threshold:
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| LEADER - USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
         return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
     if max_player == rival and leader_edge > second_edge and leader_edge >= offence_threshold:
@@ -77,10 +81,10 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
         return directed_offensive(state, heuristic, max_player, leader, depth_left=MAX_DEPTH)[1]
 
     if max_player == loser and second_edge >= defence_threshold:
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| LOSER - USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
         return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
-    if len(state[loser]) == 1:
+    if max_player != loser and len(state[loser]) == 1:
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LOSER {loser} | DEPTH = {MAX_DEPTH}")
         return directed_offensive(state, heuristic, max_player, loser, depth_left=MAX_DEPTH)[1]
 
