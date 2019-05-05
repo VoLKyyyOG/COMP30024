@@ -136,7 +136,7 @@ def mega_heuristic(state, runner=False):
     if runner:
         return [h1+h2 for h1,h2 in zip(evals[0],evals[1])]
 
-    weighted_evals = [h1 + h2 - 80*h3 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+    weighted_evals = [h1 + h2 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
     
     return weighted_evals
 
