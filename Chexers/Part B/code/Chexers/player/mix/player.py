@@ -10,7 +10,7 @@
 from math import inf
 
 # User-defined files
-from mechanics import create_initial_state, num_opponents_dead, apply_action, get_remaining_opponent
+from mechanics import create_initial_state, num_opponents_dead, apply_action, possible_actions, get_remaining_opponent
 from moves import get_axial, get_cubic
 
 from algorithms.mp_mix import mp_mix, paranoid

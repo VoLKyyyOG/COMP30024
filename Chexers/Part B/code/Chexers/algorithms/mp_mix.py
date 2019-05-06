@@ -14,6 +14,10 @@ Inon Zuckerman, Ariel Felner
              2. Offensive when losing
 :strategy: Determine whether the agent should be paranoid (1 vs all), maxn (everyone will maximise themself), offence (minimise a target)
 """
+
+"""BATTLEGROUND LOSS LOGS
+1. we are close to goal and neglect a piece that is far out. opponent then captures that piece and wins the game
+"""
 ########################### IMPORTS ##########################
 
 # Standard modules
@@ -59,15 +63,16 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
     leader_edge = high - medium
     second_edge = medium - low
 
+    possible_exits = exit_action(state, max_player)
+    if state['exits'][max_player] == 3 and bool(possible_exits):
+        return possible_exits[0]
+
     """ TWO PLAYER
     1. If the opponent has less than 2 exits AND our evaluation is greater than the defence threshold, then do a runner.
     :else: Default to a alpha-beta algorithm (implemented via paranoid function)
     """
-    if two_player:
-        possible_exits = exit_action(state, max_player)
-        if state['exits'][max_player] == 3 and bool(possible_exits):
-            return possible_exits[0]
 
+    if two_player:
         alive_opponent = get_remaining_opponent(state)
         
         if state["exits"][alive_opponent] < 2 and leader_edge >= defence_threshold:
