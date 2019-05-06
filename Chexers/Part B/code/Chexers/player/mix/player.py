@@ -40,7 +40,7 @@ def num_opponents_dead(state):
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 3
+    MID_GAME_THRESHOLD = 9
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):

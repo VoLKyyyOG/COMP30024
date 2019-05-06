@@ -7,59 +7,34 @@ game-specific functions and variables.
 """
 
 ########################### IMPORTS ##########################
+
 # Standard modules
+from math import inf
 from copy import deepcopy
 from collections import defaultdict
+
 # User-defined files
-from moves import *
+from moves import midpoint, move_action, jump_action, exit_action
 
 ########################### GLOBALS ##########################
 
-N_PLAYERS = 3 # Must be 2 minimum
-GAME_NAME = "Chexers"
-MAX_TURNS = 256 # per player
+N_PLAYERS = 3
+INITIAL_EXITED_PIECES = 0
 
-# Needs implementing
-TEMPLATE_NORMAL = """*   scores: {0}
-*   board:    .-'-._.-'-._.-'-._.-'-.
-*            |{16:}|{23:}|{29:}|{34:}|
-*          .-'-._.-'-._.-'-._.-'-._.-'-.
-*         |{10:}|{17:}|{24:}|{30:}|{35:}|
-*       .-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-*      |{05:}|{11:}|{18:}|{25:}|{31:}|{36:}|
-*    .-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-*   |{01:}|{06:}|{12:}|{19:}|{26:}|{32:}|{37:}|
-*   '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-*      |{02:}|{07:}|{13:}|{20:}|{27:}|{33:}|
-*      '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-*         |{03:}|{08:}|{14:}|{21:}|{28:}|
-*         '-._.-'-._.-'-._.-'-._.-'-._.-'
-*            |{04:}|{09:}|{15:}|{22:}|
-*            '-._.-'-._.-'-._.-'-._.-'"""
+MAX_TURNS = 256 # PER PLAYER
+MAX_EXITS = 4
+MAX_COORDINATE_VAL = 3
 
-TEMPLATE_DEBUG = """*   scores: {0}
-*   board:       ,-' `-._,-' `-._,-' `-._,-' `-.
-*               | {16:} | {23:} | {29:} | {34:} |
-*               |  0,-3 |  1,-3 |  2,-3 |  3,-3 |
-*            ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-*           | {10:} | {17:} | {24:} | {30:} | {35:} |
-*           | -1,-2 |  0,-2 |  1,-2 |  2,-2 |  3,-2 |
-*        ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-*       | {05:} | {11:} | {18:} | {25:} | {31:} | {36:} |
-*       | -2,-1 | -1,-1 |  0,-1 |  1,-1 |  2,-1 |  3,-1 |
-*    ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-*   | {01:} | {06:} | {12:} | {19:} | {26:} | {32:} | {37:} |
-*   | -3, 0 | -2, 0 | -1, 0 |  0, 0 |  1, 0 |  2, 0 |  3, 0 |
-*    `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
-*       | {02:} | {07:} | {13:} | {20:} | {27:} | {33:} |
-*       | -3, 1 | -2, 1 | -1, 1 |  0, 1 |  1, 1 |  2, 1 |
-*        `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
-*           | {03:} | {08:} | {14:} | {21:} | {28:} |
-*           | -3, 2 | -2, 2 | -1, 2 |  0, 2 |  1, 2 | key:
-*            `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' ,-' `-.
-*               | {04:} | {09:} | {15:} | {22:} |   | input |
-*               | -3, 3 | -2, 3 | -1, 3 |  0, 3 |   |  q, r |
-*                `-._,-' `-._,-' `-._,-' `-._,-'     `-._,-'"""
+CORNER_HEXES = [
+    (-3, 0), (-3, 3), (0, 3), (3, 0), (3, -3), (0, -3)
+]
+
+STARTS = {
+    'red': [(-3,3), (-3,2), (-3,1), (-3,0)],
+    'green': [(0,-3), (1,-3), (2,-3), (3,-3)],
+    'blue': [(3, 0), (2, 1), (1, 2), (0, 3)],
+
+}
 
 ##################### CODES FOR PLAYERS ######################
 
@@ -68,17 +43,6 @@ PLAYER_NAMES = [
     "red", "green", "blue",
     "orange", "yellow", "purple"
 ][:N_PLAYERS]
-
-# 'r', 'g', etc. for display usage
-PLAYER_CODES = [name[0] for name in PLAYER_NAMES]
-
-# Maps 'r', 'g' to 'red', 'green' etc.
-NAMING_DICT = {name[0]: name for name in PLAYER_NAMES}
-NAMING_DICT.update({name: name[0] for name in PLAYER_NAMES})
-
-INITIAL_EXITED_PIECES = 0
-MAX_EXITS = 4
-MAX_ACTIONS_PER_PIECE = 6
 
 # For hashing
 NUM_HEXES = 37
@@ -93,15 +57,6 @@ PLAYER_HASH = {
 PLAYER_HASH.update(dict(zip(PLAYER_HASH.values(), PLAYER_HASH.keys())))
 
 ##################### STATE FUNCTIONALITY ####################
-
-"""After defining what a state data structure is, code the following
-
-state = {red=list(), green=list(), blue=list(), exits=dict(), turn=str, depth=0}
-action = (MOVE, (loc_1, loc_2)), (JUMP, (loc_1, loc_2)), (EXIT, (loc_1)),  (PASS, None)
-
-# Must be copyable
-
-"""
 
 def create_initial_state():
     """Returns the starting game state"""
@@ -140,15 +95,6 @@ def next_player(state, ignore_dead=False):
     else:
         current_index = PLAYER_NAMES.index(state['turn'])
         return PLAYER_NAMES[(current_index + 1) % N_PLAYERS]
-
-#### TODO: May be redundant
-def prev_player(state, ignore_dead=False):
-    """Determines previous player"""
-    # Exploits ordering of PLAYER_NAMES, gets index of next along
-    if ignore_dead and two_players_left(state):
-        return get_opponents(state).pop()
-    current_index = PLAYER_NAMES.index(state['turn'])
-    return PLAYER_NAMES[(current_index - 1) % N_PLAYERS]
 
 def get_score(state, colour):
     """Retrieves score for player in a state."""
@@ -254,55 +200,6 @@ def possible_actions(state, colour):
     else:
         return actions
 
-def encode(state):
-    """Defines a low-collision invertible hash for a State object"""
-    return Z_hash(state, ignore_exits=True)
-
-def decode(state):
-    """Decodes a hashed State back into a State object"""
-    raise NotImplementedError
-
-def get_strings_for_template(state, debug=False):
-    """Gets the strings for insertion into the template."""
-    string_stor = dict()
-    for name in PLAYER_NAMES:
-        for piece in state[name]:
-            string_stor[piece] = f"  {name[0].upper()}  "
-    result = ["     "] * NUM_HEXES
-    for piece in string_stor:
-        result[VALID_COORDINATES.index(piece)] = string_stor[piece]
-    return result
-
-def log_action(state, action):
-    """Defines how to print an action, for logging and display
-    E.g. 'TYPE, from X to Z'"""
-    flag, pieces = action
-    base_str = f"chose to {flag}"
-    capture_str = ""
-    if (flag == "PASS"):
-        return base_str
-    elif flag == "EXIT":
-        return base_str + f" {pieces}" + f" - exits now {state['exits']}"
-    else:
-        if flag == "JUMP" and is_capture(state, action, state['turn']):
-            old, new  = pieces
-            captured = midpoint(old, new)
-            for player in PLAYER_NAMES:
-                if captured in state[player]:
-                    total_pieces = ', '.join([str(len(state[x])) for x in PLAYER_NAMES])
-                    capture_str = f" - you mad {player}? Piece totals {total_pieces}"
-
-        # Any other flags can go here
-        return base_str + f" {pieces[0]} to {pieces[1]}{capture_str}"
-
-def get_template(debug=False):
-    """Returns the desired template for printing."""
-    if debug:
-        template = TEMPLATE_DEBUG
-    else:
-        template = TEMPLATE_NORMAL
-    return template
-
 def two_players_left(state):
     """Checks if one player has lost all pieces"""
     if not game_over(state):
@@ -313,11 +210,23 @@ def get_opponents(state):
     """Fetches a turn player's opponents"""
     return [player for player in PLAYER_NAMES if player != state['turn']]
 
+def get_remaining_opponent(state):
+    """Fetches a turn player's remaining opponents"""
+    return [opponent for opponent in get_opponents(state) if not is_dead(state, opponent)][0]
+
 def players_left(state):
     """Finds all players left"""
     return [player for player in PLAYER_NAMES if len(state[player])]
 
 ########################## HASHING ############################
+
+def encode(state):
+    """Defines a low-collision invertible hash for a State object"""
+    return Z_hash(state, ignore_exits=True)
+
+def decode(state):
+    """Decodes a hashed State back into a State object"""
+    raise NotImplementedError
 
 def Z_hash(state, ignore_exits=True):
     """

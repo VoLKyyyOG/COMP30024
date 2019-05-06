@@ -15,20 +15,26 @@ Inon Zuckerman, Ariel Felner
 :strategy: Determine whether the agent should be paranoid (1 vs all), maxn (everyone will maximise themself), offence (minimise a target)
 """
 ########################### IMPORTS ##########################
+
 # Standard modules
-from copy import deepcopy
 from math import inf
 
 # User-defined files
-from mechanics import *
-from .heuristics import *
+from mechanics import possible_actions, apply_action, get_remaining_opponent
+from moves import exit_action
+
+# Global Imports
+from mechanics import PLAYER_NAMES, PLAYER_HASH, N_PLAYERS
+
 ########################### GLOBALS ##########################
+
 MAX_DEPTH = 3
 KILL_DEPTH = 4
 MAXN_MAX_DEPTH = 3
 PARANOID_MAX_DEPTH = 5
 TWO_PLAYER_MAX_DEPTH = 5
 MAX_UTIL_VAL = 6 # TODO: Calculate a max utility value!
+
 ##############################################################
 """
 MP-Mix Core Implementation
@@ -40,7 +46,6 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
 
     # List of opponents, irrespective of whether they are dead
     max_player = state["turn"]
-    opponents = get_opponents(state)
 
     scores = {PLAYER_NAMES[i] : raw_scores[i] for i in range(N_PLAYERS)}
     scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
@@ -62,7 +67,7 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
         if state['exits'][max_player] == 3 and bool(possible_exits):
             return possible_exits[0]
 
-        alive_opponent = [i for i in opponents if not is_dead(state, i)][0]
+        alive_opponent = get_remaining_opponent(state)
         
         if state["exits"][alive_opponent] < 2 and leader_edge >= defence_threshold:
             print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DOING A DIJKSTRA AGAINST REMAINING PLAYER ")

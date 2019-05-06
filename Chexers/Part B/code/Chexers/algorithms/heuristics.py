@@ -5,16 +5,20 @@
 """
 
 ########################### IMPORTS ##########################
+
 # Standard modules
-from queue import PriorityQueue as PQ
-from collections import defaultdict
 from math import inf
+from copy import deepcopy
+from collections import defaultdict
+from queue import PriorityQueue as PQ
 
 # User-defined files
-from mechanics import *
-from moves import *
+from moves import add, sub, get_cubic
 
-from algorithms.partA.search import part_A_search
+# Global Imports
+from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES
+from mechanics import PLAYER_NAMES, PLAYER_HASH, MAX_COORDINATE_VAL, MAX_EXITS
+
 ##############################################################
 
 def exits(state):
