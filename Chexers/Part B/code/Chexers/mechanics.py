@@ -10,56 +10,24 @@ game-specific functions and variables.
 # Standard modules
 from copy import deepcopy
 from collections import defaultdict
+from math import inf
+
 # User-defined files
 from moves import *
-
 ########################### GLOBALS ##########################
 
-N_PLAYERS = 3 # Must be 2 minimum
-GAME_NAME = "Chexers"
+N_PLAYERS = 3
 MAX_TURNS = 256 # per player
 
-# Needs implementing
-TEMPLATE_NORMAL = """*   scores: {0}
-*   board:    .-'-._.-'-._.-'-._.-'-.
-*            |{16:}|{23:}|{29:}|{34:}|
-*          .-'-._.-'-._.-'-._.-'-._.-'-.
-*         |{10:}|{17:}|{24:}|{30:}|{35:}|
-*       .-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-*      |{05:}|{11:}|{18:}|{25:}|{31:}|{36:}|
-*    .-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-.
-*   |{01:}|{06:}|{12:}|{19:}|{26:}|{32:}|{37:}|
-*   '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-*      |{02:}|{07:}|{13:}|{20:}|{27:}|{33:}|
-*      '-._.-'-._.-'-._.-'-._.-'-._.-'-._.-'
-*         |{03:}|{08:}|{14:}|{21:}|{28:}|
-*         '-._.-'-._.-'-._.-'-._.-'-._.-'
-*            |{04:}|{09:}|{15:}|{22:}|
-*            '-._.-'-._.-'-._.-'-._.-'"""
+CORNER_HEXES = [
+    (-3, 0), (-3, 3), (0, 3), (3, 0), (3, -3), (0, -3)
+]
 
-TEMPLATE_DEBUG = """*   scores: {0}
-*   board:       ,-' `-._,-' `-._,-' `-._,-' `-.
-*               | {16:} | {23:} | {29:} | {34:} |
-*               |  0,-3 |  1,-3 |  2,-3 |  3,-3 |
-*            ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-*           | {10:} | {17:} | {24:} | {30:} | {35:} |
-*           | -1,-2 |  0,-2 |  1,-2 |  2,-2 |  3,-2 |
-*        ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-*       | {05:} | {11:} | {18:} | {25:} | {31:} | {36:} |
-*       | -2,-1 | -1,-1 |  0,-1 |  1,-1 |  2,-1 |  3,-1 |
-*    ,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-.
-*   | {01:} | {06:} | {12:} | {19:} | {26:} | {32:} | {37:} |
-*   | -3, 0 | -2, 0 | -1, 0 |  0, 0 |  1, 0 |  2, 0 |  3, 0 |
-*    `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
-*       | {02:} | {07:} | {13:} | {20:} | {27:} | {33:} |
-*       | -3, 1 | -2, 1 | -1, 1 |  0, 1 |  1, 1 |  2, 1 |
-*        `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' `-._,-'
-*           | {03:} | {08:} | {14:} | {21:} | {28:} |
-*           | -3, 2 | -2, 2 | -1, 2 |  0, 2 |  1, 2 | key:
-*            `-._,-' `-._,-' `-._,-' `-._,-' `-._,-' ,-' `-.
-*               | {04:} | {09:} | {15:} | {22:} |   | input |
-*               | -3, 3 | -2, 3 | -1, 3 |  0, 3 |   |  q, r |
-*                `-._,-' `-._,-' `-._,-' `-._,-'     `-._,-'"""
+STARTS = {
+    'red': [(-3,3), (-3,2), (-3,1), (-3,0)],
+    'green': [(0,-3), (1,-3), (2,-3), (3,-3)],
+    'blue': [(3, 0), (2, 1), (1, 2), (0, 3)],
+}
 
 ##################### CODES FOR PLAYERS ######################
 
@@ -93,22 +61,9 @@ PLAYER_HASH = {
 PLAYER_HASH.update(dict(zip(PLAYER_HASH.values(), PLAYER_HASH.keys())))
 
 ##################### STATE FUNCTIONALITY ####################
-
-"""After defining what a state data structure is, code the following
-
-state = {red=list(), green=list(), blue=list(), exits=dict(), turn=str, depth=0}
-action = (MOVE, (loc_1, loc_2)), (JUMP, (loc_1, loc_2)), (EXIT, (loc_1)),  (PASS, None)
-
-# Must be copyable
-
-"""
-
 def create_initial_state():
     """Returns the starting game state"""
-    #### TODO: Instead of deepcopy(), we can just hardcode it here since we
-    ####       won't be using the global again.
-    ####       Confirming that we derive number of pieces using len() in two_players left
-    initial_state = deepcopy(STARTS)
+    initial_state = STARTS
     initial_state['exits'] = {name: INITIAL_EXITED_PIECES for name in PLAYER_NAMES}
     initial_state['turn'] = 'red'
     initial_state['depth'] = 0
@@ -141,15 +96,6 @@ def next_player(state, ignore_dead=False):
         current_index = PLAYER_NAMES.index(state['turn'])
         return PLAYER_NAMES[(current_index + 1) % N_PLAYERS]
 
-#### TODO: May be redundant
-def prev_player(state, ignore_dead=False):
-    """Determines previous player"""
-    # Exploits ordering of PLAYER_NAMES, gets index of next along
-    if ignore_dead and two_players_left(state):
-        return get_opponents(state).pop()
-    current_index = PLAYER_NAMES.index(state['turn'])
-    return PLAYER_NAMES[(current_index - 1) % N_PLAYERS]
-
 def get_score(state, colour):
     """Retrieves score for player in a state."""
     return state['exits'][colour]
@@ -161,13 +107,9 @@ def game_over(state, print_debug=False):
     - A player has exited all pieces
     - 256 move max for each player has been exceeded
     - A state has been visited 4 times
-
-    TODO: ALL_DEAD IS NOT AN ACTUAL GAME OVER SCENARIO
     """
     draw = depth(state) == MAX_TURNS * 3
-    all_dead = sum([bool(state[colour]) for colour in PLAYER_NAMES]) == 1
     winner = MAX_EXITS in state['exits'].values()
-
     if print_debug:
         print(f"\n\t\t\t\t\t\t\t\tDraw: {draw}, All Dead: {all_dead}, Winner: {winner}")
         return None
@@ -176,6 +118,12 @@ def game_over(state, print_debug=False):
 
 def is_dead(state, colour):
     return not bool(state[colour])
+
+def num_opponents_dead(state):
+    """
+    Find the number of dead players
+    """
+    return sum([is_dead(state, i) for i in PLAYER_NAMES])
 
 def apply_action(state, action, ignore_dead=False):
     """Applies an action to a State object, returns new state"""

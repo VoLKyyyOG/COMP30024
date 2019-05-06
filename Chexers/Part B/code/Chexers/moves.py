@@ -16,16 +16,6 @@ VALID_COORDINATES = [
     (3, -3), (3, -2), (3, -1), (3, 0)
 ]
 
-CORNER_HEXES = [
-    (-3, 0), (-3, 3), (0, 3), (3, 0), (3, -3), (0, -3)
-]
-
-STARTS = {
-    'red': [(-3,3), (-3,2), (-3,1), (-3,0)],
-    'green': [(0,-3), (1,-3), (2,-3), (3,-3)],
-    'blue': [(3, 0), (2, 1), (1, 2), (0, 3)],
-}
-
 GOALS = {
     'red': [(3,-3), (3,-2), (3,-1), (3,0)],
     'green': [(-3,3), (-2,3), (-1,3), (0,3)],
@@ -33,6 +23,19 @@ GOALS = {
 }
 
 MAX_COORDINATE_VAL = 3
+
+############################ BOARD ############################
+def get_cubic(tup):
+    """
+    Converts axial coordinates to cubic coordinates
+    """
+    return (tup[0], -tup[0]-tup[1], tup[1])
+
+def get_axial(tup):
+    """
+    Converts axial coordinates to cubic coordinates
+    """
+    return (tup[0], tup[2])
 
 ############################ MOVES ############################
 
@@ -49,13 +52,6 @@ def sub(u, v):
     :returns: tuple vector
     """
     return (u[0] - v[0], u[1] - v[1])
-
-def get_cubic(v):
-    """
-    Function that converts axial coordinates to cubic coordinates
-    :returns: cubic coordinates
-    """
-    return (v[0], v[1], -v[0]-v[1])
 
 def midpoint(u, v):
     """

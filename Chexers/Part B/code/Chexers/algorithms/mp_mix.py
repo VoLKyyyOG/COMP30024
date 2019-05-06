@@ -15,23 +15,30 @@ Inon Zuckerman, Ariel Felner
 :strategy: Determine whether the agent should be paranoid (1 vs all), maxn (everyone will maximise themself), offence (minimise a target)
 """
 ########################### IMPORTS ##########################
+
 # Standard modules
-from copy import deepcopy
 from math import inf
 
 # User-defined files
+from moves import get_cubic, get_axial
 from mechanics import *
 from .heuristics import *
+
 ########################### GLOBALS ##########################
+
 MAX_DEPTH = 3
 KILL_DEPTH = 4
-MAXN_MAX_DEPTH = 3
 PARANOID_MAX_DEPTH = 5
 TWO_PLAYER_MAX_DEPTH = 5
-MAX_UTIL_VAL = 6 # TODO: Calculate a max utility value!
+MAX_UTIL_VAL = 6 # TODO TODO TODO: Calculate a max utility value! Need to finalise heuristics first
+
 ##############################################################
 """
 MP-Mix Core Implementation
+:returns:
+1. best_action - the best evaluated action
+2. True - use Greedy
+3. False - use Dijkstra 
 """
 def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_player = False):
     # Heuristic scores for each player
@@ -54,17 +61,18 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
     second_edge = medium - low
 
     """ TWO PLAYER
-    1. If the opponent has less than 2 exits AND our evaluation is greater than the defence threshold, then do a runner.
-    :else: Default to a alpha-beta algorithm (implemented via paranoid function)
+    1. If we have a free win / exit, do it.
+    2. If the opponent has <= 2 exits AND we have >= 2 exits, race to the goal! Return Dijkstra.
+    :else: default to alpha-beta with depth 6
     """
     if two_player:
         possible_exits = exit_action(state, max_player)
-        if state['exits'][max_player] == 3 and bool(possible_exits):
+        if state['exits'][max_player] == 3 and len(possible_exits) > 0:
+            print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| FREE EXIT GG ")
             return possible_exits[0]
 
         alive_opponent = [i for i in opponents if not is_dead(state, i)][0]
-        
-        if state["exits"][alive_opponent] < 2 and leader_edge >= defence_threshold:
+        if state["exits"][alive_opponent] <= 2 and state["exits"][max_player] >= 2 and leader_edge >= defence_threshold:
             print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DOING A DIJKSTRA AGAINST REMAINING PLAYER ")
             return False
                 
@@ -79,7 +87,7 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
     5. If we are the loser AND our second edge is greater than the defence threshold, then run a paranoid algorithm.
     6. If we are not the loser AND the loser has one piece remaining, then attempt to kill this player.
 
-    :else: Default to a Maxn algorithm
+    :else: Default to a Maxn algorithm with depth 3
     """
     if max_player != leader and state['exits'][leader] == 2 and desperation(state)[PLAYER_HASH[max_player]] > 0:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| WE ARE WITHIN REASON TO ATTEMPT A GREEDY APPROACH")
@@ -94,19 +102,19 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
         return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
     if max_player == rival and second_edge >= offence_threshold:
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER {leader} | DEPTH = {MAX_DEPTH}")
-        return directed_offensive(state, heuristic, max_player, leader, depth_left=MAX_DEPTH)[1]
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER {leader} | DEPTH = {KILL_DEPTH}")
+        return directed_offensive(state, heuristic, max_player, leader, depth_left=KILL_DEPTH)[1]
 
     if max_player == loser and second_edge >= defence_threshold:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| LOSER - USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
         return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
     if max_player != loser and len(state[loser]) == 1:
-        print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LOSER {loser} | DEPTH = {KILL_DEPTH}")
+        print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST ONE PIECE LOSER {loser} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, heuristic, max_player, loser, depth_left=KILL_DEPTH)[1]
 
     print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DEFAULTING USING MAX_N | DEPTH = {MAX_DEPTH}")
-    return max_n(state, heuristic, depth_left=MAXN_MAX_DEPTH)[1]
+    return max_n(state, heuristic, depth_left=MAX_DEPTH)[1]
 
 """
 Paranoid Implementation using Alpha-Beta Pruning
@@ -177,7 +185,7 @@ def directed_offensive(state, heuristic, max_player, target, depth_left=MAX_DEPT
         # If this is us:
         if p == max_player:
             # If this new eval lowers our target eval, then update our path with this action
-            # TODO: if -inf rip
+            # TODO: if -inf rip. Caused when target is a dead player (loser)
             if player_eval[PLAYER_HASH[target]] < max_player_evals[PLAYER_HASH[target]]:
                 max_player_evals, best_action = player_eval, action
 
@@ -198,7 +206,7 @@ def max_n(state, heuristic, depth_left=MAX_DEPTH):
     generated_actions = possible_actions(state, p)
 
     for action in generated_actions:
-        new_state = apply_action(state, action, ignore_dead=True)
+        new_state = apply_action(state, action)
 
         player_eval = max_n(new_state, heuristic, depth_left-1)[0] # only take the vector of evaluations
 

@@ -6,41 +6,22 @@
 
 ########################### IMPORTS ##########################
 # Standard modules
-from random import choice
-from copy import deepcopy
 from math import inf
 
 # User-defined files
-from algorithms.partA.search import part_A_search
 from algorithms.IDA import *
 from mechanics import *
-from algorithms.heuristics import *
+
+from algorithms.partA.search import part_A_search
+from algorithms.heuristics import achilles_vector, end_game_heuristic
 from algorithms.mp_mix import mp_mix, paranoid
+########################### GLOBALS ##########################
 
-PATH = list()
-
-###################### ACTION FUNCTIONS ######################
-def get_cubic(tup):
-    """
-    Converts axial coordinates to cubic coordinates
-    """
-    return (tup[0], -tup[0]-tup[1], tup[1])
-
-def get_axial(tup):
-    """
-    Converts axial coordinates to cubic coordinates
-    """
-    return (tup[0], tup[2])
-
-def num_opponents_dead(state):
-    """
-    Find the number of dead players
-    """
-    return sum([is_dead(state, i) for i in PLAYER_NAMES])
+PATH = list() # for dijkstra
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 3
+    MID_GAME_THRESHOLD = 9
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
@@ -124,7 +105,7 @@ class MPMixPlayer:
         # AKIRA - RETURN DIJKSTRA'S GIVEN A PLAYER IS STILL ALIVE
         if not single_player:
             state = dict()
-            state['colour'] = deepcopy(self.colour)
+            state['colour'] = self.colour
 
             # TODO: Calculate jump distance for each piece and then return closest pieces for exit
             n_exited = self.state["exits"][self.colour]
@@ -145,7 +126,7 @@ class MPMixPlayer:
         if not bool(PATH):
             # Create part_A appropriate data
             state = dict()
-            state['colour'] = deepcopy(self.colour)
+            state['colour'] = self.colour
 
             # TODO: Calculate jump distance for each piece and then return closest pieces for exit
             n_exited = self.state["exits"][self.colour]
@@ -153,6 +134,7 @@ class MPMixPlayer:
 
             temp = sorted([get_cubic(tup) for tup in self.state[self.colour]], reverse=True)
             state['pieces'] = [get_axial(tup) for tup in temp[:n]]
+            print(state['pieces'])
             state['blocks'] = [get_axial(tup) for tup in temp[n:]]
 
             PATH = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1:]
@@ -181,12 +163,6 @@ class MPMixPlayer:
         if self.state["depth"] == self.END_GAME_THRESHOLD:
             print(f"* ({self.colour}) is switching to endgame")
         return (self.state["depth"] >= self.END_GAME_THRESHOLD)
-
-    def random_action(self):
-        """
-        :strategy: Choose a random action given a set of possible actions.
-        """
-        return choice(possible_actions(self.state, self.state["turn"]))
 
     def greedy_action(self):
         """

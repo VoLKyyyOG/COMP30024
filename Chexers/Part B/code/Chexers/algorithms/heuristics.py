@@ -11,7 +11,7 @@ from collections import defaultdict
 from math import inf
 
 # User-defined files
-from mechanics import *
+from mechanics import PLAYER_NAMES, PLAYER_HASH, MAX_EXITS
 from moves import *
 
 from algorithms.partA.search import part_A_search
@@ -99,6 +99,9 @@ def speed_demon(state):
 
     TODO: Coordinates must be then transformed so that changes in displacement
     evaluation do not outweigh the benefit of having exited a piece.
+    TODO TODO TODO: Return possible at most n closest pieces to goal. 
+                    THIS IS THE CAUSE OF LOSSES SINCE WE MOVE BACK PIECES INSTEAD OF THE CLOSEST
+                    ONES TO EXIT AND END UP LOSING PURELY IN NUMBER OF TURNS!!!
     """
 
     total_disp = lambda player: sum([get_cubic(piece)[PLAYER_HASH[player]] -
@@ -138,10 +141,11 @@ def end_game_heuristic(state):
     4. Number of Exits (Current count of exits) - highest bound of 4 (winner)
     """
     evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state)]
-
+    """
     weighted_evals = [h1 + h2 + h3 + 2**h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+    """
+    weighted_evals = [2*h1 + h2 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
     return [i if i < inf else -inf for i in weighted_evals] # desdperation is -4 if dead
-
 
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""
