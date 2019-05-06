@@ -13,7 +13,8 @@ from collections import defaultdict
 from queue import PriorityQueue as PQ
 
 # User-defined files
-from moves import add, sub, get_cubic
+from moves import add, sub, get_cubic, exit_action
+from mechanics import num_opponents_dead
 
 # Global Imports
 from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES
@@ -141,10 +142,15 @@ def end_game_heuristic(state):
     3. Number of Pieces - lowest bound of 0 (dead)
     4. Number of Exits (Current count of exits) - highest bound of 4 (winner)
     """
-    evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state)]
+    if num_opponents_dead(state) == 1: # if it is two player
+        evals = [desperation(state), speed_demon(state), can_exit(state), exits(state)]
+        weighted_evals = [h1 + 0.25*h2 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
 
-    weighted_evals = [h1 + h2 + h3 + 2**h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
-    return [i if i < inf else -inf for i in weighted_evals] # desdperation is -4 if dead
+    else:
+        evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state)]
+        weighted_evals = [h1 + h2 + h3 + 2**h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+
+    return [i if i < inf else -inf for i in weighted_evals] # speed demon is inf if dead
 
 
 def retrograde_dijkstra(state):
