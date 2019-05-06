@@ -11,20 +11,13 @@ from math import inf
 
 # User-defined files
 from mechanics import create_initial_state, num_opponents_dead, apply_action, get_remaining_opponent
-from moves import get_axial
+from moves import get_axial, get_cubic
 
 from algorithms.mp_mix import mp_mix, paranoid
 from algorithms.partA.search import part_A_search
 from algorithms.heuristics import achilles_vector, end_game_heuristic
 
 PATH = list()
-
-###################### ACTION FUNCTIONS ######################
-def get_cubic(v):
-    """
-    Converts axial coordinates to cubic coordinates
-    """
-    return (v[0], -v[0]-v[1], v[1])
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:

@@ -22,6 +22,7 @@ from math import inf
 # User-defined files
 from mechanics import possible_actions, apply_action, get_remaining_opponent
 from moves import exit_action
+from algorithms.heuristics import desperation
 
 # Global Imports
 from mechanics import PLAYER_NAMES, PLAYER_HASH, N_PLAYERS

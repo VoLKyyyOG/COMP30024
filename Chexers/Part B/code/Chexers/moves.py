@@ -38,12 +38,19 @@ def sub(u, v):
     """
     return (u[0] - v[0], u[1] - v[1])
 
+def get_cubic_ordered(v):
+    """
+    Function that converts axial to cubic, but in order of (x, z, y) in order to allow for colour hashing.
+    :returns: cubic coordinates in player ordering
+    """
+    return (v[0], v[1], -v[0]-v[1])
+
 def get_cubic(v):
     """
     Function that converts axial coordinates to cubic coordinates
     :returns: cubic coordinates
     """
-    return (v[0], v[1], -v[0]-v[1])
+    return (v[0], -v[0]-v[1], v[1])
 
 def get_axial(v):
     """

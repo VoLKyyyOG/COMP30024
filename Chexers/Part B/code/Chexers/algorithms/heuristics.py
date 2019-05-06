@@ -13,7 +13,7 @@ from collections import defaultdict
 from queue import PriorityQueue as PQ
 
 # User-defined files
-from moves import add, sub, get_cubic, exit_action
+from moves import add, sub, get_cubic_ordered, exit_action
 from mechanics import num_opponents_dead
 
 # Global Imports
@@ -106,7 +106,7 @@ def speed_demon(state):
     evaluation do not outweigh the benefit of having exited a piece.
     """
 
-    total_disp = lambda player: sum([get_cubic(piece)[PLAYER_HASH[player]] -
+    total_disp = lambda player: sum([get_cubic_ordered(piece)[PLAYER_HASH[player]] -
         MAX_COORDINATE_VAL for piece in state[player]])
 
     # Return average displacement, adding 0.5 to deal with dead players
