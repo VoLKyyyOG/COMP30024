@@ -127,22 +127,20 @@ def corner_hexes(state):
     """
     return [len([i for i in state[player] if i in CORNER_HEXES]) for player in PLAYER_NAMES]
 
-def simple_heuristic(state):
-    """
-    Simple Greedy Heuristic
-    """
-    evals = [speed_demon(state), no_pieces(state), exits(state)]
-
-    return [h1 + 2*h2 + h3 for h1,h2,h3 in zip(evals[0], evals[1], evals[2])]
-
 def end_game_heuristic(state):
     """
-    Tribute to Marvel's End Game. This is the heuristic used for our mp-mix algorithm
+    Tribute to Marvel's End Game. This is the heuristic used for our mp-mix algorithm and holds a very high win rate on battlegrounds.
+
+    :heuristics: 
+    1. Desperation (number of pieces in EXCESS) - lowest bound of -4 (dead)
+    2. Speed Demon (Jump distance to goal) - highest bound of inf (dead)
+    3. Number of Pieces - lowest bound of 0 (dead)
+    4. Number of Exits (Current count of exits) - highest bound of 4 (winner)
     """
     evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state)]
 
-    summed = [h1 + h2 + 2*h3 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
-    return [i if i > -4 else -inf for i in summed] # desdperation is -4 if dead
+    weighted_evals = [h1 + h2 + h3 + 2**h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+    return [i if i < inf else -inf for i in weighted_evals] # desdperation is -4 if dead
 
 
 def retrograde_dijkstra(state):

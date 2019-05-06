@@ -60,6 +60,8 @@ class MPMixPlayer:
         """
         Returns an action given conditions.
         """
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| {self.state[self.colour]}")
+
         if not self.state[self.colour]:
             return ("PASS", None)
 
@@ -84,14 +86,33 @@ class MPMixPlayer:
     def mid_game(self):
         """
         :strategy: Runs the MP-Mix Algorithm.
+        :returns: The best evaluated function. If True is returned, we are at a good level to attempt a greedy approach.
         """
-        return mp_mix(self.state, end_game_heuristic, defence_threshold=0, offence_threshold=0)
+        action = mp_mix(self.state, end_game_heuristic, defence_threshold=0, offence_threshold=0)
+
+        if action == True:
+            return self.end_game()
+        return action
+
+    def run_2_player(self):
+        """
+        :strategy: Run the paranoid algorithm with a higher depth.
+                   This works because paranoid defaults to alpha-beta by ignoring
+                   dead players.
+        """
+        action = mp_mix(self.state, end_game_heuristic, defence_threshold=6, offence_threshold=0, two_player=True)
+        if action is False: # If we deem we are way ahead
+            action =  self.djikstra(single_player=False)
+        elif action is True:
+            return self.end_game()
+        return action
 
     def end_game(self):
         """
         :strategy: Use booking or a stronger quiesence search
         """
         return self.greedy_action()
+
 
     def djikstra(self, single_player=True):
         """
@@ -142,17 +163,6 @@ class MPMixPlayer:
             # (FLAG_str: (pos1, pos2=None))
 
         return PATH.pop(0)
-
-    def run_2_player(self):
-        """
-        :strategy: Run the paranoid algorithm with a higher depth.
-                   This works because paranoid defaults to alpha-beta by ignoring
-                   dead players.
-        """
-        action = mp_mix(self.state, end_game_heuristic, defence_threshold=6, offence_threshold=0, two_player=True)
-        if action is False: # If we deem we are way ahead
-            action =  self.djikstra(single_player=False)
-        return action
 
     def start_mid_game(self):
         """

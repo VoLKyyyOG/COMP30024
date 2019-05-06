@@ -1,0 +1,104 @@
+[game ] - Start Chexers game log at Mon May  6 12:15:21 2019
+[red  ] - MOVE from (-3, 3) to (-2, 3).
+[green] - MOVE from (2, -3) to (2, -2).
+[blue ] - MOVE from (3, 0) to (2, 0).
+[red  ] - JUMP from (-3, 1) to (-3, 3).
+[green] - MOVE from (3, -3) to (2, -3).
+[blue ] - MOVE from (0, 3) to (-1, 3).
+[red  ] - JUMP from (-3, 3) to (-3, 1).
+[green] - MOVE from (2, -2) to (3, -3).
+[blue ] - JUMP from (2, 1) to (2, -1).
+[red  ] - MOVE from (-3, 2) to (-3, 3).
+[green] - MOVE from (1, -3) to (0, -2).
+[blue ] - JUMP from (2, 0) to (2, -2).
+[red  ] - MOVE from (-3, 1) to (-3, 2).
+[green] - MOVE from (0, -2) to (0, -1).
+[blue ] - MOVE from (1, 2) to (0, 2).
+[red  ] - MOVE from (-3, 2) to (-2, 2).
+[green] - MOVE from (0, -3) to (0, -2).
+[blue ] - MOVE from (2, -1) to (1, -1).
+[red  ] - MOVE from (-2, 2) to (-2, 1).
+[green] - MOVE from (0, -2) to (0, -3).
+[blue ] - JUMP from (2, -2) to (0, 0).
+[red  ] - MOVE from (-3, 3) to (-3, 2).
+[green] - MOVE from (0, -3) to (1, -3).
+[blue ] - JUMP from (-1, 3) to (-3, 3).
+[red  ] - JUMP from (-3, 2) to (-1, 0).
+[green] - MOVE from (1, -3) to (0, -2).
+[blue ] - JUMP from (1, -1) to (-1, -1).
+[red  ] - MOVE from (-2, 1) to (-1, 1).
+[green] - MOVE from (3, -3) to (2, -2).
+[blue ] - JUMP from (0, 0) to (-2, 0).
+[red  ] - MOVE from (-1, 1) to (0, 0).
+[green] - MOVE from (0, -2) to (1, -3).
+[blue ] - JUMP from (-3, 3) to (-1, 3).
+[red  ] - MOVE from (0, 0) to (1, 0).
+[green] - MOVE from (1, -3) to (1, -2).
+[blue ] - JUMP from (-2, 3) to (0, 3).
+[red  ] - MOVE from (-3, 0) to (-2, -1).
+[green] - MOVE from (1, -2) to (1, -3).
+[blue ] - JUMP from (-1, -1) to (1, -1).
+[red  ] - MOVE from (1, 0) to (2, -1).
+[green] - MOVE from (2, -2) to (3, -3).
+[blue ] - MOVE from (-2, 0) to (-3, 0).
+[red  ] - MOVE from (2, -1) to (2, 0).
+[green] - JUMP from (2, -3) to (0, -3).
+[blue ] - EXIT from (-3, 0).
+[red  ] - MOVE from (2, 0) to (2, -1).
+[green] - MOVE from (0, -3) to (0, -2).
+[blue ] - JUMP from (0, -1) to (0, -3).
+[red  ] - MOVE from (-2, -1) to (-3, 0).
+[green] - JUMP from (1, -3) to (-1, -1).
+[blue ] - EXIT from (0, -3).
+[red  ] - MOVE from (2, -1) to (2, 0).
+[green] - MOVE from (-1, -1) to (-2, 0).
+[blue ] - JUMP from (-1, 3) to (1, 1).
+[red  ] - MOVE from (2, 0) to (3, -1).
+[green] - MOVE from (3, -3) to (3, -2).
+[blue ] - JUMP from (0, 2) to (2, 0).
+[red  ] - MOVE from (3, -1) to (2, -1).
+[green] - MOVE from (3, -2) to (3, -1).
+[blue ] - JUMP from (2, 0) to (2, -2).
+[red  ] - MOVE from (-3, 0) to (-3, 1).
+[green] - MOVE from (-2, 0) to (-3, 0).
+[blue ] - JUMP from (1, -1) to (3, -3).
+[red  ] - MOVE from (-3, 1) to (-2, 1).
+[green] - MOVE from (3, -1) to (3, -2).
+[blue ] - JUMP from (-1, 0) to (-3, 2).
+[red  ] - PASS.
+[green] - MOVE from (0, -2) to (0, -1).
+[blue ] - MOVE from (2, -2) to (2, -3).
+[red  ] - PASS.
+[green] - MOVE from (3, -2) to (2, -2).
+[blue ] - JUMP from (3, -3) to (1, -3).
+[red  ] - PASS.
+[green] - MOVE from (0, -1) to (0, -2).
+[blue ] - MOVE from (2, -1) to (1, -1).
+[red  ] - PASS.
+[green] - MOVE from (2, -2) to (3, -3).
+[blue ] - JUMP from (2, -3) to (0, -3).
+[red  ] - PASS.
+[green] - MOVE from (3, -3) to (2, -2).
+[blue ] - MOVE from (1, -1) to (1, -2).
+[red  ] - PASS.
+[green] - MOVE from (2, -2) to (3, -3).
+[blue ] - JUMP from (1, -2) to (-1, -2).
+[red  ] - PASS.
+[green] - MOVE from (-3, 0) to (-3, 1).
+[blue ] - MOVE from (1, 1) to (1, 0).
+[red  ] - PASS.
+[green] - MOVE from (-3, 1) to (-2, 0).
+[blue ] - JUMP from (1, -3) to (-1, -1).
+[red  ] - PASS.
+[green] - MOVE from (3, -3) to (2, -3).
+[blue ] - EXIT from (0, -3).
+[red  ] - PASS.
+[green] - MOVE from (-2, 0) to (-1, 0).
+[blue ] - MOVE from (1, 0) to (0, 0).
+[red  ] - PASS.
+[green] - MOVE from (2, -3) to (3, -3).
+[blue ] - MOVE from (0, -2) to (0, -3).
+[red  ] - PASS.
+[green] - MOVE from (3, -3) to (2, -2).
+[blue ] - EXIT from (0, -3).
+[over ] - winner: Blue
