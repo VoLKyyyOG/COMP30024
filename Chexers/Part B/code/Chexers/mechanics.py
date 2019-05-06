@@ -77,6 +77,12 @@ def depth(state):
     """Returns number of turns"""
     return state['depth']
 
+def num_opponents_dead(state):
+    """
+    Find the number of dead players
+    """
+    return sum([is_dead(state, i) for i in PLAYER_NAMES])
+
 def function_occupied(state, colours):
     """Fetches set of all pieces for all colours"""
     occupied = set()

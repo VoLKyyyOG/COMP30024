@@ -45,6 +45,13 @@ def get_cubic(v):
     """
     return (v[0], v[1], -v[0]-v[1])
 
+def get_axial(v):
+    """
+    Function that converts cubic coordinates to axial coordinates
+    :returns: axial coordinates
+    """
+    return (v[0], v[2])
+
 def midpoint(u, v):
     """
     Function that finds midpoint of two vectors u, v (tuple representation)

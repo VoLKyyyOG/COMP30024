@@ -5,38 +5,26 @@
 """
 
 ########################### IMPORTS ##########################
+
 # Standard modules
-from random import choice
-from copy import deepcopy
 from math import inf
 
 # User-defined files
-from algorithms.partA.search import part_A_search
-from algorithms.IDA import *
-from mechanics import *
-from algorithms.heuristics import *
+from mechanics import create_initial_state, num_opponents_dead, apply_action, get_remaining_opponent
+from moves import get_axial
+
 from algorithms.mp_mix import mp_mix, paranoid
+from algorithms.partA.search import part_A_search
+from algorithms.heuristics import achilles_vector, end_game_heuristic
 
 PATH = list()
 
 ###################### ACTION FUNCTIONS ######################
-def get_cubic(tup):
+def get_cubic(v):
     """
     Converts axial coordinates to cubic coordinates
     """
-    return (tup[0], -tup[0]-tup[1], tup[1])
-
-def get_axial(tup):
-    """
-    Converts axial coordinates to cubic coordinates
-    """
-    return (tup[0], tup[2])
-
-def num_opponents_dead(state):
-    """
-    Find the number of dead players
-    """
-    return sum([is_dead(state, i) for i in PLAYER_NAMES])
+    return (v[0], -v[0]-v[1], v[1])
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
@@ -124,14 +112,13 @@ class MPMixPlayer:
         # AKIRA - RETURN DIJKSTRA'S GIVEN A PLAYER IS STILL ALIVE
         if not single_player:
             state = dict()
-            state['colour'] = deepcopy(self.colour)
+            state['colour'] = self.colour
 
             # TODO: Calculate jump distance for each piece and then return closest pieces for exit
             n_exited = self.state["exits"][self.colour]
             n = 4 - n_exited
         
-            opponents = get_opponents(self.state)
-            alive_opponent = [i for i in opponents if not is_dead(self.state, i)][0]
+            alive_opponent = get_remaining_opponent(self.state)
 
             temp = sorted([get_cubic(tup) for tup in self.state[self.colour]], reverse=True)
             state['pieces'] = [get_axial(tup) for tup in temp[:n]]
@@ -145,7 +132,7 @@ class MPMixPlayer:
         if not bool(PATH):
             # Create part_A appropriate data
             state = dict()
-            state['colour'] = deepcopy(self.colour)
+            state['colour'] = self.colour
 
             # TODO: Calculate jump distance for each piece and then return closest pieces for exit
             n_exited = self.state["exits"][self.colour]
