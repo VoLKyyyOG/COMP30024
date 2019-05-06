@@ -135,23 +135,27 @@ def corner_hexes(state):
 def end_game_heuristic(state):
     """
     Tribute to Marvel's End Game. This is the heuristic used for our mp-mix algorithm and holds a very high win rate on battlegrounds.
+    The commented code below ALWAYS wins against a greedy / random algorithm. The actual one is being adjusted manually for battlegrounds.
+    """ """
+        if num_opponents_dead(state) == 1: # if it is two player
+        evals = [desperation(state), speed_demon(state), can_exit(state), exits(state)]
+        weighted_evals = [2*h1 + 0.1*h2 + h3 + 10*h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
 
-    :heuristics: 
-    1. Desperation (number of pieces in EXCESS) - lowest bound of -4 (dead)
-    2. Speed Demon (Jump distance to goal) - highest bound of inf (dead)
-    3. Number of Pieces - lowest bound of 0 (dead)
-    4. Number of Exits (Current count of exits) - highest bound of 4 (winner)
+    else:
+        evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state), can_exit(state)]
+        weighted_evals = [h1 + 0.1*h2 + 2*h3 + 2*h4 + 0.1*h5 for h1,h2,h3,h4,h5 in zip(evals[0], evals[1], evals[2], evals[3], evals[4])]
+
+    return [i if i < inf else -inf for i in weighted_evals] # speed demon is inf if dead
     """
     if num_opponents_dead(state) == 1: # if it is two player
         evals = [desperation(state), speed_demon(state), can_exit(state), exits(state)]
-        weighted_evals = [h1 + 0.25*h2 + h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+        weighted_evals = [2*h1 + 0.1*h2 + h3 + 10*h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
 
     else:
-        evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state)]
-        weighted_evals = [h1 + h2 + h3 + 2**h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+        evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state), can_exit(state)]
+        weighted_evals = [h1 + 0.1*h2 + 2*h3 + 2*h4 + 0.1*h5 for h1,h2,h3,h4,h5 in zip(evals[0], evals[1], evals[2], evals[3], evals[4])]
 
     return [i if i < inf else -inf for i in weighted_evals] # speed demon is inf if dead
-
 
 def retrograde_dijkstra(state):
     """Computes minimal traversal distance to exit for all N players"""

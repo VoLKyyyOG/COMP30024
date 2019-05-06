@@ -15,7 +15,10 @@ from moves import get_axial, get_cubic
 
 from algorithms.mp_mix import mp_mix, paranoid
 from algorithms.partA.search import part_A_search
-from algorithms.heuristics import achilles_vector, end_game_heuristic
+from algorithms.heuristics import achilles_vector, end_game_heuristic, speed_demon
+
+# Global imports
+from mechanics import PLAYER_HASH
 
 PATH = list()
 
