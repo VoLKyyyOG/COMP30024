@@ -21,7 +21,7 @@ from algorithms.heuristics import end_game_heuristic, achilles_vector, speed_dem
 from algorithms.partA.search import part_A_search
 
 # Global imports
-from mechanics import PLAYER_HASH
+from mechanics import PLAYER_HASH, MAX_EXITS
 
 PATH = list()
 
@@ -128,7 +128,7 @@ class MPMixPlayer:
 
             # TODO: Calculate jump distance for each piece and then return closest pieces for exit
             n_exited = self.state["exits"][self.colour]
-            n = 4 - n_exited
+            n = MAX_EXITS - n_exited
         
             alive_opponent = get_remaining_opponent(self.state)
 
@@ -165,8 +165,7 @@ class MPMixPlayer:
 
     def start_mid_game(self):
         """
-        Determines when to shift strategy to the mid game given deciding factors.
-        TODO: Add a flag once a player piece has been captured
+        Starts mid game after 3 moves per player.
         """
         if self.state["depth"] == self.MID_GAME_THRESHOLD:
             print(f"* ({self.colour}) is switching to midgame")
@@ -180,12 +179,6 @@ class MPMixPlayer:
         if self.state["depth"] == self.END_GAME_THRESHOLD:
             print(f"* ({self.colour}) is switching to endgame")
         return (self.state["depth"] >= self.END_GAME_THRESHOLD)
-
-    def random_action(self):
-        """
-        :strategy: Choose a random action given a set of possible actions.
-        """
-        return choice(possible_actions(self.state, self.state["turn"]))
 
     def greedy_action(self):
         """

@@ -94,11 +94,11 @@ def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_
             
         return (player_eval, best_action)
 
-def directed_offensive(state, heuristic, max_player, target, depth_left=MAX_DEPTH):
+def directed_offensive(state, heuristic, max_player, target, min_eval=inf, depth_left=MAX_DEPTH):
     """
     An algorithm aimed to MINIMISE a target player used in a 3 player scenario with no good pruning techniques possible.
     It will assume that all players will wish to maximise themselves (like a typical Max^n algorithm) but if we find an evaluation
-    that minimises a target's evaluation, that becomes our "best action".
+    that minimises a target's evaluation and it is still beneficial to us, that becomes our "best action".
     """
     if not depth_left:
         evals = heuristic(state)
@@ -108,23 +108,23 @@ def directed_offensive(state, heuristic, max_player, target, depth_left=MAX_DEPT
     best_action = None
     p = state["turn"]
 
-    generated_actions = possible_actions(state, p)
-
+    if p == max_player:
+        generated_actions = possible_actions(state, p, sort=True)
+    else:
+        generated_actions = possible_actions(state, p)
     for action in generated_actions:
         new_state = apply_action(state, action)
 
-        player_eval = directed_offensive(new_state, heuristic, max_player, target, depth_left-1)[0]
+        player_eval = directed_offensive(new_state, heuristic, max_player, target, min_eval, depth_left-1)[0]
 
-        # If this is not us, we assume they will want to just maximise themselves
-        if player_eval[PLAYER_HASH[p]] > max_player_evals[PLAYER_HASH[p]]:
-            max_player_evals, best_action = player_eval, action
-        
-        # If this is us:
-        if p == max_player:
-            # If this new eval lowers our target eval, then update our path with this action
-            # TODO: if -inf rip
-            if player_eval[PLAYER_HASH[target]] < max_player_evals[PLAYER_HASH[target]]:
+        if p != max_player:
+            # If this is not us, we assume they will want to just maximise themselves
+            if player_eval[PLAYER_HASH[p]] > max_player_evals[PLAYER_HASH[p]]:
                 max_player_evals, best_action = player_eval, action
+        else:
+            # If this new eval LOWERS our target eval and our eval is NOT WORSE, then update our path with this action
+            if player_eval[PLAYER_HASH[target]] < min_eval and player_eval[PLAYER_HASH[p]] >= max_player_evals[PLAYER_HASH[p]]:
+                max_player_evals, best_action , min_eval = player_eval, action, player_eval[PLAYER_HASH[target]]
 
     return (max_player_evals, best_action)
 
