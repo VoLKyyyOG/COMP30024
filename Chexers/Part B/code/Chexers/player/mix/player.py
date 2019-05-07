@@ -12,6 +12,7 @@ from math import inf
 # User-defined files
 from mechanics import create_initial_state, num_opponents_dead, apply_action, possible_actions, get_remaining_opponent
 from moves import get_axial, get_cubic
+from book import opening_moves
 
 from algorithms.mp_mix import mp_mix, paranoid
 from algorithms.partA.search import part_A_search
@@ -24,7 +25,7 @@ PATH = list()
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 9
+    MID_GAME_THRESHOLD = 9 # The first three moves for each player
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
@@ -65,7 +66,7 @@ class MPMixPlayer:
         """
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
         """
-        return paranoid(self.state, achilles_vector, self.colour, depth_left=3)[1]
+        return opening_moves(self.state, self.colour) if not False else paranoid(self.state, achilles_vector, self.colour)
 
     def mid_game(self):
         """
@@ -74,7 +75,7 @@ class MPMixPlayer:
         """
         action = mp_mix(self.state, end_game_heuristic, defence_threshold=0, offence_threshold=0)
 
-        if action == True:
+        if action == True: # if True then run Greedy
             return self.end_game()
         return action
 
@@ -84,10 +85,10 @@ class MPMixPlayer:
                    This works because paranoid defaults to alpha-beta by ignoring
                    dead players.
         """
-        action = mp_mix(self.state, end_game_heuristic, defence_threshold=6, offence_threshold=0, two_player=True)
-        if action is False: # If we deem we are way ahead
+        action = mp_mix(self.state, end_game_heuristic, defence_threshold=0, offence_threshold=0, two_player=True)
+        if action is False: # If False just use Dijkstra (we are sufficiently ahead)
             action =  self.djikstra(single_player=False)
-        elif action is True:
+        elif action is True: # if True then run Greedy
             return self.end_game()
         return action
 
@@ -96,7 +97,6 @@ class MPMixPlayer:
         :strategy: Use booking or a stronger quiesence search
         """
         return self.greedy_action()
-
 
     def djikstra(self, single_player=True):
         """

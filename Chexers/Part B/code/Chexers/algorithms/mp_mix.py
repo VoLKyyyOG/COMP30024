@@ -74,10 +74,10 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
     if two_player:
         alive_opponent = get_remaining_opponent(state)
 
-        if state["exits"][alive_opponent] < 2:
+        if desperation(state)[PLAYER_HASH[alive_opponent]]  < 0 and leader_edge >= 10: # defence_threshold (threshold=10 is very large)
             print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DOING A DIJKSTRA AGAINST REMAINING PLAYER ")
             return False
-        if sum([len([i for i in state[player]]) for player in PLAYER_NAMES]) <= 6:
+        if sum([len([i for i in state[player]]) for player in PLAYER_NAMES]) < 6:
             global TWO_PLAYER_MAX_DEPTH
             TWO_PLAYER_MAX_DEPTH = 7
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| ALPHA-BETA AGAINST REMAINING PLAYER | DEPTH = {TWO_PLAYER_MAX_DEPTH}")

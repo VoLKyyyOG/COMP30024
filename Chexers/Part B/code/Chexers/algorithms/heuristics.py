@@ -72,7 +72,7 @@ def achilles(state, reality=False):
     :FLAG reality: True only returns actual about-to-kill-you opponents
     Ranges from 0 (all pieces in corners) to 6*N (all N pieces are isolated and not on an edge)
     """
-    #### TODO: Make sure it works
+    #### TODO: Make sure it works - it does not work (returned [0,0,0] even though it our piece was capturable!!!!)
 
     threats = defaultdict(set)
     for player in PLAYER_NAMES:
