@@ -1,7 +1,7 @@
 """
 :filename: heuristics.py
 :summary: Stores all heuristic and evaluation function related functions.
-:authors: Akira Wang (913391), Callum Holmes (XXXXXX)
+:authors: Akira Wang (913391), Callum Holmes (899251)
 """
 
 ########################### IMPORTS ##########################
@@ -11,42 +11,50 @@ from math import inf
 from copy import deepcopy
 from collections import defaultdict
 from queue import PriorityQueue as PQ
+import numpy as np
 
-# User-defined files
-from moves import add, sub, get_cubic_ordered, exit_action
-from mechanics import num_opponents_dead
+# User-defined functions
+from moves import add, sub, get_cubic_ordered, exit_action, jump_action
+from mechanics import two_players_left, function_occupied, is_capture, is_dead
 
 # Global Imports
-from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES
+from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, VALID_SET, CORNER_SET
 from mechanics import PLAYER_NAMES, PLAYER_HASH, MAX_COORDINATE_VAL, MAX_EXITS
 
 ##############################################################
 
+####: TODO: How benefifical is a -inf anyway?
+def exclude_dead(heuristic):
+    """
+    Overwrites heuristic evaluation to -inf for any dead players if you want
+    :returns: adjusted heuristic
+    """
+    def evaluate(state, *args, **kwargs):
+        output = heuristic(state, args, kwargs)
+        return [-inf if is_dead(state, player) else x for x in output]
+
+    return evaluate
+
 def exits(state):
     """
     Returns raw exit count as a tuple
+    :returns: [red_eval, green_eval, blue_eval]
     """
     return [state['exits'][player] for player in PLAYER_NAMES]
 
 def desperation(state):
     """
     Returns deficit/surplus in pieces vs exit
+    :returns: [red_eval, green_eval, blue_eval]
     """
     # How many pieces available - how many pieces needed to win
-    return [len(state[player]) - (MAX_EXITS - state['exits'][player]) for player in PLAYER_NAMES]
-
-def paris_vector(state):
-    """
-    paris_heuristic returns the number of capturing actions possible for each player.
-    :returns: [val_red, val_green, val_blue]
-    """
-    raw = paris(state)
-    capturable = [len(raw[player]) for player in PLAYER_NAMES]
-    return capturable
+    margin = lambda state, player: len(state[player]) - (MAX_EXITS - state['exits'][player])
+    return [margin(state, player) for player in PLAYER_NAMES]
 
 def paris(state):
     """
     Evaluates captures that each player could perform
+    :shortfall: cannot tell which piece captures what, nor the capturable player
     :returns: {player: list_of_capturing_actions for each player}
     """
     captures = defaultdict(list)
@@ -57,7 +65,16 @@ def paris(state):
                 captures[player].append(action)
     return captures
 
-def achilles_vector(state, reality=True):
+def paris_vector(state):
+    """
+    Returns the number of capturing actions possible for each player.
+    :returns: [val_red, val_green, val_blue]
+    """
+    raw = paris(state)
+    capturable = [len(raw[player]) for player in PLAYER_NAMES]
+    return capturable
+
+def achilles_vector(state, reality=False):
     """
     achilles_vector returns the number of threats for each player.
     :FLAG reality: if True, counts actual opponents that could capture
@@ -72,30 +89,26 @@ def achilles(state, reality=False):
     :FLAG reality: True only returns actual about-to-kill-you opponents
     Ranges from 0 (all pieces in corners) to 6*N (all N pieces are isolated and not on an edge)
     """
-    #### TODO: Make sure it works - it does not work (returned [0,0,0] even though it our piece was capturable!!!!)
 
-    threats = defaultdict(set)
+    threat_set = defaultdict(set)
+    possible_axes = POSSIBLE_DIRECTIONS[:3] # Three directions
     for player in PLAYER_NAMES:
-        # All opponent pieces
         if reality:
-            occupied = set()
-            for player in PLAYER_NAMES:
-                occupied.union(set(state[player]))
+            # All pieces
+            occupied = function_occupied(state, PLAYER_NAMES)
 
         for piece in state[player]:
-            possible_axes = POSSIBLE_DIRECTIONS[:3] # Three directions
             for diagonal in possible_axes:
-                threat_1, threat_2 = add(piece, diagonal), sub(piece, diagonal)
-                # Only a threat if the diagonal is fully empty, and does not have your own pieces
-                if (threat_1, threat_2) in VALID_COORDINATES and (threat_1, threat_2) not in state[player]:
+                potential_threats = set([add(piece, diagonal), sub(piece, diagonal)])
+                if potential_threats.issubset(VALID_SET) and not bool(potential_threats.intersection(set(state[player]))):
                     if reality:
-                        if threat_1 in occupied:
-                            threats[player].add(threat_1)
-                        if threat_2 in occupied:
-                            threats[player].add(threat_2)
+                        # Only add threats that could actually capture
+                        potential_attackers = potential_threats.intersection(occupied)
+                        if len(potential_attackers) == 1:
+                            threat_set[player].update(potential_attackers)
                     else:
-                        threats[player].update(set(threat_1, threat_2))
-    return threats
+                        threat_set[player].update(potential_threats)
+    return threat_set
 
 def speed_demon(state):
     """
@@ -109,19 +122,20 @@ def speed_demon(state):
     total_disp = lambda player: sum([get_cubic_ordered(piece)[PLAYER_HASH[player]] -
         MAX_COORDINATE_VAL for piece in state[player]])
 
-    # Return average displacement, adding 0.5 to deal with dead players
-    return [total_disp(player) / len(state[player])  if len(state[player]) > 0 else inf for player in PLAYER_NAMES]
+    # Return average displacement, -inf if dead
+    return [total_disp(player) / len(state[player])  if len(state[player]) > 0 else -inf for player in PLAYER_NAMES]
 
 def no_pieces(state):
     """
-    What proportion of pieces do we currently own.
+    What number of pieces do we currently own.
+    :return: vector of piece counts
     """
-    num_pieces = [len(state[player]) for player in PLAYER_NAMES]
-    return num_pieces
+    return [len(state[player]) for player in PLAYER_NAMES]
 
 def can_exit(state):
     """
-    If we can exit, return the number of possible exit pieces.
+    Returns number of possible exit actions for each player.
+    :returns: vector of results
     """
     return [len(exit_action(state, colour)) for colour in PLAYER_NAMES]
 
@@ -130,7 +144,7 @@ def corner_hexes(state):
     See if a piece is in a corner hex (untakeable)
     TODO: MAKE IT ENEMY GOAL HEX POSITION
     """
-    return [len([i for i in state[player] if i in CORNER_HEXES]) for player in PLAYER_NAMES]
+    return [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
 
 def end_game_heuristic(state):
     """
@@ -147,20 +161,21 @@ def end_game_heuristic(state):
 
     return [i if i < inf else -inf for i in weighted_evals] # speed demon is inf if dead
     """
-    if num_opponents_dead(state) == 1: # if it is two player
-        evals = [desperation(state), speed_demon(state), can_exit(state), exits(state)]
-        weighted_evals = [2*h1 + 0.1*h2 + h3 + 10*h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
-
+    if two_players_left(state): # if it is two player
+        evals = np.array([f(state) for f in [desperation, speed_demon, can_exit, exits]])
+        weights = [2, 0.1, 1, 10]
     else:
-        evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state), can_exit(state)]
-        weighted_evals = [h1 + 0.1*h2 + 2*h3 + 2*h4 + 0.1*h5 for h1,h2,h3,h4,h5 in zip(evals[0], evals[1], evals[2], evals[3], evals[4])]
-
-    return [i if i < inf else -inf for i in weighted_evals] # speed demon is inf if dead
+        evals = np.array([f(state) for f in [desperation, speed_demon, no_pieces, exits, can_exit]])
+        weights = [1, 0.1, 2, 2, 0.1]
+    return list(sum(map(lambda x,y: x*y, evals, weights)))
 
 def retrograde_dijkstra(state):
-    """Computes minimal traversal distance to exit for all N players"""
-    cost = [sum(dijkstra_board(state, state["turn"])[piece] for piece in state[colour]) for colour in PLAYER_NAMES]
-    print(cost)
+    """
+    Computes minimal traversal distance to exit for all N players
+    :returns: vector of distances
+    """
+    cost = [sum(dijkstra_board(state, state["turn"])[piece] for piece in state[player]) for player in PLAYER_NAMES]
+    print(f"Retro-D: {cost}")
     return cost
 
 def dijkstra_board(state, colour):
@@ -169,9 +184,9 @@ def dijkstra_board(state, colour):
     #### Otherwise this is a forward unto death greedy heuristic
 
     valid_goals = set(GOALS[colour])
-    occupied = set()
+    #occupied = set()
 
-    for player in [i for i in PLAYER_NAMES if i != colour]:
+    for player in get_opponents(state, player):
         valid_goals.difference_update(set(state[player]))
 
     visited = set() # Flags if visited or not

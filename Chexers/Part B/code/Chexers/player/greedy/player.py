@@ -20,7 +20,7 @@ class GreedyPlayer:
         your player.
 
         "I am speed" - Lightning McQueen
-        
+
         """
         self.colour = colour
         self.state = create_initial_state()
@@ -29,7 +29,8 @@ class GreedyPlayer:
         """
         This method is called at the end of every turn (including your player’s
         turns) to inform your player about the most recent, assumedly correct,
-        action."""
+        action.
+        """
         self.state = apply_action(self.state, action)
 
     ################# DEFINE EVERY IMPLEMENTATION ################

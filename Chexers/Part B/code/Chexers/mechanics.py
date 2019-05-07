@@ -14,7 +14,7 @@ from copy import deepcopy
 from collections import defaultdict
 
 # User-defined files
-from moves import midpoint, move_action, jump_action, exit_action
+from moves import VALID_COORDINATES, midpoint, move_action, jump_action, exit_action
 
 ########################### GLOBALS ##########################
 
@@ -25,28 +25,21 @@ MAX_TURNS = 256 # PER PLAYER
 MAX_EXITS = 4
 MAX_COORDINATE_VAL = 3
 
-CORNER_HEXES = [
-    (-3, 0), (-3, 3), (0, 3), (3, 0), (3, -3), (0, -3)
-]
-
 STARTS = {
     'red': [(-3,3), (-3,2), (-3,1), (-3,0)],
     'green': [(0,-3), (1,-3), (2,-3), (3,-3)],
     'blue': [(3, 0), (2, 1), (1, 2), (0, 3)],
-
 }
 
 ##################### CODES FOR PLAYERS ######################
 
 # A default list of all the player names: note the auto-slicing
-PLAYER_NAMES = [
-    "red", "green", "blue",
-    "orange", "yellow", "purple"
-][:N_PLAYERS]
+PLAYER_NAMES = ["red", "green", "blue"]
 
 # For hashing
 NUM_HEXES = 37
 CODE_LEN = 2 # Bit length of each flag. Can be 0,1,2,3
+
 # bidirectional lookup for player bit code
 PLAYER_HASH = {
     "red": 0b00,
@@ -56,13 +49,15 @@ PLAYER_HASH = {
 }
 PLAYER_HASH.update(dict(zip(PLAYER_HASH.values(), PLAYER_HASH.keys())))
 
-##################### STATE FUNCTIONALITY ####################
+###################### CORE FUNCTIONALITY ####################
 
 def create_initial_state():
-    """Returns the starting game state"""
+    """
+    Returns the starting game state
+    :returns: copy of new initial game state
+    """
     #### TODO: Instead of deepcopy(), we can just hardcode it here since we
     ####       won't be using the global again.
-    ####       Confirming that we derive number of pieces using len() in two_players left
     initial_state = deepcopy(STARTS)
     initial_state['exits'] = {name: INITIAL_EXITED_PIECES for name in PLAYER_NAMES}
     initial_state['turn'] = 'red'
@@ -70,51 +65,59 @@ def create_initial_state():
     return initial_state
 
 def player(state):
-    """Retrieves current player"""
+    """
+    Retrieves current player
+    """
     return state['turn']
 
 def depth(state):
-    """Returns number of turns"""
+    """
+    Returns number of turns (interpret 1 = first move by red)
+    """
     return state['depth']
 
-def num_opponents_dead(state):
-    """
-    Find the number of dead players
-    """
-    return sum([is_dead(state, i) for i in PLAYER_NAMES])
-
-def function_occupied(state, colours):
-    """Fetches set of all pieces for all colours"""
-    occupied = set()
-    for player in colours:
-        occupied.update(set(state[player]))
-    return occupied
-
+# NOTE: I simplified stuff, should still work
 def next_player(state, ignore_dead=False):
-    """Determines next player. Can reduce to 2-player if ignore_dead"""
+    """
+    Determines next player. Can reduce to 2-player if ignore_dead is True.
+    :returns: player string
+    """
     # Exploits ordering of PLAYER_NAMES, gets index of next along
-    if ignore_dead and two_players_left(state):
-        try:
-            return get_opponents(state).pop()
-        except:
-            print("NEXT_PLAYER ERROR ... this is easily fixed")
+    if ignore_dead and len(players_left(state)) < N_PLAYERS:
+        # If no alive opponents, return self
+        # If one alive aopponent, return them
+        # Else, just return as usual
+        curr_player = player(state)
+        alive_opponents = [i for i in get_opponents(state) if not is_dead(state, i) and i != curr_player]
+        if not alive_opponents:
+            return curr_player
+        elif len(alive_opponents) == 1:
+            return alive_opponents.pop(0)
+        else:
+            return next_player(state, False)
     else:
-        current_index = PLAYER_NAMES.index(state['turn'])
+        # Normal functionality
+        current_index = PLAYER_HASH[state['turn']]
         return PLAYER_NAMES[(current_index + 1) % N_PLAYERS]
 
 def get_score(state, colour):
-    """Retrieves score for player in a state."""
+    """
+    Retrieves score (number of exits made) for player in a state.
+    """
     return state['exits'][colour]
 
 def game_over(state, print_debug=False):
     """
     Determines if a game is over.
+    :returns: boolean which is True if game is over.
     Conditions:
-    - A player has exited all pieces
-    - 256 move max for each player has been exceeded
-    - A state has been visited 4 times
+    - A player has exited all pieces (winner)
+    - 256 move max for each player has been exceeded (TODO)
+    - A state has been visited 4 times (draw)
 
-    TODO: ALL_DEAD IS NOT AN ACTUAL GAME OVER SCENARIO
+    TODO: ALL_DEAD IS NOT AN ACTUAL GAME OVER SCENARIO, DELETE AFTER DEBUG
+    TODO: 4 VISITS NOT AN ACTUAL GAME OVER SCENARIO
+
     """
     draw = depth(state) == MAX_TURNS * 3
     all_dead = sum([bool(state[colour]) for colour in PLAYER_NAMES]) == 1
@@ -126,14 +129,13 @@ def game_over(state, print_debug=False):
 
     return winner or draw
 
-def is_dead(state, colour):
-    return not bool(state[colour])
-
 def apply_action(state, action, ignore_dead=False):
-    """Applies an action to a State object, returns new state"""
+    """
+    Applies an action to a State object
+    :returns: new fully updated state
+    """
     flag, pieces = action
     new_state = deepcopy(state)
-
     turn_player = new_state['turn']
 
     if is_dead(new_state, turn_player):
@@ -171,27 +173,20 @@ def apply_action(state, action, ignore_dead=False):
     return new_state
 
 def is_capture(state, action, colour):
-    """Checks if an action to be applied to a state will capture"""
-    atype, pieces = action
-    if atype != "JUMP": return False
+    """
+    Checks if an action to be applied to a state will capture
+    :returns: boolean
+    """
+    flag, pieces = action
+    if flag != "JUMP": return False
     old, new = pieces
-    return midpoint(old, new) not in state[colour]
-
-def paris(state):
-    """
-    Evaluates captures that each player could perform
-    :returns: {player: list_of_capturing_actions for each player}
-    """
-    captures = defaultdict(list)
-    occupied_hexes = occupied(state, PLAYER_NAMES)
-    for player in PLAYER_NAMES:
-        for action in jump_action(state, occupied_hexes, player):
-            if is_capture(state, action, player):
-                captures[player].append(action)
-    return captures
+    # Returns true if what it would jump over is not its own
+    return (midpoint(old, new) not in state[colour])
 
 def possible_actions(state, colour):
-    """Returns list of possible actions for a given state"""
+    """
+    Returns list of possible actions for a given state
+    """
     actions = list()
 
     # All occupied hexes (doesn't account for who's who)
@@ -206,40 +201,82 @@ def possible_actions(state, colour):
     else:
         return actions
 
+###################### OTHER FUNCTIONS ########################
+
+#### TODO: Rename, check redundancy
+def function_occupied(state, colours):
+    """
+    Fetches set of all pieces for all colours
+    :returns: {pieces_for_specified_colours}
+    """
+    occupied = set()
+    for player in colours:
+        occupied.update(set(state[player]))
+    return occupied
+
+def is_dead(state, colour):
+    """
+    Returns whether a specified player (colour) has lost all player_pieces
+    :returns: boolean
+    """
+    return not bool(state[colour])
+
+######################### TOO MANY? ###########################
+def num_opponents_dead(state):
+    """
+    Find the number of dead players (player with no pieces left)
+    """
+    return sum([is_dead(state, player) for player in PLAYER_NAMES])
+
 def two_players_left(state):
-    """Checks if one player has lost all pieces"""
-    if not game_over(state):
-        return len(players_left(state)) == 2
-    return False
+    """
+    Checks if one player has lost all pieces
+    :returns: boolean
+    """
+    return len(players_left(state)) == 2
 
 def get_opponents(state):
-    """Fetches a turn player's opponents"""
+    """
+    Fetches a turn player's opponents
+    :returns: list(
+    opponent_names in order)
+    """
     return [player for player in PLAYER_NAMES if player != state['turn']]
 
 def get_remaining_opponent(state):
-    """Fetches a turn player's remaining opponents"""
-    return [opponent for opponent in get_opponents(state) if not is_dead(state, opponent)][0]
+    """
+    Fetches a turn player's only remaining (alive) opponent
+    Assumes only one left alive
+    :returns: list(alive_opponent_names in order)
+    """
+    ### TODO NOTE: Seems redundant but I left it here until we discuss it
+    return [opponent for opponent in get_opponents(state) if not is_dead(state, opponent)]
 
 def players_left(state):
-    """Finds all players left"""
+    """
+    Finds all players left
+    :returns: list(all_alive_players in order)
+    """
     return [player for player in PLAYER_NAMES if len(state[player])]
 
 ########################## HASHING ############################
 
 def encode(state):
-    """Defines a low-collision invertible hash for a State object"""
-    return Z_hash(state, ignore_exits=True)
+    """
+    Hash a state using a low-collision hash for a State object
+    :returns: integer
+    """
+    return Z_hash(state)
 
 def decode(state):
     """Decodes a hashed State back into a State object"""
     raise NotImplementedError
 
-def Z_hash(state, ignore_exits=True):
+def Z_hash(state):
     """
-    Implements a minimal collision hash for states
-    Hash of the form
-        0b(turn)(exit_counts)(37 hex state flags....)
-    Where
+    Implements a minimal collision NON-INVERTIBLE hash for states. Hash of form
+        0b(turn)(37 hex state flags....)
+    Where the flags are:
     - For turn player:
         - 00 for red
         - 01 for green
@@ -248,25 +285,22 @@ def Z_hash(state, ignore_exits=True):
         - 01 for red
         - 10 for green
         - 11 for blue
-        - 00 for none """
+        - 00 for none
 
+    Note that as piece count is non-increasing in a game, no need to count exits
+    :returns: integer unique to the state
+    """
     hashed = 0
 
     # Append turn player
     hashed = hashed | PLAYER_HASH[state["turn"]]
 
-    # Exit count hashing if included. Note that 4 won't work - game over
-    if not ignore_exits:
-        # Ordered iteration
-        for name in PLAYER_NAMES:
-            hashed = (hashed << CODE_LEN) | state['exits'][name]
-
     # Encode coordinates: First, make space
     hashed = hashed << NUM_HEXES * CODE_LEN
 
     # ith pair of 2-bits = ith location in VALID_COORDINATES
-    for name in PLAYER_NAMES:
-        for piece in state[name]:
-            hashed = hashed | (PLAYER_HASH[name] + 1 << CODE_LEN * VALID_COORDINATES.index(piece))
+    for player in PLAYER_NAMES:
+        for piece in state[player]:
+            hashed = hashed | (PLAYER_HASH[player] + 1 << CODE_LEN * VALID_COORDINATES.index(piece))
 
     return hashed

@@ -9,23 +9,12 @@ Uses number_of_pieces_lost = 0 and retrograde_dijkstra as heuristic
 ########################### IMPORTS ##########################
 # User-defined files
 from mechanics import *
+from moves import get_cubic, get_axial
 from algorithms.mp_mix import paranoid
 from algorithms.heuristics import *
 from algorithms.partA.search import part_A_search
 
 PATH = list()
-
-def get_cubic(tup):
-    """
-    Converts axial coordinates to cubic coordinates
-    """
-    return (tup[0], -tup[0]-tup[1], tup[1])
-
-def get_axial(tup):
-    """
-    Converts axial coordinates to cubic coordinates
-    """
-    return (tup[0], tup[2])
 
 class RunnerPlayer:
     def __init__(self, colour):
@@ -43,8 +32,6 @@ class RunnerPlayer:
         action."""
         self.state = apply_action(self.state, action)
 
-    ################# DEFINE EVERY IMPLEMENTATION ################
-    
     def dijkstra(self, single_player=True):
         """
         :strategy: If everyone is dead, it becomes Part A. Literally Part A code...
@@ -81,8 +68,7 @@ class RunnerPlayer:
         """
         if is_dead(self.state, self.colour):
             return ("PASS", None)
-
-        if sum([is_dead(self.state, i) for i in PLAYER_NAMES]) == 2:
+        elif two_players_left(self.state):
             return self.dijkstra()
-
-        return paranoid(self.state, end_game_heuristic, self.colour)[1]
+        else:
+            return paranoid(self.state, end_game_heuristic, self.colour)[1]

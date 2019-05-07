@@ -1,8 +1,9 @@
-""" 
+"""
 :filename: moves.py
 :summary: Module which contain all move related functions
-:authors: Akira Wang (913391), Callum Holmes (XXXXXX)
+:authors: Akira Wang (913391), Callum Holmes (899251)
 """
+
 ########################### GLOBALS ##########################
 POSSIBLE_DIRECTIONS = [(-1,+0),(+0,-1),(+1,-1),(+1,+0),(+0,+1),(-1,+1)]
 
@@ -16,13 +17,21 @@ VALID_COORDINATES = [
     (3, -3), (3, -2), (3, -1), (3, 0)
 ]
 
+VALID_SET = set(VALID_COORDINATES)
+
+CORNER_HEXES = [
+    (-3, 0), (-3, 3), (0, 3), (3, 0), (3, -3), (0, -3)
+]
+
+CORNER_SET = set(CORNER_HEXES)
+
 GOALS = {
     'red': [(3,-3), (3,-2), (3,-1), (3,0)],
     'green': [(-3,3), (-2,3), (-1,3), (0,3)],
     'blue': [(-3,0),(-2,-1),(-1,-2),(0,-3)],
 }
 
-############################ MOVES ############################
+########################## FUNCTIONS #########################
 
 def add(u, v):
     """
@@ -47,7 +56,7 @@ def get_cubic_ordered(v):
 
 def get_cubic(v):
     """
-    Function that converts axial coordinates to cubic coordinates
+    Function that converts axial coordinates to conventional cubic coordinates
     :returns: cubic coordinates
     """
     return (v[0], -v[0]-v[1], v[1])
@@ -58,6 +67,13 @@ def get_axial(v):
     :returns: axial coordinates
     """
     return (v[0], v[2])
+
+def get_axial_ordered(v):
+    """
+    Function that converts player-ordered cubic coordinates to axial coordinates
+    :returns: axial coordinates
+    """
+    return (v[0], v[1])
 
 def midpoint(u, v):
     """
@@ -74,7 +90,7 @@ def exit_action(state, colour):
     """
     return [("EXIT", piece) for piece in state[colour] if piece in GOALS[colour]]
 
-def move_action(state, _occupied, colour):
+def move_action(state, occupied_hexes, colour):
     """
     Function to see if a move action is possible.
     :returns: list of possible move directions.
@@ -84,12 +100,12 @@ def move_action(state, _occupied, colour):
     for piece in state[colour]:
         for direction in POSSIBLE_DIRECTIONS:
             adjacent_hex = add(piece, direction)
-            if adjacent_hex in VALID_COORDINATES and adjacent_hex not in _occupied:
+            if adjacent_hex in VALID_COORDINATES and adjacent_hex not in occupied_hexes:
                 possible_moves.append(("MOVE", (piece, adjacent_hex)))
 
     return possible_moves
 
-def jump_action(state, _occupied, colour):
+def jump_action(state, occupied_hexes, colour):
     """
     Function to see if a jump action is possible.
     :returns: list of possible jump directions.
@@ -100,8 +116,8 @@ def jump_action(state, _occupied, colour):
         for direction in POSSIBLE_DIRECTIONS:
             adjacent_hex = add(piece, direction)
             target_hex = add(adjacent_hex, direction)
-            if adjacent_hex in _occupied:
-                if target_hex in VALID_COORDINATES and target_hex not in _occupied:
+            if adjacent_hex in occupied_hexes:
+                if target_hex in VALID_COORDINATES and target_hex not in occupied_hexes:
                     possible_jumps.append(("JUMP", (piece, target_hex)))
 
     return possible_jumps

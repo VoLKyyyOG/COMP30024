@@ -1,7 +1,7 @@
 """
 :filename: player.py
 :summary: Base class for any MPMixPlayer (Chexers)
-:authors: Akira Wang (913391), Callum Holmes (XXXXXX)
+:authors: Akira Wang (913391), Callum Holmes (899251)
 """
 
 ########################### IMPORTS ##########################
@@ -10,7 +10,8 @@
 from math import inf
 
 # User-defined files
-from mechanics import create_initial_state, num_opponents_dead, apply_action, possible_actions, get_remaining_opponent
+from mechanics import create_initial_state, num_opponents_dead, apply_action,
+    possible_actions, get_remaining_opponent
 from moves import get_axial, get_cubic
 from book import opening_moves
 
@@ -113,7 +114,7 @@ class MPMixPlayer:
             # TODO: Calculate jump distance for each piece and then return closest pieces for exit
             n_exited = self.state["exits"][self.colour]
             n = 4 - n_exited
-        
+
             alive_opponent = get_remaining_opponent(self.state)
 
             temp = sorted([get_cubic(tup) for tup in self.state[self.colour]], reverse=True)
@@ -124,7 +125,7 @@ class MPMixPlayer:
             # (pos, flag, new_pos=None)
 
             return (FLAGS[action[1]], action[0]) if FLAGS[action[1]] == "EXIT" else (FLAGS[action[1]], (action[0], action[2]))
-            
+
         if not bool(PATH):
             # Create part_A appropriate data
             state = dict()
