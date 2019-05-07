@@ -14,7 +14,7 @@ from copy import deepcopy
 from collections import defaultdict
 
 # User-defined files
-from moves import VALID_COORDINATES, midpoint, move_action, jump_action, exit_action
+from moves import VALID_COORDINATES, midpoint, move_action, jump_action, exit_action, jump_sort
 
 ########################### GLOBALS ##########################
 
@@ -183,7 +183,7 @@ def is_capture(state, action, colour):
     # Returns true if what it would jump over is not its own
     return (midpoint(old, new) not in state[colour])
 
-def possible_actions(state, colour):
+def possible_actions(state, colour, sort=False):
     """
     Returns list of possible actions for a given state
     """
@@ -193,7 +193,10 @@ def possible_actions(state, colour):
     occupied_hexes = function_occupied(state, PLAYER_NAMES)
 
     actions.extend(exit_action(state, colour))
-    actions.extend(jump_action(state, occupied_hexes, colour))
+    if sort:
+        actions.extend(jump_sort(state, jump_action(state, occupied_hexes, colour), colour))
+    else:
+        actions.extend(jump_action(state, occupied_hexes, colour))
     actions.extend(move_action(state, occupied_hexes, colour))
 
     if not actions:

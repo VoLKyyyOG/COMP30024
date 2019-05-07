@@ -8,6 +8,7 @@
 
 # Standard modules
 from math import inf
+from time import process_time
 
 # User-defined files
 from mechanics import create_initial_state, num_opponents_dead, apply_action,
@@ -15,12 +16,13 @@ from mechanics import create_initial_state, num_opponents_dead, apply_action,
 from moves import get_axial, get_cubic
 from book import opening_moves
 
-from algorithms.mp_mix import mp_mix, paranoid
+from algorithms.logic import mp_mix
+from algorithms.adversarial_algorithms import negamax
+from algorithms.heuristics import end_game_heuristic, achilles_vector, speed_demon
 from algorithms.partA.search import part_A_search
-from algorithms.heuristics import achilles_vector, end_game_heuristic, speed_demon
 
 # Global imports
-from mechanics import PLAYER_HASH
+from mechanics import PLAYER_HASH, MAX_EXITS
 
 PATH = list()
 
@@ -35,6 +37,7 @@ class MPMixPlayer:
         """
         self.colour = colour
         self.state = create_initial_state()
+        self.clock = 0
 
     def update(self, colour, action):
         """
@@ -44,30 +47,43 @@ class MPMixPlayer:
 
     def action(self):
         """
-        Returns an action given conditions.
+        Returns an action given time constraints (55 seconds CPU)
         """
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| {self.state[self.colour]}")
-
         if not self.state[self.colour]:
             return ("PASS", None)
 
-        if num_opponents_dead(self.state) == 1:
-            return self.run_2_player()
+        if self.clock <= 55:
+            start = process_time()
 
-        if num_opponents_dead(self.state) == 2:
-            print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| GG! 1 PLAYER GAME DIJKSTRA")
-            return self.djikstra()
+            if num_opponents_dead(self.state) == 1:
+                action = self.run_2_player()
+            elif num_opponents_dead(self.state) == 2:
+                print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| GG! 1 PLAYER GAME DIJKSTRA")
+                action = self.djikstra()
+            elif self.start_mid_game():
+                action = self.mid_game()
+            else:
+                action = self.early_game()
 
-        if self.start_mid_game():
-            return self.mid_game()
+            self.clock += process_time() - start
+            print(self.clock)
         else:
-            return self.early_game()
+            action = self.greedy_action()
+
+        return action
+
+
+
+    def action_logic(self):
+        """
+        Returns an action given conditions.
+        """
 
     def early_game(self):
         """
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
         """
-        return opening_moves(self.state, self.colour) if not False else paranoid(self.state, achilles_vector, self.colour)
+        return opening_moves(self.state, self.colour) if not False else negamax(self.state, achilles_vector, self.colour)
 
     def mid_game(self):
         """
@@ -113,7 +129,7 @@ class MPMixPlayer:
 
             # TODO: Calculate jump distance for each piece and then return closest pieces for exit
             n_exited = self.state["exits"][self.colour]
-            n = 4 - n_exited
+            n = MAX_EXITS - n_exited
 
             alive_opponent = get_remaining_opponent(self.state)
 
@@ -150,8 +166,7 @@ class MPMixPlayer:
 
     def start_mid_game(self):
         """
-        Determines when to shift strategy to the mid game given deciding factors.
-        TODO: Add a flag once a player piece has been captured
+        Starts mid game after 3 moves per player.
         """
         if self.state["depth"] == self.MID_GAME_THRESHOLD:
             print(f"* ({self.colour}) is switching to midgame")
@@ -165,12 +180,6 @@ class MPMixPlayer:
         if self.state["depth"] == self.END_GAME_THRESHOLD:
             print(f"* ({self.colour}) is switching to endgame")
         return (self.state["depth"] >= self.END_GAME_THRESHOLD)
-
-    def random_action(self):
-        """
-        :strategy: Choose a random action given a set of possible actions.
-        """
-        return choice(possible_actions(self.state, self.state["turn"]))
 
     def greedy_action(self):
         """

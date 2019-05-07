@@ -121,3 +121,25 @@ def jump_action(state, occupied_hexes, colour):
                     possible_jumps.append(("JUMP", (piece, target_hex)))
 
     return possible_jumps
+
+def capture(state, old, new, colour):
+    """
+    Checks if the jump is a capturing jump.
+    """
+    return midpoint(old, new) not in state[colour]
+
+def jump_sort(state, possible_jumps, colour):
+    """
+    Orders all possible jumps from capturing jumps to self jumps.
+    Useful for alpha-beta pruning.
+    """
+    capture_jumps = list()
+    self_jumps = list()
+
+    for jump in possible_jumps:
+        if capture(state, jump[1][0], jump[1][1], colour):
+            capture_jumps.append(jump)
+        else:
+            self_jumps.append(jump)
+
+    return capture_jumps + self_jumps
