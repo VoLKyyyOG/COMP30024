@@ -40,6 +40,9 @@ class GreedyPlayer:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program. Made it so greedy will always prefer exit moves
         """
+        if len(self.state[self.colour]) == 0:
+            return ("PASS",None)
+
         best_eval, best_action = -inf, None
         for action in possible_actions(self.state, self.colour):
             if action[0] == "EXIT":

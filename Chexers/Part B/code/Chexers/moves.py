@@ -7,6 +7,16 @@
 ########################### GLOBALS ##########################
 POSSIBLE_DIRECTIONS = [(-1,+0),(+0,-1),(+1,-1),(+1,+0),(+0,+1),(-1,+1)]
 
+VALID_COORDINATES = [
+    (-3, 0), (-3, 1), (-3, 2), (-3, 3),
+    (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-2, 3),
+    (-1, -2), (-1, -1), (-1, 0), (-1, 1), (-1, 2), (-1, 3),
+    (0, -3), (0, -2), (0, -1), (0, 0), (0, 1), (0, 2), (0, 3),
+    (1, -3), (1, -2), (1, -1), (1, 0), (1, 1), (1, 2),
+    (2, -3), (2, -2), (2, -1), (2, 0), (2, 1),
+    (3, -3), (3, -2), (3, -1), (3, 0)
+]
+
 VALID_SET = {
     (-3, 0), (-3, 1), (-3, 2), (-3, 3),
     (-2, -1), (-2, 0), (-2, 1), (-2, 2), (-2, 3),
@@ -46,12 +56,6 @@ OPPONENT_GOALS = {
         (3,-3), (3,-2), (3,-1), (3,0),
         (-3,3), (-2,3), (-1,3), (0,3)
     }
-}
-
-OPPONENT_GOALS = {
-    'red': [(-3,3), (-2,3), (-1,3), (0,3), (-3,0),(-2,-1),(-1,-2),(0,-3)],
-    'green': [(-3,0),(-2,-1),(-1,-2),(0,-3), (3,-3), (3,-2), (3,-1), (3,0)],
-    'blue': [(-3,3), (-2,3), (-1,3), (0,3), (3,-3), (3,-2), (3,-1), (3,0)],
 }
 
 ###################### VECTOR FUNCTIONS ######################
@@ -154,6 +158,19 @@ def capture(state, old, new, colour):
     Checks if the jump is a capturing jump.
     """
     return midpoint(old, new) not in state[colour]
+
+def capture_jumps(state, occupied_hexes, colour):
+    captures = list()
+
+    for piece in state[colour]:
+        for direction in POSSIBLE_DIRECTIONS:
+            adjacent_hex = add(piece, direction)
+            target_hex = add(adjacent_hex, direction)
+            if adjacent_hex in occupied_hexes:
+                if target_hex in VALID_COORDINATES and target_hex not in occupied_hexes and capture(state, piece, target_hex, colour):
+                    captures.append(("JUMP", (piece, target_hex)))
+
+    return captures
 
 def jump_sort(state, possible_jumps, colour):
     """

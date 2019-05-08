@@ -24,32 +24,33 @@ MAX_DEPTH = 3
 
 ##############################################################
 
-def negamax(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
-    """
-    Simple yet effective implementation of Negamax with alpha-beta pruning.
-    The possible moves functions will always return good ordering for optimal pruning.
-    Assumes a player is dead - hence the game is merely 2-player.
-    """
+def alpha_beta(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
 
     if not depth_left:
-        evals = heuristic(state)[PLAYER_HASH[max_player]]
-        return (-evals, None)
+        evals = heuristic(state)
+        return (evals, None)
 
     best_action = None
-    p = state["turn"]
+    player = state["turn"]
+    index = PLAYER_HASH[player]
 
-    for action in possible_actions(state, p):
+    generated_actions = possible_actions(state, player)
+    for action in generated_actions:
         new_state = apply_action(state, action, ignore_dead=True)
+        player_eval = alpha_beta(new_state, heuristic, max_player, alpha, beta, depth_left-1)[0]
 
-        new_eval = -negamax(new_state, heuristic, max_player, -beta, -alpha, depth_left - 1)[0]
+        if (player == max_player):
+            # MaximisingPlayer wants to maximise alpha
+            if player_eval[index] > alpha:
+                alpha, best_action = player_eval[index], action
 
-        if new_eval >= beta:
-            return (beta, best_action)
+        # MinimisingPlayer wants to worsen beta
+        elif player_eval[index] < beta:
+            beta, best_action = player_eval[index], action
 
-        if new_eval > alpha:
-            alpha, best_action = new_eval, action
-
-    return (alpha, best_action)
+        if alpha >= beta:
+            return (player_eval, best_action)
+    return (player_eval, best_action)
 
 def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
     """
@@ -96,15 +97,16 @@ def directed_offensive(state, heuristic, max_player, target, min_eval=inf, depth
     best_action = None
     player = state["turn"]
     index = PLAYER_HASH[player]
-    target_index = PLAYER_HASH[index]
-    is_max = player == max_player
+    target_index = PLAYER_HASH[target]
 
-    generated_actions = possible_actions(state, player, sort=is_max)
+    generated_actions = possible_actions(state, player, sort=(player==max_player))
     for action in generated_actions:
         new_state = apply_action(state, action)
         player_eval = directed_offensive(new_state, heuristic, max_player, target, min_eval, depth_left-1)[0]
 
-        if is_max:
+        if player != max_player:
+
+            # We are NOT the max_player 
             # If this is not us, we assume they will want to just maximise themselves
             if player_eval[index] > max_player_evals[index]:
                 max_player_evals, best_action = player_eval, action
@@ -115,7 +117,37 @@ def directed_offensive(state, heuristic, max_player, target, min_eval=inf, depth
 
     return (max_player_evals, best_action)
 
+#### DEPRECIAITED
+def negamax(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
+    raise NotImplementedError
+    """
+    Simple yet effective implementation of Negamax with alpha-beta pruning.
+    The possible moves functions will always return good ordering for optimal pruning.
+    Assumes a player is dead - hence the game is merely 2-player.
+    """
+
+    if not depth_left:
+        evals = heuristic(state)[PLAYER_HASH[max_player]]
+        return (-evals, None)
+
+    best_action = None
+    p = state["turn"]
+
+    for action in possible_actions(state, p):
+        new_state = apply_action(state, action, ignore_dead=True)
+
+        new_eval = -negamax(new_state, heuristic, max_player, -beta, -alpha, depth_left - 1)[0]
+
+        if new_eval >= beta:
+            return (beta, best_action)
+
+        if new_eval > alpha:
+            alpha, best_action = new_eval, action
+
+    return (alpha, best_action)
+
 def max_n(state, heuristic, depth_left=MAX_DEPTH):
+    raise NotImplementedError
     """
     Max^N. A 3 player variant of minimax with no good pruning techniques available.
     Pretty useless and it isn't really called at all during our game.

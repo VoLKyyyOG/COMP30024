@@ -12,12 +12,12 @@ from time import process_time
 
 # User-defined files
 from mechanics import create_initial_state, num_opponents_dead, apply_action, possible_actions, get_remaining_opponent
-from moves import get_axial, get_cubic
+from moves import get_axial_ordered, get_cubic_ordered
 from book import opening_moves
 
 from algorithms.logic import mp_mix
-from algorithms.adversarial_algorithms import negamax
-from algorithms.heuristics import end_game_heuristic, achilles_vector, speed_demon
+from algorithms.adversarial_algorithms import paranoid
+from algorithms.heuristics import achilles_vector, speed_demon, end_game_heuristic
 from algorithms.partA.search import part_A_search
 
 # Global imports
@@ -27,7 +27,7 @@ PATH = list()
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 9 # The first three moves for each player
+    MID_GAME_THRESHOLD = 12 # The first three moves for each player
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
@@ -57,7 +57,6 @@ class MPMixPlayer:
             if num_opponents_dead(self.state) == 1:
                 action = self.run_2_player()
             elif num_opponents_dead(self.state) == 2:
-                print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| GG! 1 PLAYER GAME DIJKSTRA")
                 action = self.djikstra()
             elif self.start_mid_game():
                 action = self.mid_game()
@@ -71,8 +70,6 @@ class MPMixPlayer:
 
         return action
 
-
-
     def action_logic(self):
         """
         Returns an action given conditions.
@@ -82,7 +79,7 @@ class MPMixPlayer:
         """
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
         """
-        return opening_moves(self.state, self.colour) if not False else negamax(self.state, achilles_vector, self.colour)
+        return opening_moves(self.state, self.colour) if not False else paranoid(self.state, end_game_heuristic, self.colour)
 
     def mid_game(self):
         """
@@ -132,9 +129,9 @@ class MPMixPlayer:
 
             alive_opponent = get_remaining_opponent(self.state)
 
-            temp = sorted([get_cubic(tup) for tup in self.state[self.colour]], reverse=True)
-            state['pieces'] = [get_axial(tup) for tup in temp[:n]]
-            state['blocks'] = [get_axial(tup) for tup in temp[n:]] + self.state[alive_opponent]
+            temp = sorted([get_cubic_ordered(tup) for tup in self.state[self.colour]], reverse=True)
+            state['pieces'] = [get_axial_ordered(tup) for tup in temp[:n]]
+            state['blocks'] = [get_axial_ordered(tup) for tup in temp[n:]] + self.state[alive_opponent]
 
             action = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1] # attempting the runner so take first move
             # (pos, flag, new_pos=None)
@@ -150,9 +147,9 @@ class MPMixPlayer:
             n_exited = self.state["exits"][self.colour]
             n = 4 - n_exited
 
-            temp = sorted([get_cubic(tup) for tup in self.state[self.colour]], reverse=True)
-            state['pieces'] = [get_axial(tup) for tup in temp[:n]]
-            state['blocks'] = [get_axial(tup) for tup in temp[n:]]
+            temp = sorted([get_cubic_ordered(tup) for tup in self.state[self.colour]], reverse=True)
+            state['pieces'] = [get_axial_ordered(tup) for tup in temp[:n]]
+            state['blocks'] = [get_axial_ordered(tup) for tup in temp[n:]]
 
             PATH = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1:]
 
@@ -160,7 +157,7 @@ class MPMixPlayer:
             PATH = [(FLAGS[x[1]], x[0]) if FLAGS[x[1]] == "EXIT" else (FLAGS[x[1]], (x[0], x[2])) for x in PATH]
 
             # (FLAG_str: (pos1, pos2=None))
-
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| GG! 1 PLAYER GAME DIJKSTRA")
         return PATH.pop(0)
 
     def start_mid_game(self):

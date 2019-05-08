@@ -30,4 +30,7 @@ def printer(state):
     print_board(board_dict)
 
 printer(test2)
-print(end_game_heuristic(test2))
+print(displacement(test2))
+
+printer(test)
+print(displacement(test))

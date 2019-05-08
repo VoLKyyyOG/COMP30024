@@ -21,11 +21,11 @@ Inon Zuckerman, Ariel Felner
 from math import inf
 
 # User-defined files
-from mechanics import get_remaining_opponent
-from moves import exit_action
+from mechanics import get_remaining_opponent, function_occupied
+from moves import exit_action, capture_jumps
 
-from algorithms.heuristics import desperation, can_exit, no_pieces
-from algorithms.adversarial_algorithms import negamax, paranoid, directed_offensive, max_n
+from algorithms.heuristics import desperation, can_exit, no_pieces, nerfed_desperation, speed_demon, exits
+from algorithms.adversarial_algorithms import alpha_beta, paranoid, directed_offensive, max_n
 
 # Global Imports
 from mechanics import PLAYER_NAMES, PLAYER_HASH, N_PLAYERS
@@ -54,9 +54,10 @@ def mp_mix(state, heuristic, defence_threshold=0, offence_threshold=0, two_playe
 
     leader, rival, loser, leader_edge, second_edge = score(state, heuristic)
 
-    exit_action, possible = force_exit(state, max_player)
+    move, possible = winning_move(state, max_player, two_player)
     if possible:
-        return exit_action
+        print("\t\t\t\t\t\t\t\t\t\t\t\tBLITZ")
+        return move
 
     if two_player:
         return two_player_logic(state, heuristic, max_player, leader_edge, depth=TWO_PLAYER_MAX_DEPTH, defence_threshold=MAX_UTIL_VAL)
@@ -69,7 +70,7 @@ def score(state, heuristic):
     :return: best, mid and worst scores, as well as margins
     """
     evals = heuristic(state)
-    print(f"\n\t\t\t\t\t\t\t\t* ||| Initial Evaluations {evals}")
+    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| Initial Evaluations {evals}")
 
     scores = {PLAYER_NAMES[i] : evals[i] for i in range(N_PLAYERS)}
     scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
@@ -82,21 +83,24 @@ def score(state, heuristic):
 
     return leader, rival, loser, leader_edge, second_edge
 
-def force_exit(state, max_player):
-    """
-    Forces our algorithm to exit if we have 3 pieces and we have an exit piece!
-    :returns: (appicable_exit, should_exit_bool)
-    """
+def winning_move(state, max_player, two_player=False):
     possible_exits = exit_action(state, max_player)
-
-    if state['exits'][max_player] < len(possible_exits) or state['exits'][max_player] == 3 and len(possible_exits) > 0:
+    if state['exits'][max_player] == 3 and len(possible_exits) > 0:
         return (possible_exits[0], True)
+    
+    if two_player:
+        alive_opponent = get_remaining_opponent(state)
+        occupied_hexes = function_occupied(state, PLAYER_NAMES)
+        print(occupied_hexes)
+        captures = capture_jumps(state, occupied_hexes, max_player)
+        if len(state[alive_opponent]) == 1 and len(captures) > 0:
+            return (captures[0], True)
     return (None, False)
 
 def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_threshold=0):
     """
     MP-Mix 2 player strategy (no need to be offensive).
-    :default: negamax which will have a higher depth if sparse
+    :default: alpha_beta which will have a higher depth if sparse
     """
     alive_opponent = get_remaining_opponent(state)
 
@@ -107,8 +111,8 @@ def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_t
     if sum(no_pieces(state)) < 6: # less than six pieces on board
         depth = 7
 
-    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| NEGAMAX AGAINST REMAINING PLAYER | DEPTH = {depth}")
-    return negamax(state, heuristic, max_player, depth_left=depth)[1]
+    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| ALPHA-BETA AGAINST REMAINING PLAYER | DEPTH = {depth}")
+    return alpha_beta(state, heuristic, max_player, depth_left=depth)[1]
 
 def three_player_logic(state, max_player, heuristic, leader, rival, loser, defence_threshold=0, offence_threshold=0):
     global KILL_DEPTH, PARANOID_MAX_DEPTH, MAXN_MAX_DEPTH
@@ -133,5 +137,5 @@ def three_player_logic(state, max_player, heuristic, leader, rival, loser, defen
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST 1 PIECE LOSER {loser} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, heuristic, max_player, loser, depth_left=KILL_DEPTH)[1]
 
-    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DEFAULTING TO MAX_N | DEPTH = {MAXN_MAX_DEPTH}")
-    return max_n(state, heuristic, depth_left=MAXN_MAX_DEPTH)[1]
+    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DEFAULTING TO PARANOID | DEPTH = {MAXN_MAX_DEPTH}")
+    return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
