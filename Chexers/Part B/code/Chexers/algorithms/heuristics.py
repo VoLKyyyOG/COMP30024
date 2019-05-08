@@ -248,7 +248,7 @@ def retrograde_dijkstra(state):
     Computes minimal traversal distance to exit for all N players
     :returns: vector of distances
     """
-    cost = [sum(dijkstra_board(state, state["turn"])[piece] for piece in state[player]) for player in PLAYER_NAMES]
+    cost = np.array([sum(dijkstra_board(state, state["turn"])[piece] for piece in state[player]) for player in PLAYER_NAMES])
     print(f"Retro-D: {cost}")
     return cost
 
