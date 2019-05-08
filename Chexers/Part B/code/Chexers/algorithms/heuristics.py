@@ -180,14 +180,12 @@ def favourable_hexes(state):
     """
     Favourable hex positions:
     1. Corner hexes
-    2. Our own exit hexes
-    3. Enemy exit hex positions
+    2. Enemy exit hex positions
     """
     corner_hex = [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
-    exit_hex = [len(exit_action(state, player)) for player in PLAYER_NAMES]
     block_exit_hex = [len(set(state[player]).intersection(OPPONENT_GOALS[player])) for player in PLAYER_NAMES]
 
-    return sum([np.array(eval) for eval in [corner_hex, exit_hex, block_exit_hex]])
+    return sum([np.array(eval) for eval in [corner_hex, block_exit_hex]])
 
 # TODO STRAT FIX
 def troll(state):
@@ -205,14 +203,45 @@ def end_game_heuristic(state):
     """
     Tribute to Marvel's End Game. This is the heuristic used for our mp-mix algorithm and holds a very high win rate on battlegrounds.
     """
-    if two_players_left(state): # if it is two player
-        evals = np.array([f(state) for f in [desperation, speed_demon, can_exit, exits]])
-        weights = [1, 0.1, 2, 5]
-    else:
-        evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, no_pieces]])
-        weights = [1, 0.1, 0.1, 0.5, 1]
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, no_pieces]])
+    weights = [1, 0.1, 0.1, 0.5, 1]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
+
+def two_player_heuristics(state):
+    evals = np.array([f(state) for f in [desperation, speed_demon, can_exit, exits]])
+    weights = [1, 0.1, 2, 5]
+
+    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
+
+def runner(state):
+    evals = np.array([f(state) for f in [can_exit, speed_demon, no_pieces]])
+    weights = [1, 1, 1]
+
+    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
+
+def killer(state):
+    evals = np.array([f(state) for f in [no_pieces, achilles_vector]])
+    weights = [1, 1]
+    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 def retrograde_dijkstra(state):
     """
