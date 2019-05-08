@@ -29,16 +29,20 @@ class Node:
     @property
     def children(self):
         """Generate children if not done so already, and return them"""
-        if self.is_dead:
-            return list()
-        elif not self.is_expanded:
-            for action in possible_actions(self.state, player(self.state)):
-                new_child = self.new_child(apply_action(self.state, action), self)
-                new_child.action = action
-                self._children.append(new_child)
-            self.is_expanded = True
-            #### TODO: Decide ordering here
+        if not self.is_expanded:
+            self.expand()
         return self._children
+
+    def expand(self):
+        """Generate children"""
+        assert(not self.is_expanded)
+        if self.is_dead: return
+        for action in possible_actions(self.state, player(self.state)):
+            new_child = self.new_child(apply_action(self.state, action), self)
+            new_child.action = action
+            self._children.append(new_child)
+        self.is_expanded = True
+        #### TODO: Decide ordering here
 
     @classmethod
     def new_child(cls, state, parent):
@@ -52,7 +56,7 @@ class Node:
 
     def clean_tree(self):
         """Kill trees below any dead nodes"""
-        for child in self.children:
+        for child in self._children:
             if child.is_dead:
                 child.kill_tree()
             else:
@@ -62,7 +66,7 @@ class Node:
         """Recursively kills down subtree, however will not kill ignores
         Inferred that references to ignore nodes are retained externally"""
         # Kill each subtree
-        for child in self.children:
+        for child in self._children:
             child.kill_tree()
         del(self)
 
@@ -73,7 +77,7 @@ class Node:
             if self.parent.parent:
                 self.parent.overthrow()
             # Now that parent is king, usurp it
-            for sibling in self.parent.children:
+            for sibling in self.parent._children:
                 if sibling != self:
                     sibling.kill_tree()
             del(self.parent)

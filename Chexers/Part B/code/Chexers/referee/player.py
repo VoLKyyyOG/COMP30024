@@ -20,11 +20,11 @@ class PlayerWrapper:
     def __init__(self, name, player_loc, options, out):
         self.out  = out
         self.name = name
-        
+
         # create some context managers for resource limiting
         self.timer = _CountdownTimer(options.time, self.name)
         self.space = _MemoryWatcher(options.space)
-        
+
         # import the Player class from given package
         player_pkg, player_cls = player_loc
         self.out.comment(f"importing {self.name}'s player class '{player_cls}' "
@@ -101,14 +101,14 @@ class _CountdownTimer:
         self._status = status
     def status(self):
         return self._status
-    
+
     def __enter__(self):
         # clean up memory off the clock
         gc.collect()
         # then start timing
         self.start = time.process_time()
         return self # unused
-    
+
     def __exit__(self, exc_type, exc_val, exc_tb):
         # accumulate elapsed time since __enter__
         elapsed = time.process_time() - self.start
@@ -136,7 +136,7 @@ class _MemoryWatcher:
         self._status = status
     def status(self):
         return self._status
-    
+
     def __enter__(self):
         return self # unused
     def __exit__(self, exc_type, exc_val, exc_tb):
@@ -146,7 +146,7 @@ class _MemoryWatcher:
         """
         if _SPACE_ENABLED:
             curr_usage, peak_usage = _get_space_usage()
-    
+
             # adjust measurements to reflect usage of players and referee, not
             # the Python interpreter itself
             curr_usage -= _DEFAULT_MEM_USAGE
@@ -165,7 +165,7 @@ def _get_space_usage():
     """
     Find the current and peak Virtual Memory usage of the current process, in MB
     """
-    # on linux, we can find the memory usage of our program we are looking for 
+    # on linux, we can find the memory usage of our program we are looking for
     # inside /proc/self/status (specifically, fields VmSize and VmPeak)
     with open("/proc/self/status") as proc_status:
         for line in proc_status:
@@ -183,12 +183,12 @@ def set_space_line():
     measure this first to later subtract from all measurements
     """
     global _SPACE_ENABLED, _DEFAULT_MEM_USAGE
-    
+
     try:
         _DEFAULT_MEM_USAGE, _ = _get_space_usage()
         _SPACE_ENABLED = True
     except:
-        # this also gives us a chance to detect if our space-measuring method 
+        # this also gives us a chance to detect if our space-measuring method
         # will work on this platform, and notify the user if not.
         print("* NOTE: unable to measure memory usage on this platform "
             "(try dimefox)")

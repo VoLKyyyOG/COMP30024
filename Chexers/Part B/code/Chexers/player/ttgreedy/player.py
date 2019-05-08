@@ -13,7 +13,6 @@ from math import inf
 from mechanics import *
 from algorithms.heuristics import speed_demon
 from structures.gamenode import GameNode
-from algorithms.node import Node
 from collections import defaultdict
 
 class GreedyPlayer:
@@ -38,6 +37,35 @@ class GreedyPlayer:
         self.root = self.root.update_root(colour, action)
         self.colour = colour
 
+    def debug(self):
+        self.debugger(self.root)
+
+    @staticmethod
+    def debugger(current):
+        """Modified referee calls this, allows for navigation of search tree
+        Can call anywhere in execution"""
+        while(1):
+            chosen = input(">> Change node (c) literal eval (e) print state info (s) quit (q) >> ")
+            if chosen not in "cesq":
+                print(">> Invalid, try again.")
+            elif chosen == "c":
+                try:
+                    nodehash = int(input("Specify hash for state >> ").strip())
+                    current = current.get_node(nodehash)
+                except:
+                    print(">> invalid, try again.")
+            elif chosen == "e":
+                try:
+                    exec(input("Object is current >> "))
+                except:
+                    print(">> invalid, try again.")
+            elif chosen == "s":
+                current.printer(current.state)
+                print(f"Depth {current.state['depth']}, colour {current.state['turn']}")
+                print(f"Children:\n" + "\n".join([f"{child.hash()} - {child.action}" for child in current.children]))
+            else:
+                break
+
     ################# DEFINE EVERY IMPLEMENTATION ################
 
     def action(self):
@@ -51,10 +79,10 @@ class GreedyPlayer:
         best_eval, best_action = -inf, None
         for child in self.root.children:
             if child.action[0] == "EXIT":
-                return action
+                return child.action
             new_eval = speed_demon(child.state)[PLAYER_HASH[self.colour]]
             if new_eval > best_eval:
                 best_eval = new_eval
-                best_action = action
+                best_action = child.action
 
         return best_action

@@ -7,7 +7,7 @@ Properties of GAMENODE (NOT INHERITED):
 - node.counts[node.hash()] --> # visits in the game
 - node.hash() --> Z_hash(node.state)
 - node.update_root(colour, action)
-- node.get_node(state)
+- node.get_node(statehash)
 
 INHERITED:
 - node.children
@@ -27,7 +27,8 @@ INHERITED:
 from collections import defaultdict
 from structures.node import *
 from mechanics import Z_hash
-from mechanics import N_PLAYERS
+from mechanics import N_PLAYERS, PLAYER_NAMES
+import numpy as np
 
 class GameNode(Node):
     """
@@ -62,14 +63,14 @@ class GameNode(Node):
         """
         Increase number of visits to a node
         """
-        self.counts[Z_hash(node)] += 1
+        self.counts[node.hash] += 1
 
     def update_root(self, colour, action):
         """
         Called when an actual game move has been decided, updates tree
         :returns: new root for player to use
         """
-        root = [x for x in self.root.children if x.action == action].pop(0)
+        root = [x for x in self.children if x.action == action].pop(0)
         root.overthrow()  # Delete all irrelevant siblings to free memory
         root.clean_tree()
 
@@ -78,33 +79,42 @@ class GameNode(Node):
         root.increment(root)
         return root
 
-    def get_node(self, state):
+    def get_node(self, state_hash):
         """
         Can jump to any (explored) state given the state
         """
-        return self.TT[Z_hash(state)]
+        return self.TT[state_hash]
+
+    @staticmethod
+    def printer(state):
+        from algorithms.partA.formatting import print_board
+        board_dict = {}
+        for player in PLAYER_NAMES:
+            for i in state[player]:
+                board_dict[i] = f"{player}"
+        print_board(board_dict)
 
     # Overriden behaviour
-    @property
-    def children(self):
-        """
-        Process generated children with TT prior to returning them
-        :returns: [children_list] or [] if dead
-        """
-        for child in self.children:
+    def expand(self):
+        assert(not self.is_expanded)
+        if self.is_dead: return
+        for action in possible_actions(self.state, player(self.state)):
+            new_child = self.new_child(apply_action(self.state, action), self)
+            new_child.action = action
+            self._children.append(new_child)
+
             # Use TT to verify it should be considered
-            node_hash = Z_hash(child.state)
+            node_hash = new_child.hash()
             if node_hash in self.TT:
-                current = self.data[node_hash]
-                # Either better or worse
-                if (child.depth >= current.depth):
+                current = self.TT[node_hash]
+                if (new_child.state['depth'] >= current.state['depth']) and new_child != current:
                     # This is a duplicate
+                    new_child.is_dead = True
+                else:
+                    # This is better, so flag the older one dead
                     current.is_dead = True
-                    continue
-                # This is better, so flag the older one dead
-                current.is_dead = True
 
-            self.data[node_hash] = node
-            #### TODO: Decide ordering here
+            self.TT[node_hash] = new_child
 
-        return self.children
+        self.is_expanded = True
+        #### TODO: Decide ordering here

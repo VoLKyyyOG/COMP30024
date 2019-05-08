@@ -34,7 +34,7 @@ def main():
 
         # Play the game!
         play([p_R, p_G, p_B], options, out)
-    
+
     # In case the game ends in an abnormal way, print a clean error
     # message for the user (rather than a trace).
     except KeyboardInterrupt:
@@ -48,17 +48,27 @@ def main():
         out.section("game error")
         out.print("error: resource limit exceeded!")
         out.comment(e)
+    chosen = input("\n\n\nGAME OVER - Debug chosen player (r,g,b) >> ")[0]
+    if chosen == 'r':
+        player = p_R.player
+    elif chosen == 'g':
+        player = p_G.player
+    elif chosen == 'b':
+        player = p_B.player
+    else:
+        return
+    player.debug()
     # If it's another kind of error then it might be coming from the player
     # itself? Then, a traceback will be more helpful.
 
 def play(players, options, out):
     # Set up a new Chexers game and initialise a Red, Green and Blue player
-    # (constructing three Player classes including running their .__init__() 
+    # (constructing three Player classes including running their .__init__()
     # methods).
     game = Chexers(logfilename=options.logfile, debugboard=options.verbosity>2)
     out.section("initialising players")
     for player, colour in zip(players, ['red', 'green', 'blue']):
-        # NOTE: `player` here is actually a player wrapper. Your program should 
+        # NOTE: `player` here is actually a player wrapper. Your program should
         # still implement a method called `__init__()`, not one called `init()`.
         player.init(colour)
 
@@ -74,11 +84,11 @@ def play(players, options, out):
         time.sleep(options.delay)
         out.section(f"{curr_player.name}'s turn")
 
-        # Ask the current player for their next action (calling their .action() 
+        # Ask the current player for their next action (calling their .action()
         # method).
         action = curr_player.action()
-        
-        # Validate this action (or pass) and apply it to the game if it is 
+
+        # Validate this action (or pass) and apply it to the game if it is
         # allowed. Display the resulting game state.
         game.update(curr_player.colour, action)
         out.comment("displaying game info:")
@@ -91,7 +101,7 @@ def play(players, options, out):
 
         # Next player's turn!
         curr_player,next_player,prev_player=next_player,prev_player,curr_player
-    
+
     # After that loop, the game has ended (one way or another!)
     # Display the final result of the game to the user.
     result = game.end()
