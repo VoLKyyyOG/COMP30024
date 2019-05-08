@@ -15,6 +15,8 @@ Inon Zuckerman, Ariel Felner
 :strategy: Determine whether the agent should be paranoid (1 vs all), maxn (everyone will maximise themself), offence (minimise a target)
 """
 
+# TODO NOTE: potential custom eval functions that are fixed given mp-mix logic (rather than passing a single heuristic)
+
 ########################### IMPORTS ##########################
 
 # Standard modules
@@ -24,7 +26,7 @@ from math import inf
 from mechanics import get_remaining_opponent, function_occupied
 from moves import exit_action, capture_jumps
 
-from algorithms.heuristics import desperation, can_exit, no_pieces, nerfed_desperation, speed_demon, exits
+from algorithms.heuristics import *
 from algorithms.adversarial_algorithms import alpha_beta, paranoid, directed_offensive, max_n
 
 # Global Imports
@@ -33,8 +35,8 @@ from mechanics import PLAYER_NAMES, PLAYER_HASH, N_PLAYERS
 ########################### GLOBALS ##########################
 
 KILL_DEPTH = 3
-PARANOID_MAX_DEPTH = 4
-TWO_PLAYER_MAX_DEPTH = 3
+PARANOID_MAX_DEPTH = 3
+TWO_PLAYER_MAX_DEPTH = 5
 MAX_UTIL_VAL = 10 # TODO: Calculate a max utility value! For now, this is the equivalent of a "free" exit (worth 10 points)
 
 ##############################################################
@@ -56,7 +58,7 @@ def mp_mix(state, heuristic, defence_threshold=0, offence_threshold=0, two_playe
 
     move, possible = winning_move(state, max_player, two_player)
     if possible:
-        print("\t\t\t\t\t\t\t\t\t\t\t\tBLITZ")
+        print("\t\t\t\t\t\t\t\t\t\t\t\t* ||| FREE WIN!")
         return move
 
     if two_player:
@@ -71,6 +73,8 @@ def score(state, heuristic):
     """
     evals = heuristic(state)
     print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| Initial Evaluations {evals}")
+    from pprint import pprint
+    pprint([i(state) for i in [desperation, speed_demon, favourable_hexes, exits, no_pieces]])
 
     scores = {PLAYER_NAMES[i] : evals[i] for i in range(N_PLAYERS)}
     scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
@@ -108,6 +112,9 @@ def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_t
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| WE ARE SIGNIFICANTLY AHEAD - DOING A RUNNER AGAINST OPPONENT")
         return False
 
+    if sum(no_pieces(state)) >= 10: # if more than 10 pieces on board
+        depth = 3
+
     if sum(no_pieces(state)) < 6: # less than six pieces on board
         depth = 7
 
@@ -117,25 +124,35 @@ def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_t
 def three_player_logic(state, max_player, heuristic, leader, rival, loser, defence_threshold=0, offence_threshold=0):
     global KILL_DEPTH, PARANOID_MAX_DEPTH
 
-    if max_player != leader and state['exits'][leader] >= 2:
+    if max_player != leader and desperation(state)[PLAYER_HASH[leader]] > 0:
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST 2+ EXIT PLAYER {leader} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, heuristic, max_player, leader, depth_left=KILL_DEPTH)[1]
+        # value capturing leader pieces
 
     if max_player == leader:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| LEADER - USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
         return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
+        # value running to goal and not losing pieces
 
     if max_player == rival and desperation(state)[PLAYER_HASH[max_player]] > 0:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER {leader} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, heuristic, max_player, leader, depth_left=KILL_DEPTH)[1]
+        # value minimising leader pieces
 
     if max_player == loser:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| LOSER - USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
         return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
+        # value getting desperation back up to 0 (so directed_offensive rather than paranoid)
 
+    """
     if max_player == rival and len(state[loser]) == 1 and state['exits'][leader] < 3:
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST 1 PIECE LOSER {loser} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, heuristic, max_player, loser, depth_left=KILL_DEPTH)[1]
+        # change to if opponent has one piece and is a free capture, just do it
+        # also need to state well if state[loser] is within a certain distance
+        # ie calculate distance to piece and see if it is within 2 hexes
+    """
 
     print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DEFAULTING TO PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
     return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
+    # default to end_game_heuristics
