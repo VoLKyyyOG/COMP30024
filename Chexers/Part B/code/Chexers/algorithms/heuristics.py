@@ -189,22 +189,6 @@ def favourable_hexes(state):
     exit_hex = [len(exit_action(state, player)) for player in PLAYER_NAMES]
     block_exit_hex = [len(set(state[player]).intersection(OPPONENT_GOALS[player])) for player in PLAYER_NAMES]
 
-    # Numpy
-    #return sum([np.array(eval) for eval in [corner_hex, exit_hex, block_exit_hex]])
-    # Normal
-    return [h1 + h2 + h3 for h1,h2,h3 in zip(corner_hex, exit_hex, block_exit_hex)]
-
-def end_game_heuristic(state):
-    """
-    Favourable hex positions:
-    1. Corner hexes
-    2. Our own exit hexes
-    3. Enemy exit hex positions
-    """
-    corner_hex = [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
-    exit_hex = [len(exit_action(state, player)) for player in PLAYER_NAMES]
-    block_exit_hex = [len(set(state[player]).intersection(OPPONENT_GOALS[player])) for player in PLAYER_NAMES]
-
     return [h1 + h2 + h3 for h1,h2,h3 in zip(corner_hex, exit_hex, block_exit_hex)]
 
 def end_game_heuristic(state):
