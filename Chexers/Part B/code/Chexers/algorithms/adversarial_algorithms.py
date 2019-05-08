@@ -1,7 +1,7 @@
-""" 
+"""
 :filename: adversarial_algorithms.py
 :summary: Defines all adversarial search algorithms
-:authors: Akira Wang (913391), Callum Holmes (XXXXXX)
+:authors: Akira Wang (913391), Callum Holmes (899251)
 
 ADVERSARIAL SEARCH ALGORITHMS:
 1. Negamax - for 2 player states
@@ -28,12 +28,13 @@ def negamax(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_D
     """
     Simple yet effective implementation of Negamax with alpha-beta pruning.
     The possible moves functions will always return good ordering for optimal pruning.
+    Assumes a player is dead - hence the game is merely 2-player.
     """
 
     if not depth_left:
         evals = heuristic(state)[PLAYER_HASH[max_player]]
         return (-evals, None)
-    
+
     best_action = None
     p = state["turn"]
 
@@ -47,7 +48,7 @@ def negamax(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_D
 
         if new_eval > alpha:
             alpha, best_action = new_eval, action
-        
+
     return (alpha, best_action)
 
 def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
@@ -60,39 +61,26 @@ def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_
         return (evals, None)
 
     best_action = None
-    p = state["turn"]
-    
-    if p == max_player:
-        generated_actions = possible_actions(state, p)
+    player = state["turn"]
+    index = PLAYER_HASH[player]
 
-        for action in generated_actions:
-            new_state = apply_action(state, action)
+    generated_actions = possible_actions(state, player)
+    for action in generated_actions:
+        new_state = apply_action(state, action)
+        player_eval = paranoid(new_state, heuristic, max_player, alpha, beta, depth_left-1)[0]
 
-            player_eval = paranoid(new_state, heuristic, max_player, alpha, beta, depth_left-1)[0]
+        if (player == max_player):
+            # MaximisingPlayer wants to maximise alpha
+            if player_eval[index] > alpha:
+                alpha, best_action = player_eval[index], action
 
-            if player_eval[PLAYER_HASH[p]] > alpha:
-                alpha, best_action = player_eval[PLAYER_HASH[p]], action
+        # MinimisingPlayer wants to worsen beta
+        elif player_eval[index] < beta:
+            beta, best_action = player_eval[index], action
 
-            if alpha >= beta:
-                return (player_eval, best_action)
-
-        return (player_eval, best_action)
-    else:
-        generated_actions = possible_actions(state, p)
-
-        for action in generated_actions:
-            
-            new_state = apply_action(state, action)
-            
-            player_eval = paranoid(new_state, heuristic, max_player, alpha, beta, depth_left-1)[0]
-
-            if player_eval[PLAYER_HASH[p]] < beta:
-                beta, best_action = player_eval[PLAYER_HASH[p]], action
-
-            if alpha >= beta:
-                return (player_eval, best_action)
-            
-        return (player_eval, best_action)
+        if alpha >= beta:
+            return (player_eval, best_action)
+    return (player_eval, best_action)
 
 def directed_offensive(state, heuristic, max_player, target, min_eval=inf, depth_left=MAX_DEPTH):
     """
@@ -103,28 +91,27 @@ def directed_offensive(state, heuristic, max_player, target, min_eval=inf, depth
     if not depth_left:
         evals = heuristic(state)
         return (evals, None)
-    
+
     max_player_evals = [-inf]*N_PLAYERS
     best_action = None
-    p = state["turn"]
+    player = state["turn"]
+    index = PLAYER_HASH[player]
+    target_index = PLAYER_HASH[index]
+    is_max = player == max_player
 
-    if p == max_player:
-        generated_actions = possible_actions(state, p, sort=True)
-    else:
-        generated_actions = possible_actions(state, p)
+    generated_actions = possible_actions(state, player, sort=is_max)
     for action in generated_actions:
         new_state = apply_action(state, action)
-
         player_eval = directed_offensive(new_state, heuristic, max_player, target, min_eval, depth_left-1)[0]
 
-        if p != max_player:
+        if is_max:
             # If this is not us, we assume they will want to just maximise themselves
-            if player_eval[PLAYER_HASH[p]] > max_player_evals[PLAYER_HASH[p]]:
+            if player_eval[index] > max_player_evals[index]:
                 max_player_evals, best_action = player_eval, action
         else:
             # If this new eval LOWERS our target eval and our eval is NOT WORSE, then update our path with this action
-            if player_eval[PLAYER_HASH[target]] < min_eval and player_eval[PLAYER_HASH[p]] >= max_player_evals[PLAYER_HASH[p]]:
-                max_player_evals, best_action , min_eval = player_eval, action, player_eval[PLAYER_HASH[target]]
+            if player_eval[target_index] < min_eval and player_eval[index] >= max_player_evals[index]:
+                max_player_evals, best_action, min_eval = player_eval, action, player_eval[target_index]
 
     return (max_player_evals, best_action)
 
@@ -139,13 +126,13 @@ def max_n(state, heuristic, depth_left=MAX_DEPTH):
 
     max_player_evals = [-inf]*N_PLAYERS
     best_action = None
-    p = state["turn"]
-    
-    generated_actions = possible_actions(state, p)
+    player = state["turn"]
+    index = PLAYER_HASH[player]
+
+    generated_actions = possible_actions(state, player)
 
     for action in generated_actions:
         new_state = apply_action(state, action)
-
         player_eval = max_n(new_state, heuristic, depth_left-1)[0] # only take the vector of evaluations
 
         """ IMMEDIATE PRUNING (need to specify MAX_UTIL_VAL)
@@ -154,7 +141,7 @@ def max_n(state, heuristic, depth_left=MAX_DEPTH):
             return (max_player_evals, best_action)
         """
 
-        if player_eval[PLAYER_HASH[p]] > max_player_evals[PLAYER_HASH[p]]:
+        if player_eval[index] > max_player_evals[index]:
             max_player_evals, best_action = player_eval, action
-            
+
     return (max_player_evals, best_action)

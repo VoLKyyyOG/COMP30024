@@ -17,13 +17,15 @@ VALID_COORDINATES = [
     (3, -3), (3, -2), (3, -1), (3, 0)
 ]
 
-VALID_SET = set(VALID_COORDINATES)
-
-CORNER_HEXES = [
+CORNER_SET = {
     (-3, 0), (-3, 3), (0, 3), (3, 0), (3, -3), (0, -3)
-]
+}
 
-CORNER_SET = set(CORNER_HEXES)
+OPPONENTS = {
+    'red': ['green', 'blue'],
+    'green': ['blue', 'red'],
+    'blue': ['red', 'green']
+}
 
 GOALS = {
     'red': [(3,-3), (3,-2), (3,-1), (3,0)],
@@ -31,7 +33,13 @@ GOALS = {
     'blue': [(-3,0),(-2,-1),(-1,-2),(0,-3)],
 }
 
-########################## FUNCTIONS #########################
+OPPONENT_GOALS = {
+    'red': [(-3,3), (-2,3), (-1,3), (0,3), (-3,0),(-2,-1),(-1,-2),(0,-3)],
+    'green': [(-3,0),(-2,-1),(-1,-2),(0,-3), (3,-3), (3,-2), (3,-1), (3,0)],
+    'blue': [(-3,3), (-2,3), (-1,3), (0,3), (3,-3), (3,-2), (3,-1), (3,0)],
+}
+
+###################### VECTOR FUNCTIONS ######################
 
 def add(u, v):
     """
@@ -82,6 +90,8 @@ def midpoint(u, v):
     """
     return (int((u[0] + v[0]) / 2), int((u[1] + v[1]) / 2))
 
+###################### ACTION FUNCTIONS ######################
+
 def exit_action(state, colour):
     """
     Function to see if an exit is possible.
@@ -121,6 +131,8 @@ def jump_action(state, occupied_hexes, colour):
                     possible_jumps.append(("JUMP", (piece, target_hex)))
 
     return possible_jumps
+
+######################## MOVE ORDERING #######################
 
 def capture(state, old, new, colour):
     """

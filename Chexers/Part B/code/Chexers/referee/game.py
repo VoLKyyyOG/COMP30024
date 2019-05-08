@@ -39,7 +39,7 @@ _COL_NAME  = {
     'g': 'Green',
     'b': 'Blue',
 }
-if sys.stdout.isatty():
+if sys.stdout.isatty() and False:
     # Yay! We can use colour
     _DISPLAY = { # something 5 characters wide for each colour:
         'r': " \033[1m(\033[91mR\033[0m\033[1m)\033[0m ",
@@ -49,7 +49,7 @@ if sys.stdout.isatty():
     }
 else:
     _DISPLAY = { # something 5 characters wide for each colour:
-        'r': "  R  ", 
+        'r': "  R  ",
         'g': "  G  ",
         'b': "  B  ",
         ' ': "     "
@@ -109,7 +109,7 @@ class Chexers:
         for colour in "rgb":
             for qr in _STARTING_HEXES[colour]:
                 self.board[qr] = colour
-        
+
         # also keep track of some other state variables for win/draw
         # detection (score, number of turns, state history)
         self.score = {'r': 0, 'g': 0, 'b': 0}
@@ -126,7 +126,7 @@ class Chexers:
             self._log("game", "Start Chexers game log at", time.asctime())
         else:
             self._logfile = None
-        
+
     def update(self, colour, action):
         """
         Submit an action to the game for validation and application.
@@ -191,13 +191,13 @@ class Chexers:
         return available_actions
     def _turn_detect_draw(self):
         """
-        Register that a turn has passed: Update turn counts and 
+        Register that a turn has passed: Update turn counts and
         detect repeated game states.
         """
         self.nturns += 1
         if self.nturns >= _MAX_TURNS * 3:
             self.drawmsg = "maximum number of turns reached."
-        
+
         state = self._snap()
         self.history[state] += 1
         if self.history[state] >= 4:

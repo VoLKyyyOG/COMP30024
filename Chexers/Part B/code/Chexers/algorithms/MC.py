@@ -63,7 +63,7 @@ class UCTNode(Node):
         :returns: chosen state to simulate"""
         current = self
         while current.is_expanded:
-            scores = np.asarray([child.score for child in current.children])
+            scores = np.array([child.score for child in current.children])
             current = current.children[np.argmax(scores)]
 
         # Expand child and choose (randomly) a child of this to simulate
@@ -72,13 +72,13 @@ class UCTNode(Node):
     @staticmethod
     def apply_heuristics(state):
         """Evaluate a terminal simulation state with heuristics"""
-        total_exits = np.asarray(exits(state))
+        total_exits = np.array(exits(state))
         if game_over(state):
             # Return who won e.g. 1 0 0 if red. Otherwise 0.33 0.33 0.33 if drawn
             result = (total_exits == MAX_EXITS).astype(float)
         else:
             # Returns who is leading (or the tie)
-            total = total_exits + np.asarray(desperation(state)) + np.asarray(speed_demon(state))
+            total = sum([np.array(f(state)) for f in [exits, desperation, speed_demon]])
             result = (total == total.max()).astype(float)
         return result / np.sum(result)
 
@@ -89,7 +89,7 @@ class UCTNode(Node):
         current = self.state
 
         # IDEA: Push to depth_limit randomly and return heuristic evaluation
-        for _ in range(UCTNode.depth_limit):
+        for i in range(UCTNode.depth_limit):
             try:
                 chosen_action = choice(possible_actions(current, player(current)))
                 current = apply_action(current, chosen_action)
@@ -117,10 +117,10 @@ class UCTNode(Node):
         del(self.parent)
         self.parent = None
 
-    def search(self, iterations):
+    def search(self):
         """Performs the UCT search on a node for given iterations
         :returns: optimal action based on search"""
-        for _ in range(iterations):
+        for _ in range(self.iterations):
             leaf = self.select_simulation()  # Steps 1 and 2
             result = leaf.simulate()  # Step 3
             leaf.backpropagate(result)   # Step 4
@@ -133,8 +133,7 @@ class UCTNode(Node):
         return chosen_action
 
     def __str__(self):
-        return "  > " * depth(self.state) +
-            f"{id(self)} inherits from {id(self.parent)} - wins ({self.wins})"
+        return "  > " * depth(self.state) + f"{id(self)} inherits from {id(self.parent)} - wins ({self.wins})"
 
     def recursive_print(self):
         """Prints tree structure"""

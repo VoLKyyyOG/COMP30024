@@ -1,7 +1,7 @@
-""" 
+"""
 :filename: logic.py
 :summary: Defines the core structure of an MP-MIX agent
-:authors: Akira Wang (913391), Callum Holmes (XXXXXX)
+:authors: Akira Wang (913391), Callum Holmes (899251)
 
 Concept adapted from:
 The MP-MIX algorithm: Dynamic Search Strategy Selection in Multi-Player Adversarial Search
@@ -24,7 +24,7 @@ from math import inf
 from mechanics import get_remaining_opponent
 from moves import exit_action
 
-from algorithms.heuristics import desperation, can_exit
+from algorithms.heuristics import desperation, can_exit, no_pieces
 from algorithms.adversarial_algorithms import negamax, paranoid, directed_offensive, max_n
 
 # Global Imports
@@ -42,7 +42,13 @@ MAX_UTIL_VAL = 10 # TODO: Calculate a max utility value! For now, this is the eq
 """
 MP-Mix Core Implementation
 """
-def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_player = False):
+def mp_mix(state, heuristic, defence_threshold=0, offence_threshold=0, two_player=False):
+    """
+    Main function for MP-Mix.
+    :strategy: Always returns exits if we are way ahead (force_exit)
+                Otherwise pulls logic of 2/3 player game depending on state
+    :return: vector of valuations
+    """
     # The max_player (us)
     max_player = state["turn"]
 
@@ -60,15 +66,16 @@ def mp_mix(state, heuristic, defence_threshold = 0, offence_threshold = 0, two_p
 def score(state, heuristic):
     """
     Function which ranks players by their initial heuristic evaluation
+    :return: best, mid and worst scores, as well as margins
     """
     evals = heuristic(state)
     print(f"\n\t\t\t\t\t\t\t\t* ||| Initial Evaluations {evals}")
-        
+
     scores = {PLAYER_NAMES[i] : evals[i] for i in range(N_PLAYERS)}
     scores = sorted(scores.items(), key=lambda x: x[1], reverse=True)
 
     leader, rival, loser = scores[0][0], scores[1][0], scores[2][0]
-    high, medium, low = scores[0][1], scores[1][1], scores[2][1]   
+    high, medium, low = scores[0][1], scores[1][1], scores[2][1]
 
     leader_edge = high - medium
     second_edge = medium - low
@@ -78,6 +85,7 @@ def score(state, heuristic):
 def force_exit(state, max_player):
     """
     Forces our algorithm to exit if we have 3 pieces and we have an exit piece!
+    :returns: (appicable_exit, should_exit_bool)
     """
     possible_exits = exit_action(state, max_player)
 
@@ -96,13 +104,13 @@ def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_t
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| WE ARE SIGNIFICANTLY AHEAD - DOING A RUNNER AGAINST OPPONENT")
         return False
 
-    if sum([len([i for i in state[player]]) for player in PLAYER_NAMES]) < 6: # less than six pieces on board
+    if sum(no_pieces(state)) < 6: # less than six pieces on board
         depth = 7
 
     print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| NEGAMAX AGAINST REMAINING PLAYER | DEPTH = {depth}")
     return negamax(state, heuristic, max_player, depth_left=depth)[1]
 
-def three_player_logic(state, max_player, heuristic, leader, rival, loser, defence_threshold = 0, offence_threshold = 0):
+def three_player_logic(state, max_player, heuristic, leader, rival, loser, defence_threshold=0, offence_threshold=0):
     global KILL_DEPTH, PARANOID_MAX_DEPTH, MAXN_MAX_DEPTH
 
     if max_player != leader and state['exits'][leader] >= 2:

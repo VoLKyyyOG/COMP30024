@@ -225,6 +225,7 @@ def is_dead(state, colour):
     return not bool(state[colour])
 
 ######################### TOO MANY? ###########################
+
 def num_opponents_dead(state):
     """
     Find the number of dead players (player with no pieces left)
@@ -253,7 +254,7 @@ def get_remaining_opponent(state):
     :returns: list(alive_opponent_names in order)
     """
     ### TODO NOTE: Seems redundant but I left it here until we discuss it
-    return [opponent for opponent in get_opponents(state) if not is_dead(state, opponent)]
+    return [opponent for opponent in get_opponents(state) if not is_dead(state, opponent)].pop(0)
 
 def players_left(state):
     """

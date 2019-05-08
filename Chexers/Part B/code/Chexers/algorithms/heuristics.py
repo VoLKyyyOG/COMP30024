@@ -18,7 +18,7 @@ from moves import add, sub, get_cubic_ordered, exit_action, jump_action
 from mechanics import two_players_left, function_occupied, is_capture, is_dead
 
 # Global Imports
-from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, VALID_SET, CORNER_SET
+from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, CORNER_SET
 from mechanics import PLAYER_NAMES, PLAYER_HASH, MAX_COORDINATE_VAL, MAX_EXITS
 
 ##############################################################
@@ -29,9 +29,10 @@ def exclude_dead(heuristic):
     Overwrites heuristic evaluation to -inf for any dead players if you want
     :returns: adjusted heuristic
     """
-    def evaluate(state, *args, **kwargs):
-        output = heuristic(state, args, kwargs)
-        return [-inf if is_dead(state, player) else x for x in output]
+    def evaluate(state):
+        output = heuristic(state)
+        dead = np.array([-inf if is_dead(state, player) else 0 for player in PLAYER_NAMES])
+        return dead + output
 
     return evaluate
 
@@ -50,6 +51,25 @@ def desperation(state):
     # How many pieces available - how many pieces needed to win
     margin = lambda state, player: len(state[player]) - (MAX_EXITS - state['exits'][player])
     return [margin(state, player) for player in PLAYER_NAMES]
+
+@exclude_dead
+def displacement(state):
+    """
+    Attempts to fix the exiting problem associated with the daemon by removing n from calculations.
+    This has the virtue of d/dn(daemon) = 0, which (among other factors) means it is unimpacted by exits.
+    """
+    total_disp = lambda player: sum([get_cubic_ordered(piece)[PLAYER_HASH[player]] -
+        MAX_COORDINATE_VAL for piece in state[player]])
+    return [total_disp(player) for player in PLAYER_NAMES]
+
+def nerfed_desperation(state):
+    """
+    :summary: Nerfs desperation so that it gets no gain from having more than 2 pieces in surplus
+    E.g. surplus -inf to 2 will be unaffected but values 3 and above map to 2.
+    Note that this doesn't interfere with exiting as desperation unaffected by exit actions
+    :returns: list of valuations
+    """
+    return list(np.minimum(np.array(desperation(state)), 2))
 
 def paris(state):
     """
@@ -100,7 +120,7 @@ def achilles(state, reality=False):
         for piece in state[player]:
             for diagonal in possible_axes:
                 potential_threats = set([add(piece, diagonal), sub(piece, diagonal)])
-                if potential_threats.issubset(VALID_SET) and not bool(potential_threats.intersection(set(state[player]))):
+                if potential_threats.issubset(VALID_COORDINATES) and not bool(potential_threats.intersection(set(state[player]))):
                     if reality:
                         # Only add threats that could actually capture
                         potential_attackers = potential_threats.intersection(occupied)
@@ -118,12 +138,11 @@ def speed_demon(state):
     TODO: Coordinates must be then transformed so that changes in displacement
     evaluation do not outweigh the benefit of having exited a piece.
     """
-
-    total_disp = lambda player: sum([get_cubic_ordered(piece)[PLAYER_HASH[player]] -
-        MAX_COORDINATE_VAL for piece in state[player]])
-
     # Return average displacement, -inf if dead
-    return [total_disp(player) / len(state[player])  if len(state[player]) > 0 else -inf for player in PLAYER_NAMES]
+    #return [total_disp(player) / len(state[player])  if len(state[player]) > 0 else -inf for player in PLAYER_NAMES]
+
+    # Since displacement is -inf wrapped, +1 will preserve -inf
+    return np.array(displacement(state)) / (np.array(no_pieces(state)) + 1)
 
 def no_pieces(state):
     """
@@ -139,12 +158,40 @@ def can_exit(state):
     """
     return [len(exit_action(state, colour)) for colour in PLAYER_NAMES]
 
+def utility(state):
+    """
+    Measures strictly aspects of a state that relate to goal acquisition:
+    1. How many exits? -- raw utility: encourages exiting
+    2. Are your pieces in surplus/deficit to what you need? -- controls attack/defence
+    3. Are your pieces (on average) close to goal? -- progression: encourages forward
+    :returns: vector of valuations
+    """
+    evals = np.array([f(state) for f in [exits, nerfed_desperation, displacement]])
+    weights = np.array([1, 1, 1.0 / 12]) # Displacement ranges up to 24
+    return list(sum(map(lambda x,y: x*y, evals, weights)))
+
 def corner_hexes(state):
     """
     See if a piece is in a corner hex (untakeable)
     TODO: MAKE IT ENEMY GOAL HEX POSITION
     """
     return [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
+
+def favourable_hexes(state):
+    """
+    Favourable hex positions:
+    1. Corner hexes
+    2. Our own exit hexes
+    3. Enemy exit hex positions
+    """
+    corner_hex = [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
+    exit_hex = [len(exit_action(state, player)) for player in PLAYER_NAMES]
+    block_exit_hex = [len(set(state[player]).intersection(OPPONENT_GOALS[player])) for player in PLAYER_NAMES]
+
+    # Numpy
+    #return sum([np.array(eval) for eval in [corner_hex, exit_hex, block_exit_hex]])
+    # Normal
+    return [h1 + h2 + h3 for h1,h2,h3 in zip(corner_hex, exit_hex, block_exit_hex)]
 
 def end_game_heuristic(state):
     """
@@ -165,8 +212,8 @@ def end_game_heuristic(state):
         evals = np.array([f(state) for f in [desperation, speed_demon, can_exit, exits]])
         weights = [2, 0.1, 1, 10]
     else:
-        evals = np.array([f(state) for f in [desperation, speed_demon, no_pieces, exits, can_exit]])
-        weights = [1, 0.1, 2, 2, 0.1]
+        evals = np.array([f(state) for f in [desperation, speed_demon, can_exit, exits, no_pieces]])
+        weights = [1, 0.1, 0.1, 2, 2]
     return list(sum(map(lambda x,y: x*y, evals, weights)))
 
 def retrograde_dijkstra(state):
