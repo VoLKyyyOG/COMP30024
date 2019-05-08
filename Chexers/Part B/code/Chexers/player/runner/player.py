@@ -69,6 +69,6 @@ class RunnerPlayer:
         if is_dead(self.state, self.colour):
             return ("PASS", None)
         elif two_players_left(self.state):
-            return alpha_beta(self.state, end_game_heuristic, self.colour)[1]
+            return alpha_beta(self.state, runner, self.colour)[1]
         else:
-            return paranoid(self.state, end_game_heuristic, self.colour)[1]
+            return paranoid(self.state, runner, self.colour)[1]
