@@ -10,8 +10,10 @@
 from mechanics import possible_actions, apply_action, player
 
 class Node:
-    """Node superclass with core (initialized) attributes and methods
-    Subclasses e.g. IDANode(Node) define and add extra functionality"""
+    """
+    Node superclass with core (initialized) attributes and methods
+    Subclasses e.g. IDANode(Node) define and add extra functionality
+    """
 
     def __init__(self, state, parent=None):
         """
@@ -27,14 +29,15 @@ class Node:
     @property
     def children(self):
         """Generate children if not done so already, and return them"""
-        if not (self.is_expanded or self.is_dead):
+        if self.is_dead:
+            return list()
+        elif not self.is_expanded:
             for action in possible_actions(self.state, player(self.state)):
                 new_child = self.new_child(apply_action(self.state, action), self)
                 new_child.action = action
                 self._children.append(new_child)
             self.is_expanded = True
             #### TODO: Decide ordering here
-            
         return self._children
 
     @classmethod
@@ -47,11 +50,31 @@ class Node:
         """Creates first instance"""
         return cls.new_child(state=initial_state, parent=None)
 
+    def clean_tree(self):
+        """Kill trees below any dead nodes"""
+        for child in self.children:
+            if child.is_dead:
+                child.kill_tree()
+            else:
+                child.clean_tree()
+
     def kill_tree(self):
         """Recursively kills down subtree, however will not kill ignores
         Inferred that references to ignore nodes are retained externally"""
         # Kill each subtree
-        if self.is_expanded:
-            for child in self.children:
-                Node.kill_tree(child)
+        for child in self.children:
+            child.kill_tree()
         del(self)
+
+    def overthrow(self):
+        """Recursively kill down each subtree"""
+        # Parent makes itself the king first if not already
+        if self.parent:
+            if self.parent.parent:
+                self.parent.overthrow()
+            # Now that parent is king, usurp it
+            for sibling in self.parent.children:
+                if sibling != self:
+                    sibling.kill_tree()
+            del(self.parent)
+            self.parent = None

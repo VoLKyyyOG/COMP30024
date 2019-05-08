@@ -3,6 +3,7 @@ sys.path.append("..")
 from mechanics import *
 from moves import *
 from algorithms.heuristics import *
+from structures.TT import *
 from algorithms.partA.formatting import print_board
 
 test1 = {
@@ -29,8 +30,10 @@ def printer(state):
 
     print_board(board_dict)
 
-printer(test2)
-print(displacement(test2))
 
-printer(test)
-print(displacement(test))
+
+printer(test2)
+x = defaultdict()
+x[Z_hash(test1)] = test1
+print(x)
+print(Z_hash(test1) in x)
