@@ -261,7 +261,8 @@ def players_left(state):
     Finds all players left
     :returns: list(all_alive_players in order)
     """
-    return [player for player in PLAYER_NAMES if len(state[player])]
+
+    return [player for player in PLAYER_NAMES if len(state[player]) > 0]
 
 ########################## HASHING ############################
 

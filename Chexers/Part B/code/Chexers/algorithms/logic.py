@@ -32,10 +32,9 @@ from mechanics import PLAYER_NAMES, PLAYER_HASH, N_PLAYERS
 
 ########################### GLOBALS ##########################
 
-KILL_DEPTH = 4
-MAXN_MAX_DEPTH = 3
-PARANOID_MAX_DEPTH = 5
-TWO_PLAYER_MAX_DEPTH = 5
+KILL_DEPTH = 3
+PARANOID_MAX_DEPTH = 4
+TWO_PLAYER_MAX_DEPTH = 3
 MAX_UTIL_VAL = 10 # TODO: Calculate a max utility value! For now, this is the equivalent of a "free" exit (worth 10 points)
 
 ##############################################################
@@ -49,6 +48,7 @@ def mp_mix(state, heuristic, defence_threshold=0, offence_threshold=0, two_playe
                 Otherwise pulls logic of 2/3 player game depending on state
     :return: vector of valuations
     """
+    
     # The max_player (us)
     max_player = state["turn"]
 
@@ -115,7 +115,7 @@ def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_t
     return alpha_beta(state, heuristic, max_player, depth_left=depth)[1]
 
 def three_player_logic(state, max_player, heuristic, leader, rival, loser, defence_threshold=0, offence_threshold=0):
-    global KILL_DEPTH, PARANOID_MAX_DEPTH, MAXN_MAX_DEPTH
+    global KILL_DEPTH, PARANOID_MAX_DEPTH
 
     if max_player != leader and state['exits'][leader] >= 2:
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST 2+ EXIT PLAYER {leader} | DEPTH = {KILL_DEPTH}")
@@ -137,5 +137,5 @@ def three_player_logic(state, max_player, heuristic, leader, rival, loser, defen
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST 1 PIECE LOSER {loser} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, heuristic, max_player, loser, depth_left=KILL_DEPTH)[1]
 
-    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DEFAULTING TO PARANOID | DEPTH = {MAXN_MAX_DEPTH}")
+    print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DEFAULTING TO PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
     return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]

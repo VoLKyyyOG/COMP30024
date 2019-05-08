@@ -36,6 +36,7 @@ class MPMixPlayer:
         """
         self.colour = colour
         self.state = create_initial_state()
+        self.state['p_col'] = 'red'
         self.clock = 0
 
     def update(self, colour, action):
@@ -51,7 +52,7 @@ class MPMixPlayer:
         if not self.state[self.colour]:
             return ("PASS", None)
 
-        if self.clock <= 55:
+        if self.clock <= 70:
             start = process_time()
 
             if num_opponents_dead(self.state) == 1:

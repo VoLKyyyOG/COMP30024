@@ -23,6 +23,7 @@ class GreedyPlayer:
 
         """
         self.colour = colour
+        self.depth = 0
         self.state = create_initial_state()
 
     def update(self, colour, action):
@@ -36,12 +37,16 @@ class GreedyPlayer:
     ################# DEFINE EVERY IMPLEMENTATION ################
 
     def action(self):
+        self.depth += 1
         """
         This method is called at the beginning of each of your turns to request
         a choice of action from your program. Made it so greedy will always prefer exit moves
         """
         if len(self.state[self.colour]) == 0:
             return ("PASS",None)
+
+        if self.depth%13 == 0:
+            return choice(possible_actions(self.state, self.colour))
 
         best_eval, best_action = -inf, None
         for action in possible_actions(self.state, self.colour):
