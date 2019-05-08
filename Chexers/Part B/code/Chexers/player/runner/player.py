@@ -10,7 +10,7 @@ Uses number_of_pieces_lost = 0 and retrograde_dijkstra as heuristic
 # User-defined files
 from mechanics import *
 from moves import get_cubic, get_axial
-from algorithms.mp_mix import paranoid
+from algorithms.adversarial_algorithms import paranoid, alpha_beta
 from algorithms.heuristics import *
 from algorithms.partA.search import part_A_search
 
@@ -69,6 +69,6 @@ class RunnerPlayer:
         if is_dead(self.state, self.colour):
             return ("PASS", None)
         elif two_players_left(self.state):
-            return self.dijkstra()
+            return alpha_beta(self.state, end_game_heuristic, self.colour)[1]
         else:
             return paranoid(self.state, end_game_heuristic, self.colour)[1]

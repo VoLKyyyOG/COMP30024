@@ -15,10 +15,10 @@ import numpy as np
 
 # User-defined functions
 from moves import add, sub, get_cubic_ordered, exit_action, jump_action
-from mechanics import two_players_left, function_occupied, is_capture, is_dead
+from mechanics import two_players_left, function_occupied, is_capture, is_dead, get_remaining_opponent
 
 # Global Imports
-from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, CORNER_SET
+from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, CORNER_SET, OPPONENT_GOALS
 from mechanics import PLAYER_NAMES, PLAYER_HASH, MAX_COORDINATE_VAL, MAX_EXITS
 
 ##############################################################
@@ -107,7 +107,7 @@ def achilles(state, reality=False):
     :FLAG reality: True only returns actual about-to-kill-you opponents
     Ranges from 0 (all pieces in corners) to 6*N (all N pieces are isolated and not on an edge)
     """
-
+    import time
     threat_set = defaultdict(set)
     possible_axes = POSSIBLE_DIRECTIONS[:3] # Three directions
     for player in PLAYER_NAMES:
@@ -174,7 +174,7 @@ def corner_hexes(state):
     See if a piece is in a corner hex (untakeable)
     TODO: MAKE IT ENEMY GOAL HEX POSITION
     """
-    return np.array([len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES])
+    return np.array([len(set(state[player]).intersection(CORNER_SET).difference(STARTS[player])) for player in PLAYER_NAMES])
 
 def favourable_hexes(state):
     """
@@ -189,21 +189,29 @@ def favourable_hexes(state):
 
     return sum([np.array(eval) for eval in [corner_hex, exit_hex, block_exit_hex]])
 
+# TODO STRAT FIX
+def troll(state):
+    p = state['p_col']
+    target = get_remaining_opponent(state)
+    desp = desperation(state)[PLAYER_HASH[p]]
+    mad = [0,0,0]
+    if desp >= 2:
+        total_disp = lambda player: sum([get_cubic_ordered(piece)[PLAYER_HASH[target]] -
+            MAX_COORDINATE_VAL for piece in state[player]])
+        mad = np.array([total_disp(player) if player == p else -inf for player in PLAYER_NAMES])
+    return mad
+
 def end_game_heuristic(state):
     """
     Tribute to Marvel's End Game. This is the heuristic used for our mp-mix algorithm and holds a very high win rate on battlegrounds.
-    MID:
-    [desperation, speed_demon, no_pieces, exits, can_exit] with [1, 0.1, 2, 2, 0.1]
-    END:
-    [desperation, speed_demon, can_exit, exits] with [2, 0.1, 1, 10]
     """
-
     if two_players_left(state): # if it is two player
-        evals = np.array([f(state) for f in [nerfed_desperation, speed_demon, exits]])
-        weights = [2, 0.1, 10]
+        evals = np.array([f(state) for f in [desperation, speed_demon, can_exit, exits]])
+        weights = [1, 0.1, 2, 5]
     else:
-        evals = np.array([f(state) for f in [nerfed_desperation, speed_demon, exits]])
-        weights = [1, 0.1, 2]
+        evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, no_pieces]])
+        weights = [1, 0.1, 0.1, 0.5, 1]
+
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def retrograde_dijkstra(state):
