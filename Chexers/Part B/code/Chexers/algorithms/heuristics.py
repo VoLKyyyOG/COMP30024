@@ -18,7 +18,7 @@ from moves import add, sub, get_cubic_ordered, exit_action, jump_action
 from mechanics import two_players_left, function_occupied, is_capture, is_dead
 
 # Global Imports
-from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, VALID_SET, CORNER_SET
+from moves import POSSIBLE_DIRECTIONS, VALID_SET, CORNER_SET, OPPONENT_GOALS
 from mechanics import PLAYER_NAMES, PLAYER_HASH, MAX_COORDINATE_VAL, MAX_EXITS
 
 ##############################################################
@@ -132,6 +132,7 @@ def no_pieces(state):
     """
     return [len(state[player]) for player in PLAYER_NAMES]
 
+# NOTE MIGHT BE REDUNDANT AFTER FAVOURABLE HEXES
 def can_exit(state):
     """
     Returns number of possible exit actions for each player.
@@ -139,6 +140,7 @@ def can_exit(state):
     """
     return [len(exit_action(state, colour)) for colour in PLAYER_NAMES]
 
+# NOTE MIGHT BE REDUNDANT AFTER FAVOURABLE HEXES
 def corner_hexes(state):
     """
     See if a piece is in a corner hex (untakeable)
@@ -146,21 +148,28 @@ def corner_hexes(state):
     """
     return [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
 
+def favourable_hexes(state):
+    """
+    Favourable hex positions:
+    1. Corner hexes
+    2. Our own exit hexes
+    3. Enemy exit hex positions
+    """
+    corner_hex = [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
+    exit_hex = [len(exit_action(state, player)) for player in PLAYER_NAMES]
+    block_exit_hex = [len(set(state[player]).intersection(OPPONENT_GOALS[player])) for player in PLAYER_NAMES]
+
+    return [h1 + h2 + h3 for h1,h2,h3 in zip(corner_hex, exit_hex, block_exit_hex)]
+
 def end_game_heuristic(state):
     """
     Tribute to Marvel's End Game. This is the heuristic used for our mp-mix algorithm and holds a very high win rate on battlegrounds.
-    The commented code below ALWAYS wins against a greedy / random algorithm. The actual one is being adjusted manually for battlegrounds.
-    """ """
-        if num_opponents_dead(state) == 1: # if it is two player
-        evals = [desperation(state), speed_demon(state), can_exit(state), exits(state)]
-        weighted_evals = [2*h1 + 0.1*h2 + h3 + 10*h4 for h1,h2,h3,h4 in zip(evals[0], evals[1], evals[2], evals[3])]
+    MID:
+    [desperation, speed_demon, no_pieces, exits, can_exit] with [1, 0.1, 2, 2, 0.1]
+    END:
+    [desperation, speed_demon, can_exit, exits] with [2, 0.1, 1, 10]
+    """ 
 
-    else:
-        evals = [desperation(state), speed_demon(state), no_pieces(state), exits(state), can_exit(state)]
-        weighted_evals = [h1 + 0.1*h2 + 2*h3 + 2*h4 + 0.1*h5 for h1,h2,h3,h4,h5 in zip(evals[0], evals[1], evals[2], evals[3], evals[4])]
-
-    return [i if i < inf else -inf for i in weighted_evals] # speed demon is inf if dead
-    """
     if two_players_left(state): # if it is two player
         evals = np.array([f(state) for f in [desperation, speed_demon, can_exit, exits]])
         weights = [2, 0.1, 1, 10]
@@ -190,7 +199,7 @@ def dijkstra_board(state, colour):
         valid_goals.difference_update(set(state[player]))
 
     visited = set() # Flags if visited or not
-    cost = {x: inf for x in VALID_COORDINATES} # Stores costs
+    cost = {x: inf for x in VALID_SET} # Stores costs
     cost.update({x: 1 for x in valid_goals}) # Sets goals cost
     queue = PQ()
 
