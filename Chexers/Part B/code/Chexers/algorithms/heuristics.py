@@ -205,13 +205,13 @@ def end_game_heuristic(state):
     """
     Tribute to Marvel's End Game. This is the heuristic used for our mp-mix algorithm and holds a very high win rate on battlegrounds.
     """
-
     if two_players_left(state): # if it is two player
-        evals = np.array([f(state) for f in [no_pieces, troll, favourable_hexes]])
-        weights = [2,3,0.5]
+        evals = np.array([f(state) for f in [desperation, speed_demon, can_exit, exits]])
+        weights = [1, 0.1, 2, 5]
     else:
         evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, no_pieces]])
-        weights = [1, 0.1, 0.5, 2, 1]
+        weights = [1, 0.1, 0.1, 0.5, 1]
+
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def retrograde_dijkstra(state):

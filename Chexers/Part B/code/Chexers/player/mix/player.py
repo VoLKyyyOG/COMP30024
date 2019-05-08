@@ -27,7 +27,7 @@ PATH = list()
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 12 # The first three moves for each player
+    MID_GAME_THRESHOLD = 9 # The first three moves for each player
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
