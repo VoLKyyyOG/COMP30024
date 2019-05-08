@@ -18,7 +18,7 @@ from moves import add, sub, get_cubic_ordered, exit_action, jump_action
 from mechanics import two_players_left, function_occupied, is_capture, is_dead, get_remaining_opponent
 
 # Global Imports
-from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, CORNER_SET, OPPONENT_GOALS
+from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, CORNER_SET, OPPONENT_GOALS, GOALS
 from mechanics import PLAYER_NAMES, PLAYER_HASH, MAX_COORDINATE_VAL, MAX_EXITS
 
 ##############################################################
@@ -149,8 +149,7 @@ def no_pieces(state):
     """
     return np.array([len(state[player]) for player in PLAYER_NAMES])
 
-# NOTE MIGHT BE REDUNDANT AFTER FAVOURABLE HEXES
-def can_exit(state):
+def exit_hex(state):
     """
     Returns number of possible exit actions for each player.
     :returns: vector of results
@@ -201,33 +200,30 @@ def troll(state):
 
 def end_game_heuristic(state):
     """
-    Tribute to Marvel's End Game. This is the heuristic used for our mp-mix algorithm and holds a very high win rate on battlegrounds.
+    Tribute to Marvel's End Game.
+    This is the default evaluation function 
     """
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, no_pieces]])
-    weights = [1, 0.1, 0.1, 0.5, 1]
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits]])
+    weights = [1, 0.1, 1, 1.5]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def two_player_heuristics(state):
-    evals = np.array([f(state) for f in [desperation, speed_demon, can_exit, exits]])
-    weights = [1, 0.1, 2, 5]
+    evals = np.array([f(state) for f in [favourable_hexes, desperation]])
+    weights = [1, 2]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def runner(state):
-    evals = np.array([f(state) for f in [can_exit, speed_demon, no_pieces]])
-    weights = [1, 1, 1]
+    evals = np.array([f(state) for f in [exit_hex, speed_demon, desperation, exits]])
+    weights = [0.1, 0.5, 1, 10]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def killer(state):
     evals = np.array([f(state) for f in [no_pieces, achilles_vector]])
-    weights = [1, 1]
+    weights = [1, 0.1]
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
-
-
-
 
 
 
