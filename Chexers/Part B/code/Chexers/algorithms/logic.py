@@ -35,9 +35,9 @@ from mechanics import PLAYER_NAMES, PLAYER_HASH, N_PLAYERS
 
 ########################### GLOBALS ##########################
 
-KILL_DEPTH = 3
-PARANOID_MAX_DEPTH = 3
-TWO_PLAYER_MAX_DEPTH = 3
+KILL_DEPTH = 4
+PARANOID_MAX_DEPTH = 5
+TWO_PLAYER_MAX_DEPTH = 4
 MAX_UTIL_VAL = 10 # TODO: Calculate a max utility value! For now, this is the equivalent of a "free" exit (worth 10 points)
 
 ##############################################################
@@ -115,13 +115,14 @@ def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_t
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| WE ARE SIGNIFICANTLY AHEAD - DOING A RUNNER AGAINST OPPONENT")
         return False
 
-    if sum(no_pieces(state)) < 8: # if more than 10 pieces on board
-        depth = 4
+    if sum(no_pieces(state)) > 8: # if more than 10 pieces on board
+        depth = 3
 
     if sum(no_pieces(state)) < 6: # less than six pieces on board
         depth = 5
 
     print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| ALPHA-BETA AGAINST REMAINING PLAYER USING TWO_PLAYER_HEURISTICS | DEPTH = {depth}")
+    # if distance is close to enemy goal, troll them. Else run to our own goal using different heuristic.
     return alpha_beta(state, two_player_heuristics, max_player, depth_left=depth)[1]
 
 def three_player_logic(state, max_player, heuristic, leader, rival, loser, defence_threshold=0, offence_threshold=0):
@@ -133,20 +134,22 @@ def three_player_logic(state, max_player, heuristic, leader, rival, loser, defen
         return paranoid(state, runner, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
     # If we are the rival and the leader has excess pieces, we want to attack the leader
+    # TODO TODO TODO TODO: WE USE KILLER HEURISTIC BUT THEY USE THE DEFAULT RUNNER HEURISTIC!!!!
     if max_player == rival and desperation(state)[PLAYER_HASH[leader]] > 0:
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER USING KILLER HEURISTICS {leader} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, killer , max_player, leader, depth_left=KILL_DEPTH)[1]
     
     # If we are the rival and we have excess pieces, we will attack the leader
+    # TODO TODO TODO TODO: WE USE KILLER HEURISTIC BUT THEY USE THE DEFAULT RUNNER HEURISTIC!!!!
     if max_player == rival and desperation(state)[PLAYER_HASH[max_player]] > 0:
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER USING KILLER HEURISTICS {leader} | DEPTH = {KILL_DEPTH}")
-        return directed_offensive(state, killer , max_player, leader, depth_left=KILL_DEPTH)[1]
+        return directed_offensive(state, killer, max_player, leader, depth_left=KILL_DEPTH)[1]
     
     # If we are the rival and we have just enough pieces to make do, we avoid conflict and run
     # NOTE: potential achilles + runner style heuristic
     if max_player == rival and desperation(state)[PLAYER_HASH[max_player]] > 0:
-        print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER USING KILLER HEURISTICS {leader} | DEPTH = {KILL_DEPTH}")
-        return directed_offensive(state, killer , max_player, leader, depth_left=KILL_DEPTH)[1]
+        print(f"\n\t\t\t\t\t\t\t\t* ||| RIVAL BUT SUFFICIENTLY RUNNER {leader} | DEPTH = {KILL_DEPTH}")
+        return paranoid(state, runner, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
     # If we are losing then we are desperate :^)
     if max_player == loser:
