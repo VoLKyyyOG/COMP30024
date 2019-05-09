@@ -103,7 +103,7 @@ def connect_and_play(player, options, out):
     out.comment("ready to play!")
     server.send(M.OKAY)
     
-    players = format_players(gamemsg, player.colour)
+    players = format_players(gamemsg, player.colour, game)
 
     # Display the initial state of the game.
     out.section("game start", clear=True)
@@ -151,14 +151,19 @@ def connect_and_play(player, options, out):
             out.print(msg['reason'])
             break
 
+    result = game.end()
+    out.section("game over!")
+    out.print(result)
 
-def format_players(gamemsg, your_colour):
+
+def format_players(gamemsg, your_colour, game):
     players = []
     for colour, name in gamemsg.items():
         if colour == 'mtype':
             continue # not a colour!
         if colour == your_colour:
-            prefix = "you -> " + colour
+            prefix = "you -> " + colour ########################### HERE
+            game._log('stuff', f"our_colour: {colour}")
         else:
             prefix = colour
         players.append(f"{prefix:>12} player: {name}")

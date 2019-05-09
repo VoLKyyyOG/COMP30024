@@ -1,4 +1,4 @@
-for ((i=0; i<20; i++))
+for ((i=0; i<100; i++))
     do
-        python -m battleground -l logs/online_$i player.mix bot_rookie
+        python -m battleground -l logs/battleground/match_$i.txt player.mix gathering_data_thanks
     done
