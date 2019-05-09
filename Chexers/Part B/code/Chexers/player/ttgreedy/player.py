@@ -35,6 +35,7 @@ class GreedyPlayer:
         """
         # Steal root child with this state and overthrow
         self.root = self.root.update_root(colour, action)
+        print(f"Hash: {self.root.hash()}")
         self.colour = colour
 
     def debug(self):
@@ -62,7 +63,7 @@ class GreedyPlayer:
             elif chosen == "s":
                 current.printer(current.state)
                 print(f"Depth {current.state['depth']}, colour {current.state['turn']}")
-                print(f"Children:\n" + "\n".join([f"{child.hash()} - {child.action}" for child in current.children]))
+                print(f"Children:\n" + "\n".join([f"{child.hash()} - {child.action} - {current.child_evaluations[child.action]}" for child in current.children]))
             else:
                 break
 
@@ -77,10 +78,14 @@ class GreedyPlayer:
             return ("PASS",None)
 
         best_eval, best_action = -inf, None
+
+        # TODO: Use TT to prevent recalculation
+
         for child in self.root.children:
             if child.action[0] == "EXIT":
                 return child.action
             new_eval = speed_demon(child.state)[PLAYER_HASH[self.colour]]
+            self.root.child_evaluations[child.action] = new_eval
             if new_eval > best_eval:
                 best_eval = new_eval
                 best_action = child.action
