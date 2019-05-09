@@ -17,7 +17,7 @@ from book import opening_moves
 
 from algorithms.logic import mp_mix
 from algorithms.adversarial_algorithms import paranoid
-from algorithms.heuristics import achilles_vector, speed_demon, end_game_heuristic, two_player_heuristics
+from algorithms.heuristics import achilles_unreal, speed_demon, end_game_heuristic, two_player_heuristics
 from algorithms.partA.search import part_A_search
 
 from structures.gamenode import GameNode
@@ -82,7 +82,7 @@ class MPMixPlayer(TTPlayer):
         """
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
         """
-        return opening_moves(self.root.state, self.colour) if not False else paranoid(self.root.state, achilles_vector, self.colour)
+        return opening_moves(self.root.state, self.colour) if not False else paranoid(self.root.state, achilles_unreal, self.colour)
 
     def mid_game(self):
         """

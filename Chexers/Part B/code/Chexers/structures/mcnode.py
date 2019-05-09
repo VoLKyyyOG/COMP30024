@@ -51,13 +51,7 @@ class MCNode(GameNode):
     def __init__(self, state, parent=None):
         super().__init__(state, parent)
         self.wins = np.zeros(N_PLAYERS)  # Total wins/player
-
-    @property
-    def visits(self):
-        """
-        Returns total number of visits, inferring from children
-        """
-        return sum(self.wins)
+        self.visits = 0
 
     @property
     def score(self):
@@ -76,7 +70,11 @@ class MCNode(GameNode):
         """
         Fetches exploration factor, i.e. measures extent of unexploration
         """
-        return UCTNode.scale * np.sqrt(math.log(UCTNode.total_visits) / (self.visits + 1))
+        try:
+            return MCNode.scale * np.sqrt(math.log(MCNode.total_visits) / (self.visits + 1))
+        except ValueError:
+            print(MCNode.scale, MCNode.total_visits, self.visits + 1)
+            MCNode.debugger(self)
 
     def select_simulation(self):
         """
@@ -86,23 +84,32 @@ class MCNode(GameNode):
         """
         current = self
         while current.is_expanded:
-            scores = np.array([child.score if not child.is_dead else -math.inf for child in current.children])
-            current = current.children[np.argmax(scores)]
+            try:
+                scores = np.array([child.score if not child.is_dead else -math.inf for child in current.children])
+                current = current.children[np.argmax(scores)]
+            except IndexError:
+                print(MCNode.total_visits)
+                MCNode.debugger(self)
+                print([child.score for child in current.children])
+                print(scores)
+                print(np.argmax(scores))
+                print(len(current.children))
+                raise IndexError
 
         # Expand child and choose (randomly) a child of this to simulate
         return choice(current.children)
 
-    def evaluate(state, heuristic=end_game_heuristic):
+    def evaluate(self, heuristic=end_game_heuristic):
         """
         Evaluate a terminal simulation state with heuristics, otherwise
         return a vector of winner (1 0 0) or tie (1/3 1/3 1/3)
         """
-        if MAX_EXITS in exits(state):
-            result = (np.array(exits(state)) == MAX_EXITS).astype(float)
-        elif game_drawn(state, self.counts):
+        if MAX_EXITS in exits(self.state):
+            result = (np.array(exits(self.state)) == MAX_EXITS).astype(float)
+        elif game_drawn(self.state, self.counts):
             result = np.ones(N_PLAYERS)
         else:
-            total = np.array(heuristic(state))
+            total = np.array(heuristic(self.state))
             result = (total == total.max()).astype(float)
         return result / np.sum(result)
 
@@ -110,15 +117,19 @@ class MCNode(GameNode):
         """Run a simulation of this (unexpanded) node and return result"""
         # TODO - Maybe quiescence search result to depth_limit is better?
         # This would make MC more like A*
-        current = self.state
+        current = self
 
         # IDEA: Push to depth_limit randomly and return heuristic evaluation
         simulation_counts = deepcopy(self.counts)
-        for i in range(UCTNode.depth_limit):
-            chosen_action = choice(possible_actions(current, player(current)))
-            current = apply_action(current, chosen_action)
-            if game_over(current)
-                # No actions exist - the game is over
+        for i in range(MCNode.depth_limit):
+            try:
+                current = choice(current.children)
+            except:
+                break
+            simulation_counts[current.hash(draws=True)] += 1
+            # Break immediately if the game is actually over
+            if MAX_EXITS in exits(current.state) or game_drawn(current.state, simulation_counts):
+                break
 
         return current.evaluate()
 
@@ -126,16 +137,16 @@ class MCNode(GameNode):
         """Updates parents recursively (note that visits is implicit on wins)
         Assumes the simulated child has already updated"""
         current = self
-        UCTNode.total_visits += sum(result)  # Result must total 1 due to evaluate function
-        while isinstance(current, UCTNode):
+        MCNode.total_visits += 1  # Result must total 1 due to evaluate function
+        while isinstance(current, MCNode):
             current.wins = current.wins + result
             current = current.parent
 
     # Overrides in order to adjust totals
     def kill_tree(self):
         """Recursively kill down each subtree, side-effect of updating wins/visits"""
-        UCTNode.total_visits -= self.visits
-        super().kill_tree()
+        #MCNode.total_visits -= self.visits
+        #super().kill_tree()
 
     def search(self):
         """Performs the UCT search on a node for given iterations

@@ -21,7 +21,7 @@ class TTPlayer:
         your player.
         """
         self.root = GameNode(create_initial_state(), None)
-        self.kill = False
+        self.kill = True
 
     @property
     def colour(self):
@@ -39,6 +39,3 @@ class TTPlayer:
         # Steal root child with this state and overthrow
         self.root = self.root.update_root(action, kill=self.kill)
         #print(f"\nHash: {self.root.hash()}\n")
-
-    def debug(self):
-        GameNode.debugger(self.root)

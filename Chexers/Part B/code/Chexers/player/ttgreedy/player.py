@@ -17,6 +17,14 @@ from structures.ttplayer import TTPlayer
 
 class GreedyPlayer(TTPlayer):
 
+    def __init__(self, colour):
+        """
+        This method is called once at the beginning of the game to initialise
+        your player.
+        """
+        self.root = GameNode(create_initial_state(), None)
+        self.kill = True
+
     def action(self):
         """
         This method is called at the beginning of each of your turns to request
@@ -38,7 +46,7 @@ class GreedyPlayer(TTPlayer):
             if new_eval > best_eval:
                 best_eval = new_eval
                 best_action = child.action
-        self.root.fully_evaluated = True
+
         if best_action == None:
             print("The none error.")
             GameNode.debugger(self.root)

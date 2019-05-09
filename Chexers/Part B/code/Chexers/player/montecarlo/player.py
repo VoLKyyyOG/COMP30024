@@ -7,17 +7,20 @@ Runs a MC search using a cached tree - see the file for further details.
 
 ########################### IMPORTS ##########################
 # Standard modules
-from random import choice
 # User-defined files
 from mechanics import *
-from algorithms.MC import *
-from structures.gamenode import GameNode
+from structures.mcnode import MCNode
 from structures.ttplayer import TTPlayer
 
 class MCPlayer(TTPlayer):
+
     def __init__(self, colour):
-        """Initialise the player"""
-        super().__init__(colour)
+        """
+        This method is called once at the beginning of the game to initialise
+        your player.
+        """
+        self.root = MCNode(create_initial_state(), None)
+        self.kill = False
 
     def action(self):
         """
