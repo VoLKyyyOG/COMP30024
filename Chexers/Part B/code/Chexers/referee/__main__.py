@@ -48,16 +48,17 @@ def main():
         out.section("game error")
         out.print("error: resource limit exceeded!")
         out.comment(e)
-    chosen = input("\n\n\nGAME OVER - Debug chosen player (r,g,b) >> ")[0]
-    if chosen == 'r':
-        player = p_R.player
-    elif chosen == 'g':
-        player = p_G.player
-    elif chosen == 'b':
-        player = p_B.player
-    else:
-        return
-    player.debug()
+    if sum([hasattr(p.player, "debug") for p in [p_R, p_G, p_B]]) > 0:
+        chosen = input("\n\n\nGAME OVER - Debug chosen player (r,g,b) >> ")[0]
+        if chosen == 'r':
+            player = p_R.player
+        elif chosen == 'g':
+            player = p_G.player
+        elif chosen == 'b':
+            player = p_B.player
+        else:
+            return
+        player.debug()
     # If it's another kind of error then it might be coming from the player
     # itself? Then, a traceback will be more helpful.
 

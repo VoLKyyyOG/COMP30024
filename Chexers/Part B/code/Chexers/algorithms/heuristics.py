@@ -43,14 +43,6 @@ def exits(state):
     """
     return np.array([state['exits'][player] for player in PLAYER_NAMES])
 
-def action_sort(state, heuristics=[exits, achilles]):
-    """
-    Sorts possible actions by value of heuristic
-    """
-    scores = np.array([0]*N_PLAYERS)
-    for action in possible_actions(state, state['turn']):
-
-
 def desperation(state):
     """
     Returns deficit/surplus in pieces vs exit
@@ -241,7 +233,13 @@ def killer(state):
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 
-
+def action_sort(state, heuristics=[exits, achilles]):
+    """
+    Sorts possible actions by value of heuristic
+    """
+    scores = np.array([0]*N_PLAYERS)
+    for action in possible_actions(state, state['turn']):
+        pass
 
 
 

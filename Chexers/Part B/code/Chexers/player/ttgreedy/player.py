@@ -35,7 +35,7 @@ class GreedyPlayer:
         """
         # Steal root child with this state and overthrow
         self.root = self.root.update_root(colour, action)
-        print(f"Hash: {self.root.hash()}")
+        #print(f"\nHash: {self.root.hash()}\n")
         self.colour = colour
 
     def debug(self):
@@ -46,8 +46,8 @@ class GreedyPlayer:
         """Modified referee calls this, allows for navigation of search tree
         Can call anywhere in execution"""
         while(1):
-            chosen = input(">> Change node (c) literal eval (e) print state info (s) quit (q) >> ")
-            if chosen not in "cesq":
+            chosen = input(">> Change node (c) literal eval (e) parent (p) print state info (s) quit (q) >> ")
+            if chosen not in "cpesq":
                 print(">> Invalid, try again.")
             elif chosen == "c":
                 try:
@@ -55,15 +55,23 @@ class GreedyPlayer:
                     current = current.get_node(nodehash)
                 except:
                     print(">> invalid, try again.")
+            elif chosen == "p":
+                current = current.parent
+                print(">> Navigated to parent.")
             elif chosen == "e":
                 try:
-                    exec(input("Object is current >> "))
+                    exec(input("Object called current, it is a gamenode. >> "))
                 except:
                     print(">> invalid, try again.")
             elif chosen == "s":
                 current.printer(current.state)
-                print(f"Depth {current.state['depth']}, colour {current.state['turn']}")
-                print(f"Children:\n" + "\n".join([f"{child.hash()} - {child.action} - {current.child_evaluations[child.action]}" for child in current.children]))
+                print(f"Depth {current.state['depth']}, colour {current.state['turn']} full_eval {current.fully_evaluated}\nChildren: ")
+                for child in current.children:
+                    print(f"{child.hash()} - {child.action}",end="")
+                    if child.action in current.child_evaluations.keys():
+                        print(f" - {current.child_evaluations[child.action]}")
+                    else:
+                        print("")
             else:
                 break
 
@@ -89,5 +97,5 @@ class GreedyPlayer:
             if new_eval > best_eval:
                 best_eval = new_eval
                 best_action = child.action
-
+        self.root.fully_evaluated = True
         return best_action

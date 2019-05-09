@@ -41,6 +41,7 @@ class GameNode(Node):
     def __init__(self, state, parent=None):
         super().__init__(state, parent)
         self.child_evaluations = dict()
+        self.fully_evaluated = False
         if parent:
             self.counts = parent.counts  # Tracks actual game
             self.TT = parent.TT  # Inherit memory if parent exists
