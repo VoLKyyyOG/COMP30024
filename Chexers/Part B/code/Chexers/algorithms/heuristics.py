@@ -58,18 +58,27 @@ def displacement(state):
     Attempts to fix the exiting problem associated with the daemon by removing n from calculations.
     This has the virtue of d/dn(daemon) = 0, which (among other factors) means it is unimpacted by exits.
     """
-    total_disp = lambda player: sum([get_cubic_ordered(piece)[PLAYER_HASH[player]] -
+    total_disp = lambda player: sum([get_cubic_ordered(piece)[PLAYER_HASH[player]] +
         MAX_COORDINATE_VAL for piece in state[player]])
     return np.array([total_disp(player) for player in PLAYER_NAMES])
 
-def achilles_vector(state, reality=False):
+def achilles_unreal(state):
     """
-    achilles_vector returns the number of threats for each player.
+    achilles_unreal returns the number of threats for each player.
     :FLAG reality: if True, counts actual opponents that could capture
     :returns: [val_red, val_green, val_blue]
     """
-    raw = achilles(state, reality)
-    return np.array([len(raw[player]) for player in PLAYER_NAMES])
+    raw = achilles(state, reality=False)
+    return -np.array([len(raw[player]) for player in PLAYER_NAMES])
+
+def achilles_real(state):
+    """
+    achilles_unreal returns the number of threats for each player.
+    :FLAG reality: if True, counts actual opponents that could capture
+    :returns: [val_red, val_green, val_blue]
+    """
+    raw = achilles(state, reality=True)
+    return -np.array([len(raw[player]) for player in PLAYER_NAMES])
 
 def achilles_gain(state, action, reality=False):
     """
@@ -117,7 +126,7 @@ def speed_demon(state):
     #return [total_disp(player) / len(state[player])  if len(state[player]) > 0 else -inf for player in PLAYER_NAMES]
 
     # Since displacement is -inf wrapped, +1 will preserve -inf
-    return np.array(displacement(state)) / (np.array(no_pieces(state)) + 0.001)
+    return np.array(displacement(state)) / (np.array(no_pieces(state)))
 
 def no_pieces(state):
     """
@@ -144,18 +153,24 @@ def favourable_hexes(state):
 
     return sum([np.array(eval) for eval in [corner_hex, block_exit_hex]])
 
+def end_game_proportion(state):
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_unreal]])
+    weights = [1, 0.1, 1, 1.5, 0.1 *10]
+    outcome = np.array(sum(map(lambda x,y: x*y, evals, weights)))
+    return np.round(np.array(list(map(lambda x,y: x*y, evals, weights))) / outcome * 100, 4)
+
 def end_game_heuristic(state):
     """
     Tribute to Marvel's End Game.
     This is the default evaluation function
     """
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_vector]])
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_unreal]])
     weights = [1, 0.1, 1, 1.5, 0.1]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def two_player_heuristics(state):
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_vector]])
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_unreal]])
     weights = [2, 0.1, 1, 10, 0.25]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
@@ -248,7 +263,7 @@ def troll(state):
     return mad
 
 def killer(state):
-    evals = np.array([f(state) for f in [no_pieces, achilles_vector]])
+    evals = np.array([f(state) for f in [no_pieces, achilles_unreal]])
     weights = [2.5, 1]
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 

@@ -24,7 +24,7 @@ def debug(data):
         board_dict[i] = '###'
     return board_dict
 
-def print_board(board_dict, message="", debug=True, number_hexes=False):
+def print_board(board_dict, message="", debug=False, number_hexes=False):
     """Print board display. Sourced from skeleton code"""
     # Set up the board template:
     if not debug:

@@ -46,8 +46,6 @@ class Node:
 
     def expand(self):
         """Generate children"""
-        assert(not self.is_expanded)
-        if self.is_dead: return
         for action in possible_actions(self.state, player(self.state)):
             new_child = self.new_child(apply_action(self.state, action), self)
             new_child.action = action

@@ -41,7 +41,6 @@ class GameNode(Node):
     def __init__(self, state, parent=None):
         super().__init__(state, parent)
         self.child_evaluations = dict()
-        self.fully_evaluated = False
         if parent:
             self.counts = parent.counts  # Tracks actual game
             self.TT = parent.TT  # Inherit memory if parent exists
@@ -51,7 +50,6 @@ class GameNode(Node):
 
         # Add to storage
         self.TT[self.hash] = self
-        self.increment(self)
 
     def hash(self, draws=False):
         """
@@ -74,18 +72,19 @@ class GameNode(Node):
         Called when an actual game move has been decided, updates tree
         :returns: new root for player to use
         """
+        print(f"\n{self.hash()}\n")
         try:
             root = [x for x in self.children if x.action == action].pop(0)
-        except:
-            self.debugger()
-        if kill:
-            root.overthrow()  # Delete all irrelevant siblings to free memory
-            root.clean_tree()
+            if kill:
+                self.overthrow()  # Delete all irrelevant siblings to free memory
+                self.clean_tree()
 
-        # Add to storage
-        root.TT[root.hash()] = root
-        root.increment(root)
-        return root
+            # Add to storage
+            self.TT[root.hash()] = root
+            root.increment(root)
+            return root
+        except:
+            GameNode.debugger(self)
 
     def get_node(self, state_hash, draws):
         """
@@ -126,23 +125,30 @@ class GameNode(Node):
         """Modified referee calls this, allows for navigation of search tree
         Can call anywhere in execution"""
         while(1):
-            chosen = input(">> Change node (c) literal eval (e) parent (p) print state info (s) quit (q) >> ")
-            if chosen not in "cpesq":
+            chosen = input(">> Change wt hash (c) goto parent (p) exec (e) state_info (s) heuristics (h) quit (q) >> ")
+            if chosen not in "cpeqhs":
                 print(">> Invalid, try again.")
             elif chosen == "c":
                 try:
                     nodehash = int(input("Specify FULL hash for state >> ").strip())
-                    current = current.get_node(nodehash)
+                    current = current.get_node(nodehash, False)
                 except:
                     print(">> invalid, try again.")
             elif chosen == "p":
                 current = current.parent
                 print(">> Navigated to parent.")
             elif chosen == "e":
-                try:
-                    exec(input("Object called current, it is a gamenode >> "))
-                except:
-                    print(">> invalid, try again.")
+                print(">> Executable activated. NOTE: current = GameNode.\n>> To release loop, trigger a NameError (type nonsense).")
+                while(1):
+                    try:
+                        exec(input("\n!(exec) >> "))
+                    except NameError:
+                        break
+                    except:
+                        print(">> invalid, try again.")
+            elif chosen == "h":
+                from algorithms.heuristics import displacement, desperation, speed_demon, favourable_hexes, exits,  achilles_unreal, achilles_real, end_game_heuristic, end_game_proportion, two_player_heuristics
+                print("\n".join([f"{f.__name__} : {f(current.state)}" for f in [displacement, desperation, speed_demon, favourable_hexes, exits,  achilles_unreal, achilles_real, end_game_heuristic, end_game_proportion, two_player_heuristics]]))
             elif chosen == "s":
                 current.format()
             else:
@@ -152,12 +158,12 @@ class GameNode(Node):
         """
         Defines how to display a state in debugging.
         """
-        current.printer(current.state)
-        print(f"Depth {current.state['depth']}, colour {current.state['turn']} full_eval {current.fully_evaluated} dead {current.is_dead} expanded {current.is_expanded}\nChildren: ")
-        for child in current.children:
+        self.printer(self.state)
+        print(f"Depth {self.state['depth']}, colour {self.state['turn']} dead {self.is_dead} expanded {self.is_expanded}\nChildren: ")
+        for child in self.children:
             print(f"FULL HASH {child.hash()} - {child.action}",end="")
-            if child.action in current.child_evaluations.keys():
-                print(f" - {current.child_evaluations[child.action]}")
+            if child.action in self.child_evaluations.keys():
+                print(f" - {self.child_evaluations[child.action]}")
             else:
                 print("")
 
@@ -168,4 +174,4 @@ class GameNode(Node):
         for player in PLAYER_NAMES:
             for i in state[player]:
                 board_dict[i] = f"{player}"
-        print_board(board_dict)
+        print_board(board_dict, False)
