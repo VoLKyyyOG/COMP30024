@@ -62,36 +62,6 @@ def displacement(state):
         MAX_COORDINATE_VAL for piece in state[player]])
     return np.array([total_disp(player) for player in PLAYER_NAMES])
 
-def nerfed_desperation(state):
-    """
-    :summary: Nerfs desperation so that it gets no gain from having more than 2 pieces in surplus
-    E.g. surplus -inf to 2 will be unaffected but values 3 and above map to 2.
-    Note that this doesn't interfere with exiting as desperation unaffected by exit actions
-    :returns: list of valuations
-    """
-    return np.minimum(np.array(desperation(state)), 2)
-
-def paris(state):
-    """
-    Evaluates captures that each player could perform
-    :shortfall: cannot tell which piece captures what, nor the capturable player
-    :returns: {player: list_of_capturing_actions for each player}
-    """
-    captures = defaultdict(list)
-    occupied_hexes = function_occupied(state, PLAYER_NAMES)
-    for player in PLAYER_NAMES:
-        for action in jump_action(state, occupied_hexes, player):
-            if is_capture(state, action, player):
-                captures[player].append(action)
-    return captures
-
-def paris_vector(state):
-    """
-    Returns the number of capturing actions possible for each player.
-    :returns: [val_red, val_green, val_blue]
-    """
-    return np.array([len(paris(state)[player]) for player in PLAYER_NAMES])
-
 def achilles_vector(state, reality=False):
     """
     achilles_vector returns the number of threats for each player.
@@ -156,6 +126,84 @@ def exit_hex(state):
     """
     return np.array([len(exit_action(state, colour)) for colour in PLAYER_NAMES])
 
+def favourable_hexes(state):
+    """
+    Favourable hex positions:
+    1. Corner hexes
+    2. Enemy exit hex positions
+    """
+    corner_hex = [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
+    block_exit_hex = [len(set(state[player]).intersection(OPPONENT_GOALS[player])) for player in PLAYER_NAMES]
+
+    return sum([np.array(eval) for eval in [corner_hex, block_exit_hex]])
+
+def end_game_heuristic(state):
+    """
+    Tribute to Marvel's End Game.
+    This is the default evaluation function 
+    """
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_vector]])
+    weights = [1, 0.1, 1, 1.5, 0.1]
+
+    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
+
+def two_player_heuristics(state):
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_vector]])
+    weights = [2, 0.1, 1, 10, 0.25]
+    
+    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
+
+def runner(state):
+    evals = np.array([f(state) for f in [speed_demon, no_pieces, exits]])
+    weights = [0.75, 1, 10]
+
+    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+################## DEPRECIATED
+
+def nerfed_desperation(state):
+    """
+    :summary: Nerfs desperation so that it gets no gain from having more than 2 pieces in surplus
+    E.g. surplus -inf to 2 will be unaffected but values 3 and above map to 2.
+    Note that this doesn't interfere with exiting as desperation unaffected by exit actions
+    :returns: list of valuations
+    """
+    return np.minimum(np.array(desperation(state)), 2)
+
+def paris(state):
+    """
+    Evaluates captures that each player could perform
+    :shortfall: cannot tell which piece captures what, nor the capturable player
+    :returns: {player: list_of_capturing_actions for each player}
+    """
+    captures = defaultdict(list)
+    occupied_hexes = function_occupied(state, PLAYER_NAMES)
+    for player in PLAYER_NAMES:
+        for action in jump_action(state, occupied_hexes, player):
+            if is_capture(state, action, player):
+                captures[player].append(action)
+    return captures
+
+def paris_vector(state):
+    """
+    Returns the number of capturing actions possible for each player.
+    :returns: [val_red, val_green, val_blue]
+    """
+    return np.array([len(paris(state)[player]) for player in PLAYER_NAMES])
 def utility(state):
     """
     Measures strictly aspects of a state that relate to goal acquisition:
@@ -167,24 +215,12 @@ def utility(state):
     evals = np.array([f(state) for f in [exits, nerfed_desperation, speed_demon]])
     weights = np.array([1, 1, 1.0 / 12]) # Displacement ranges up to 24
     return sum(map(lambda x,y: x*y, evals, weights))
-
 def corner_hexes(state):
     """
     See if a piece is in a corner hex (untakeable)
     TODO: MAKE IT ENEMY GOAL HEX POSITION
     """
     return np.array([len(set(state[player]).intersection(CORNER_SET).difference(STARTS[player])) for player in PLAYER_NAMES])
-
-def favourable_hexes(state):
-    """
-    Favourable hex positions:
-    1. Corner hexes
-    2. Enemy exit hex positions
-    """
-    corner_hex = [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
-    block_exit_hex = [len(set(state[player]).intersection(OPPONENT_GOALS[player])) for player in PLAYER_NAMES]
-
-    return sum([np.array(eval) for eval in [corner_hex, block_exit_hex]])
 
 # TODO STRAT FIX
 def troll(state):
@@ -198,45 +234,10 @@ def troll(state):
         mad = np.array([total_disp(player) if player == p else -inf for player in PLAYER_NAMES])
     return mad
 
-def end_game_heuristic(state):
-    """
-    Tribute to Marvel's End Game.
-    This is the default evaluation function 
-    """
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_vector]])
-    weights = [1, 0.1, 1, 1.5, 0.1]
-
-    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
-def two_player_heuristics(state):
-    evals = np.array([f(state) for f in [exit_hex, favourable_hexes, speed_demon, desperation, achilles_vector]])
-    weights = [0.1, 0.1, 0.5, 1, 1, 1]
-
-    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
-def runner(state):
-    evals = np.array([f(state) for f in [exit_hex, speed_demon, desperation, exits]])
-    weights = [0.1, 0.5, 1, 10]
-
-    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
 def killer(state):
     evals = np.array([f(state) for f in [no_pieces, achilles_vector]])
     weights = [2.5, 1]
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 def retrograde_dijkstra(state):

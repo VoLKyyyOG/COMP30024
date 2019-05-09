@@ -17,7 +17,7 @@ from book import opening_moves
 
 from algorithms.logic import mp_mix
 from algorithms.adversarial_algorithms import paranoid
-from algorithms.heuristics import achilles_vector, speed_demon, end_game_heuristic
+from algorithms.heuristics import achilles_vector, speed_demon, end_game_heuristic, two_player_heuristics
 from algorithms.partA.search import part_A_search
 
 # Global imports
@@ -27,7 +27,7 @@ PATH = list()
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 9 # The first three moves for each player (four possible good moves)
+    MID_GAME_THRESHOLD = 0 # The first three moves for each player (four possible good moves)
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
@@ -80,7 +80,7 @@ class MPMixPlayer:
         """
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
         """
-        return opening_moves(self.state, self.colour) if not False else paranoid(self.state, end_game_heuristic, self.colour)
+        return opening_moves(self.state, self.colour) if not False else paranoid(self.state, achilles_vector, self.colour)
 
     def mid_game(self):
         """
@@ -99,7 +99,7 @@ class MPMixPlayer:
                    This works because paranoid defaults to alpha-beta by ignoring
                    dead players.
         """
-        action = mp_mix(self.state, end_game_heuristic, defence_threshold=0, offence_threshold=0, two_player=True)
+        action = mp_mix(self.state, two_player_heuristics, defence_threshold=0, offence_threshold=0, two_player=True)
         if action is False: # If False just use Dijkstra (we are sufficiently ahead)
             action =  self.djikstra(single_player=False)
         elif action is True: # if True then run Greedy
