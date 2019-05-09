@@ -71,6 +71,13 @@ def achilles_vector(state, reality=False):
     raw = achilles(state, reality)
     return np.array([len(raw[player]) for player in PLAYER_NAMES])
 
+def achilles_gain(state, action, reality=False):
+    """
+    Evaluates where the action, applied to the state, will alter vulnerability
+    """
+    new_state = apply_action(state, action)
+    return achilles(new_state, reality) - achilles(state, reality)
+
 def achilles(state, reality=False):
     """
     Evaluates number of attackable angles on your pieces.
@@ -140,7 +147,7 @@ def favourable_hexes(state):
 def end_game_heuristic(state):
     """
     Tribute to Marvel's End Game.
-    This is the default evaluation function 
+    This is the default evaluation function
     """
     evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_vector]])
     weights = [1, 0.1, 1, 1.5, 0.1]
@@ -161,7 +168,13 @@ def runner(state):
 
 
 
-
+def action_sort(state, heuristics=[exits, achilles]):
+    """
+    Sorts possible actions by value of heuristic
+    """
+    scores = np.array([0]*N_PLAYERS)
+    for action in possible_actions(state, state['turn']):
+        pass
 
 
 

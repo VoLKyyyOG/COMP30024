@@ -280,7 +280,7 @@ def decode(state):
 def Z_hash(state):
     """
     Implements a minimal collision NON-INVERTIBLE hash for states. Hash of form
-        0b(turn)(37 hex state flags....)
+        0b(turn)(exits)(37 hex state flags....)
     Where the flags are:
     - For turn player:
         - 00 for red
@@ -299,6 +299,11 @@ def Z_hash(state):
 
     # Append turn player
     hashed = hashed | PLAYER_HASH[state["turn"]]
+
+    # Encode exits
+    hashed = hashed << CODE_LEN * N_PLAYERS
+    for i, player in enumerate(PLAYER_NAMES):
+            hashed = hashed | (state['exits'][player] << i)
 
     # Encode coordinates: First, make space
     hashed = hashed << NUM_HEXES * CODE_LEN

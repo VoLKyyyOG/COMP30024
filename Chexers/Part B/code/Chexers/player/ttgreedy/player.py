@@ -35,36 +35,11 @@ class GreedyPlayer:
         """
         # Steal root child with this state and overthrow
         self.root = self.root.update_root(colour, action)
+        #print(f"\nHash: {self.root.hash()}\n")
         self.colour = colour
 
     def debug(self):
-        self.debugger(self.root)
-
-    @staticmethod
-    def debugger(current):
-        """Modified referee calls this, allows for navigation of search tree
-        Can call anywhere in execution"""
-        while(1):
-            chosen = input(">> Change node (c) literal eval (e) print state info (s) quit (q) >> ")
-            if chosen not in "cesq":
-                print(">> Invalid, try again.")
-            elif chosen == "c":
-                try:
-                    nodehash = int(input("Specify hash for state >> ").strip())
-                    current = current.get_node(nodehash)
-                except:
-                    print(">> invalid, try again.")
-            elif chosen == "e":
-                try:
-                    exec(input("Object is current >> "))
-                except:
-                    print(">> invalid, try again.")
-            elif chosen == "s":
-                current.printer(current.state)
-                print(f"Depth {current.state['depth']}, colour {current.state['turn']}")
-                print(f"Children:\n" + "\n".join([f"{child.hash()} - {child.action}" for child in current.children]))
-            else:
-                break
+        GameNode.debugger(self.root)
 
     ################# DEFINE EVERY IMPLEMENTATION ################
 
@@ -77,12 +52,17 @@ class GreedyPlayer:
             return ("PASS",None)
 
         best_eval, best_action = -inf, None
+
+        # TODO: Use TT to prevent recalculation
+
         for child in self.root.children:
             if child.action[0] == "EXIT":
                 return child.action
             new_eval = speed_demon(child.state)[PLAYER_HASH[self.colour]]
-            if new_eval > best_eval:
+            self.root.child_evaluations[child.action] = new_eval
+            # ONLY select non-repetitive moves
+            if new_eval > best_eval and child.hash() not in self.root.counts:
                 best_eval = new_eval
                 best_action = child.action
-
+        self.root.fully_evaluated = True
         return best_action
