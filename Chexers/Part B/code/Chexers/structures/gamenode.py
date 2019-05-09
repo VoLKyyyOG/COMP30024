@@ -71,7 +71,10 @@ class GameNode(Node):
         Called when an actual game move has been decided, updates tree
         :returns: new root for player to use
         """
-        root = [x for x in self.children if x.action == action].pop(0)
+        try:
+            root = [x for x in self.children if x.action == action].pop(0)
+        except:
+            self.debugger()
         root.overthrow()  # Delete all irrelevant siblings to free memory
         root.clean_tree()
 
@@ -119,3 +122,37 @@ class GameNode(Node):
 
         self.is_expanded = True
         #### TODO: Decide ordering here
+
+    @staticmethod
+    def debugger(current):
+        """Modified referee calls this, allows for navigation of search tree
+        Can call anywhere in execution"""
+        while(1):
+            chosen = input(">> Change node (c) literal eval (e) parent (p) print state info (s) quit (q) >> ")
+            if chosen not in "cpesq":
+                print(">> Invalid, try again.")
+            elif chosen == "c":
+                try:
+                    nodehash = int(input("Specify hash for state >> ").strip())
+                    current = current.get_node(nodehash)
+                except:
+                    print(">> invalid, try again.")
+            elif chosen == "p":
+                current = current.parent
+                print(">> Navigated to parent.")
+            elif chosen == "e":
+                try:
+                    exec(input("Object called current, it is a gamenode. >> "))
+                except:
+                    print(">> invalid, try again.")
+            elif chosen == "s":
+                current.printer(current.state)
+                print(f"Depth {current.state['depth']}, colour {current.state['turn']} full_eval {current.fully_evaluated}\nChildren: ")
+                for child in current.children:
+                    print(f"{child.hash()} - {child.action}",end="")
+                    if child.action in current.child_evaluations.keys():
+                        print(f" - {current.child_evaluations[child.action]}")
+                    else:
+                        print("")
+            else:
+                break

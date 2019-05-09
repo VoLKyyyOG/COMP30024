@@ -14,6 +14,8 @@ class Node:
     Node superclass with core (initialized) attributes and methods
     Subclasses e.g. IDANode(Node) define and add extra functionality
     """
+    trim_total = 0
+    count_total = 0
 
     def __init__(self, state, parent=None):
         """
@@ -25,6 +27,7 @@ class Node:
         self.action = None  # Action that parent made to get here
         self.state = state  # Stores data. Must have been a deepcopy
         self._children = list()  # list of children
+        Node.count_total += 1
 
     @property
     def children(self):
@@ -68,6 +71,7 @@ class Node:
         # Kill each subtree
         for child in self._children:
             child.kill_tree()
+        Node.trim_total += 1
         del(self)
 
     def overthrow(self):
@@ -80,5 +84,6 @@ class Node:
             for sibling in self.parent._children:
                 if sibling != self:
                     sibling.kill_tree()
+            Node.trim_total += 1
             del(self.parent)
             self.parent = None

@@ -39,41 +39,7 @@ class GreedyPlayer:
         self.colour = colour
 
     def debug(self):
-        self.debugger(self.root)
-
-    @staticmethod
-    def debugger(current):
-        """Modified referee calls this, allows for navigation of search tree
-        Can call anywhere in execution"""
-        while(1):
-            chosen = input(">> Change node (c) literal eval (e) parent (p) print state info (s) quit (q) >> ")
-            if chosen not in "cpesq":
-                print(">> Invalid, try again.")
-            elif chosen == "c":
-                try:
-                    nodehash = int(input("Specify hash for state >> ").strip())
-                    current = current.get_node(nodehash)
-                except:
-                    print(">> invalid, try again.")
-            elif chosen == "p":
-                current = current.parent
-                print(">> Navigated to parent.")
-            elif chosen == "e":
-                try:
-                    exec(input("Object called current, it is a gamenode. >> "))
-                except:
-                    print(">> invalid, try again.")
-            elif chosen == "s":
-                current.printer(current.state)
-                print(f"Depth {current.state['depth']}, colour {current.state['turn']} full_eval {current.fully_evaluated}\nChildren: ")
-                for child in current.children:
-                    print(f"{child.hash()} - {child.action}",end="")
-                    if child.action in current.child_evaluations.keys():
-                        print(f" - {current.child_evaluations[child.action]}")
-                    else:
-                        print("")
-            else:
-                break
+        GameNode.debugger(self.root)
 
     ################# DEFINE EVERY IMPLEMENTATION ################
 
@@ -94,7 +60,8 @@ class GreedyPlayer:
                 return child.action
             new_eval = speed_demon(child.state)[PLAYER_HASH[self.colour]]
             self.root.child_evaluations[child.action] = new_eval
-            if new_eval > best_eval:
+            # ONLY select non-repetitive moves
+            if new_eval > best_eval and child.hash() not in self.root.counts:
                 best_eval = new_eval
                 best_action = child.action
         self.root.fully_evaluated = True
