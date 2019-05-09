@@ -41,7 +41,7 @@ def exits(state):
     Returns raw exit count as a tuple
     :returns: [red_eval, green_eval, blue_eval]
     """
-    return np.array(state['exits'])
+    return np.array([state['exits'][player] for player in PLAYER_NAMES])
 
 def desperation(state):
     """
