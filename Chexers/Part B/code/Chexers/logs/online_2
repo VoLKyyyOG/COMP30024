@@ -1,0 +1,5 @@
+[game ] - Start Chexers game log at Thu May  9 15:33:04 2019
+[red  ] - MOVE from (-3, 2) to (-2, 1).
+[green] - MOVE from (0, -3) to (0, -2).
+[blue ] - MOVE from (0, 3) to (0, 2).
+[red  ] - JUMP from (-3, 1) to (-1, 1).
