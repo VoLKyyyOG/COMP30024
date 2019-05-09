@@ -144,16 +144,22 @@ class GameNode(Node):
                 except:
                     print(">> invalid, try again.")
             elif chosen == "s":
-                current.printer(current.state)
-                print(f"Depth {current.state['depth']}, colour {current.state['turn']} full_eval {current.fully_evaluated}\nChildren: ")
-                for child in current.children:
-                    print(f"FULL HASH {child.hash()} - {child.action}",end="")
-                    if child.action in current.child_evaluations.keys():
-                        print(f" - {current.child_evaluations[child.action]}")
-                    else:
-                        print("")
+                current.format()
             else:
                 break
+
+    def format(self):
+        """
+        Defines how to display a state in debugging.
+        """
+        current.printer(current.state)
+        print(f"Depth {current.state['depth']}, colour {current.state['turn']} full_eval {current.fully_evaluated} dead {current.is_dead} expanded {current.is_expanded}\nChildren: ")
+        for child in current.children:
+            print(f"FULL HASH {child.hash()} - {child.action}",end="")
+            if child.action in current.child_evaluations.keys():
+                print(f" - {current.child_evaluations[child.action]}")
+            else:
+                print("")
 
     @staticmethod
     def printer(state):

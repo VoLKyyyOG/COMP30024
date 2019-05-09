@@ -21,7 +21,7 @@ class TTPlayer:
         your player.
         """
         self.root = GameNode(create_initial_state(), None)
-        self.kill = False
+        self.kill = True
 
     @property
     def colour(self):
