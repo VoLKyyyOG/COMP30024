@@ -123,9 +123,10 @@ class Chexers:
         # and we might like to log actions!
         if logfilename is not None:
             self._logfile = open(logfilename, 'w', 1)
-            self._log("game", "Start Chexers game log at", time.asctime())
         else:
             self._logfile = None
+
+        self.start = time.time()
 
     def update(self, colour, action):
         """
@@ -154,7 +155,6 @@ class Chexers:
                 self.score[col] += 1
             else: # atype == "PASS":
                 pass
-            self._log_action(colour, action)
             self._turn_detect_draw()
 
         else:
@@ -168,6 +168,7 @@ class Chexers:
                 "not available. See specification and game rules for details, "
                 "or consider currently available actions:\n"
                 f"*   {available_actions_list}")
+
     def _available_actions(self, colour):
         """
         A list of currently-available actions for a particular player
@@ -235,6 +236,7 @@ class Chexers:
                 result = f"winner: {_COL_NAME[winner]}"
             else:
                 result = f"draw detected: {self.drawmsg}"
+            self._log("lel", f"time: {time.time() - self.start}")
             self._log("over", result)
             self._end_log()
             return result
@@ -256,7 +258,8 @@ class Chexers:
     def _log(self, header, *messages):
         """Helper method to add a message to the logfile"""
         if self._logfile is not None:
-            print(f"[{header:5s}] -", *messages, file=self._logfile, flush=True)
+            print(*messages, file=self._logfile, flush=True)
+
     def _log_action(self, colour, action):
         """Helper method to log an action to the logfile"""
         atype, aargs = action
