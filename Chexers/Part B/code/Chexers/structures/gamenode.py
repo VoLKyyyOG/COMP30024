@@ -77,7 +77,7 @@ class GameNode(Node):
         try:
             root = [x for x in self.children if x.action == action].pop(0)
         except:
-            self.debugger()
+            self.debugger(self)
         if kill:
             root.overthrow()  # Delete all irrelevant siblings to free memory
             root.clean_tree()

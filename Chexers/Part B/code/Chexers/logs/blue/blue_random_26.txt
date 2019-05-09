@@ -1,0 +1,2 @@
+time: 2.4195396900177
+winner: Blue
