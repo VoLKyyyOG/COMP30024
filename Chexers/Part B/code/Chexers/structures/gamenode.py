@@ -4,9 +4,9 @@
 :authors: Akira Wang (913391), Callum Holmes (899251)
 
 Properties of GAMENODE (NOT INHERITED):
-- node.counts[node.hash()] --> # visits in the game
-- node.hash() --> Z_hash(node.state)
-- node.update_root(colour, action)
+- node.counts[node.hash] --> # visits in the game
+- node.hash --> Z_hash(node.state)
+- node.update_root(action, kill) --> reassigns root, trims tree if kill
 - node.get_node(statehash)
 
 INHERITED:
@@ -26,7 +26,7 @@ INHERITED:
 # User-defined files
 from collections import defaultdict
 from structures.node import *
-from mechanics import Z_hash
+from mechanics import Z_hash, draw_hash
 from mechanics import N_PLAYERS, PLAYER_NAMES
 import numpy as np
 
@@ -53,20 +53,23 @@ class GameNode(Node):
         self.TT[self.hash] = self
         self.increment(self)
 
-    def hash(self):
+    def hash(self, draws=False):
         """
         Wrapper function for hashing a node's state
         :return: hash
         """
-        return Z_hash(self.state)
+        if draws:
+            return draw_hash(self.state)
+        else:
+            return Z_hash(self.state)
 
     def increment(self, node):
         """
         Increase number of visits to a node
         """
-        self.counts[node.hash] += 1
+        self.counts[self.hash(draws=True)] += 1
 
-    def update_root(self, colour, action):
+    def update_root(self, action, kill=True):
         """
         Called when an actual game move has been decided, updates tree
         :returns: new root for player to use
@@ -75,28 +78,23 @@ class GameNode(Node):
             root = [x for x in self.children if x.action == action].pop(0)
         except:
             self.debugger()
-        root.overthrow()  # Delete all irrelevant siblings to free memory
-        root.clean_tree()
+        if kill:
+            root.overthrow()  # Delete all irrelevant siblings to free memory
+            root.clean_tree()
 
         # Add to storage
-        root.TT[root.hash] = root
+        root.TT[root.hash()] = root
         root.increment(root)
         return root
 
-    def get_node(self, state_hash):
+    def get_node(self, state_hash, draws):
         """
         Can jump to any (explored) state given the state
         """
-        return self.TT[state_hash]
-
-    @staticmethod
-    def printer(state):
-        from algorithms.partA.formatting import print_board
-        board_dict = {}
-        for player in PLAYER_NAMES:
-            for i in state[player]:
-                board_dict[i] = f"{player}"
-        print_board(board_dict)
+        if draws:
+            return self.counts[state_hash]
+        else:
+            return self.TT[state_hash]
 
     # Overriden behaviour
     def expand(self):
@@ -133,7 +131,7 @@ class GameNode(Node):
                 print(">> Invalid, try again.")
             elif chosen == "c":
                 try:
-                    nodehash = int(input("Specify hash for state >> ").strip())
+                    nodehash = int(input("Specify FULL hash for state >> ").strip())
                     current = current.get_node(nodehash)
                 except:
                     print(">> invalid, try again.")
@@ -142,17 +140,26 @@ class GameNode(Node):
                 print(">> Navigated to parent.")
             elif chosen == "e":
                 try:
-                    exec(input("Object called current, it is a gamenode. >> "))
+                    exec(input("Object called current, it is a gamenode >> "))
                 except:
                     print(">> invalid, try again.")
             elif chosen == "s":
                 current.printer(current.state)
                 print(f"Depth {current.state['depth']}, colour {current.state['turn']} full_eval {current.fully_evaluated}\nChildren: ")
                 for child in current.children:
-                    print(f"{child.hash()} - {child.action}",end="")
+                    print(f"FULL HASH {child.hash()} - {child.action}",end="")
                     if child.action in current.child_evaluations.keys():
                         print(f" - {current.child_evaluations[child.action]}")
                     else:
                         print("")
             else:
                 break
+
+    @staticmethod
+    def printer(state):
+        from algorithms.partA.formatting import print_board
+        board_dict = {}
+        for player in PLAYER_NAMES:
+            for i in state[player]:
+                board_dict[i] = f"{player}"
+        print_board(board_dict)

@@ -32,8 +32,28 @@ def printer(state):
 
 
 
+"""
 printer(test2)
 x = defaultdict()
 x[Z_hash(test1)] = test1
 print(x)
 print(Z_hash(test1) in x)
+"""
+
+from math import factorial as fact
+result = 0
+for N in range(12, 12+1):
+    for r in range(0, N+1):
+        for g in range(0, N-r+1):
+            result += 1.0 * fact(37) / fact(r)*fact(g)*fact(N - r - g)
+
+print(result)
+
+from math import factorial as fact
+result = 0
+for N in range(3,12+1):
+    for r in range(0, N+1):
+        for g in range(0, N-r+1):
+            result += 1.0 * fact(37) / fact(r)*fact(g)*fact(N - r - g)
+
+print(result)

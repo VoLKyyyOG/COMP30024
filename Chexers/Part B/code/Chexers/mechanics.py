@@ -106,6 +106,12 @@ def get_score(state, colour):
     """
     return state['exits'][colour]
 
+def game_drawn(state, counts):
+    """
+    Detects if game drawn
+    """
+    return (counts[draw_hash(state)] >= MAX_EXITS or state['depth'] == MAX_TURNS*3)
+
 def game_over(state, print_debug=False):
     """
     Determines if a game is over.
@@ -116,7 +122,6 @@ def game_over(state, print_debug=False):
     - A state has been visited 4 times (draw)
 
     TODO: ALL_DEAD IS NOT AN ACTUAL GAME OVER SCENARIO, DELETE AFTER DEBUG
-    TODO: 4 VISITS NOT AN ACTUAL GAME OVER SCENARIO
 
     """
     draw = depth(state) == MAX_TURNS * 3
@@ -124,7 +129,7 @@ def game_over(state, print_debug=False):
     winner = MAX_EXITS in state['exits'].values()
 
     if print_debug:
-        print(f"\n\t\t\t\t\t\t\t\tDraw: {draw}, All Dead: {all_dead}, Winner: {winner}")
+        print(f"\n\t\t\t\t\t\t\t\tMax-turns: {draw}, All Dead: {all_dead}, Winner: {winner}")
         return None
 
     return winner or draw
@@ -266,16 +271,11 @@ def players_left(state):
 
 ########################## HASHING ############################
 
-def encode(state):
+def draw_hash(state):
     """
-    Hash a state using a low-collision hash for a State object
-    :returns: integer
+    Hashing scheme but without the exits - so that draws can be detected
     """
-    return Z_hash(state)
-
-def decode(state):
-    """Decodes a hashed State back into a State object"""
-    raise NotImplementedError
+    return Z_hash(state) >> CODE_LEN * N_PLAYERS
 
 def Z_hash(state):
     """
@@ -291,19 +291,12 @@ def Z_hash(state):
         - 10 for green
         - 11 for blue
         - 00 for none
-
-    Note that as piece count is non-increasing in a game, no need to count exits
     :returns: integer unique to the state
     """
     hashed = 0
 
     # Append turn player
     hashed = hashed | PLAYER_HASH[state["turn"]]
-
-    # Encode exits
-    hashed = hashed << CODE_LEN * N_PLAYERS
-    for i, player in enumerate(PLAYER_NAMES):
-            hashed = hashed | (state['exits'][player] << i)
 
     # Encode coordinates: First, make space
     hashed = hashed << NUM_HEXES * CODE_LEN
@@ -312,5 +305,10 @@ def Z_hash(state):
     for player in PLAYER_NAMES:
         for piece in state[player]:
             hashed = hashed | (PLAYER_HASH[player] + 1 << CODE_LEN * VALID_COORDINATES.index(piece))
+
+    # Encode exits
+    hashed = hashed << CODE_LEN * N_PLAYERS
+    for i, player in enumerate(PLAYER_NAMES):
+            hashed = hashed | (state['exits'][player] << i)
 
     return hashed

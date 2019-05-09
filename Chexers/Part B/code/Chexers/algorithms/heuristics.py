@@ -41,7 +41,7 @@ def exits(state):
     Returns raw exit count as a tuple
     :returns: [red_eval, green_eval, blue_eval]
     """
-    return np.array([state['exits'][player] for player in PLAYER_NAMES])
+    return np.array(state['exits'])
 
 def desperation(state):
     """
@@ -157,7 +157,7 @@ def end_game_heuristic(state):
 def two_player_heuristics(state):
     evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_vector]])
     weights = [2, 0.1, 1, 10, 0.25]
-    
+
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def runner(state):

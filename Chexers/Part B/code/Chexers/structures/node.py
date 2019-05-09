@@ -23,9 +23,9 @@ class Node:
         """
         self.parent = parent  # Points to parent node
         self.is_expanded = False  # Flags the fact that children have been generated
-        self.is_dead = False  # DO NOT continue to explore
         self.action = None  # Action that parent made to get here
         self.state = state  # Stores data. Must have been a deepcopy
+        self._is_dead = False  # DO NOT continue to explore
         self._children = list()  # list of children
         Node.count_total += 1
 
@@ -35,6 +35,14 @@ class Node:
         if not self.is_expanded:
             self.expand()
         return self._children
+
+    @property
+    def is_dead(self):
+        return self._is_dead
+
+    @is_dead.setter
+    def is_dead(self, value):
+        self._is_dead = value
 
     def expand(self):
         """Generate children"""
@@ -87,3 +95,10 @@ class Node:
             Node.trim_total += 1
             del(self.parent)
             self.parent = None
+
+    def recursive_print(self):
+        """Prints tree structure"""
+        print(self)
+        if self.is_expanded:
+            for child in self.children:
+                child.recursive_print()

@@ -5,26 +5,39 @@ A more succinct implementation: https://github.com/brilee/python_uct/blob/master
 Unused but still curious: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carlo-tree-search/
 
 Process:
-- 1. Select an unexpaned node by choosing highest scored branch iteratively, scoring with wins/visits via UCB1
+- 1. Select an unexpanded node by choosing highest scored branch iteratively, scoring with wins/visits via UCB1
 - 2. Expand this node and randomly choose a child.
 - 3. Simulate a game by randomly choosing actions, until depth_limit is reached or game finishes.
         - Return either the outcome [1 0 0] for win, or who had the max (exits + desperation)
 - 4. Backpropagate outcome to re-evaluate wins and visits for parent nodes
 
+In addition to GameNode functionality:
+STATICMETHOD - MCNode.evaluate(state)
+- self.visits                   Total no. visits (currently total child wins)
+- self.score                    UCB1 score
+- self.select_simulation()      (1, 2)
+- self.simulate()               (3)
+- self.backpropagate(result)    (4)
+- self.search()                 (main function)
+
 """
 
 ########################### IMPORTS ##########################
 # Standard modules
-import collections
 import numpy as np
 import math
 from random import choice
+from copy import deepcopy
 # User-defined files
 from mechanics import *
-from algorithms.node import Node
+from structures.gamenode import GameNode
 from algorithms.heuristics import *
 
-class UCTNode(Node):
+class MCNode(GameNode):
+    """
+    Main node structure for monte carlo search.
+    """
+
     total_visits = 0   # Tracks total UCT visits
     scale = math.sqrt(2)    # Sets scaling for exploration in UCB1 equations
 
@@ -37,48 +50,59 @@ class UCTNode(Node):
 
     def __init__(self, state, parent=None):
         super().__init__(state, parent)
-        self.wins = np.zeros([N_PLAYERS], dtype=float)  # Total wins/player
+        self.wins = np.zeros(N_PLAYERS)  # Total wins/player
 
     @property
     def visits(self):
-        """Returns total number of visits, inferring from children"""
+        """
+        Returns total number of visits, inferring from children
+        """
         return sum(self.wins)
 
     @property
     def score(self):
-        """Computes UCB1 score, i.e. exploitation + exploration"""
+        """
+        Computes UCB1 score, i.e. exploitation + exploration
+        """
         return self.Q() + self.U()
 
     def Q(self):
-        """Fetches exploitation factor, i.e. measures whether this path wins"""
+        """
+        Fetches exploitation factor, i.e. measures whether this path wins
+        """
         return self.wins[PLAYER_HASH[player(self.state)]] / (self.visits + 1)
 
     def U(self):
-        """Fetches exploration factor, i.e. measures extent of unexploration"""
+        """
+        Fetches exploration factor, i.e. measures extent of unexploration
+        """
         return UCTNode.scale * np.sqrt(math.log(UCTNode.total_visits) / (self.visits + 1))
 
     def select_simulation(self):
-        """Step 1 & 2 - recurse down to the best, unexpanded child.
+        """
+        Step 1 & 2 - recurse down to the best, unexpanded child.
         Then expand it and pick a child to simulate
-        :returns: chosen state to simulate"""
+        :returns: chosen state to simulate
+        """
         current = self
         while current.is_expanded:
-            scores = np.array([child.score for child in current.children])
+            scores = np.array([child.score if not child.is_dead else -math.inf for child in current.children])
             current = current.children[np.argmax(scores)]
 
         # Expand child and choose (randomly) a child of this to simulate
         return choice(current.children)
 
-    @staticmethod
-    def apply_heuristics(state):
-        """Evaluate a terminal simulation state with heuristics"""
-        total_exits = np.array(exits(state))
-        if game_over(state):
-            # Return who won e.g. 1 0 0 if red. Otherwise 0.33 0.33 0.33 if drawn
-            result = (total_exits == MAX_EXITS).astype(float)
+    def evaluate(state, heuristic=end_game_heuristic):
+        """
+        Evaluate a terminal simulation state with heuristics, otherwise
+        return a vector of winner (1 0 0) or tie (1/3 1/3 1/3)
+        """
+        if MAX_EXITS in exits(state):
+            result = (np.array(exits(state)) == MAX_EXITS).astype(float)
+        elif game_drawn(state, self.counts):
+            result = np.ones(N_PLAYERS)
         else:
-            # Returns who is leading (or the tie)
-            total = sum([np.array(f(state)) for f in [exits, desperation, speed_demon]])
+            total = np.array(heuristic(state))
             result = (total == total.max()).astype(float)
         return result / np.sum(result)
 
@@ -89,15 +113,14 @@ class UCTNode(Node):
         current = self.state
 
         # IDEA: Push to depth_limit randomly and return heuristic evaluation
+        simulation_counts = deepcopy(self.counts)
         for i in range(UCTNode.depth_limit):
-            try:
-                chosen_action = choice(possible_actions(current, player(current)))
-                current = apply_action(current, chosen_action)
-            except:
-                break
+            chosen_action = choice(possible_actions(current, player(current)))
+            current = apply_action(current, chosen_action)
+            if game_over(current)
                 # No actions exist - the game is over
 
-        return UCTNode.apply_heuristics(current)
+        return current.evaluate()
 
     def backpropagate(self, result):
         """Updates parents recursively (note that visits is implicit on wins)
@@ -108,36 +131,24 @@ class UCTNode(Node):
             current.wins = current.wins + result
             current = current.parent
 
-    def overthrow(self):
+    # Overrides in order to adjust totals
+    def kill_tree(self):
         """Recursively kill down each subtree, side-effect of updating wins/visits"""
-        for sibling in self.parent.children:
-            if sibling != self:
-                UCTNode.total_visits -= sibling.visits
-                sibling.kill_tree()
-        del(self.parent)
-        self.parent = None
+        UCTNode.total_visits -= self.visits
+        super().kill_tree()
 
     def search(self):
         """Performs the UCT search on a node for given iterations
         :returns: optimal action based on search"""
-        for _ in range(self.iterations):
+        for i in range(self.iterations):
             leaf = self.select_simulation()  # Steps 1 and 2
             result = leaf.simulate()  # Step 3
             leaf.backpropagate(result)   # Step 4
+
         # Return action of child that was most visited
         #### TODO: Some sources say focus on visits, others say wins,
         #### and one presumes others would say wins/visits. I don't know
         #### What's best.
-        child_visits = np.asarray([child.visits for child in self.children])
+        child_visits = np.array([child.visits for child in self.children])
         chosen_action = self.children[np.argmax(child_visits)].action
         return chosen_action
-
-    def __str__(self):
-        return "  > " * depth(self.state) + f"{id(self)} inherits from {id(self.parent)} - wins ({self.wins})"
-
-    def recursive_print(self):
-        """Prints tree structure"""
-        print(self)
-        if self.is_expanded:
-            for child in self.children:
-                child.recursive_print()
