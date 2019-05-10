@@ -25,11 +25,14 @@ MAX_DEPTH = 3
 
 ##############################################################
 
-def alpha_beta(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
+def alpha_beta(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH, assume_runner=True):
 
     if not depth_left:
-        evals = runner(state)
-        evals[PLAYER_HASH[max_player]] = heuristic(state)[PLAYER_HASH[max_player]]
+        if assume_runner:
+            evals = runner(state)
+            evals[PLAYER_HASH[max_player]] = heuristic(state)[PLAYER_HASH[max_player]]
+        else:
+            evals = heuristic(state)
         return (evals, None)
 
     best_action = None
@@ -54,14 +57,17 @@ def alpha_beta(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MA
             return (player_eval, best_action)
     return (player_eval, best_action)
 
-def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
+def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH, assume_runner=True):
     """
     Paranoid assuming a 1 vs rest scenario. Used when winning / losing given a certain threshold.
     The implementation also uses alpha-beta pruning, with the assumption of good ordering.
     """
     if not depth_left:
-        evals = runner(state)
-        evals[PLAYER_HASH[max_player]] = heuristic(state)[PLAYER_HASH[max_player]]
+        if assume_runner:
+            evals = runner(state)
+            evals[PLAYER_HASH[max_player]] = heuristic(state)[PLAYER_HASH[max_player]]
+        else:
+            evals = heuristic(state)
         return (evals, None)
 
     best_action = None
@@ -86,15 +92,18 @@ def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_
             return (player_eval, best_action)
     return (player_eval, best_action)
 
-def directed_offensive(state, heuristic, max_player, target, min_eval=inf, depth_left=MAX_DEPTH):
+def directed_offensive(state, heuristic, max_player, target, min_eval=inf, depth_left=MAX_DEPTH, assume_runner=True):
     """
     An algorithm aimed to MINIMISE a target player used in a 3 player scenario with no good pruning techniques possible.
     It will assume that all players will wish to maximise themselves (like a typical Max^n algorithm) but if we find an evaluation
     that minimises a target's evaluation and it is still beneficial to us, that becomes our "best action".
     """
     if not depth_left:
-        evals = runner(state)
-        evals[PLAYER_HASH[max_player]] = heuristic(state)[PLAYER_HASH[max_player]]
+        if assume_runner:
+            evals = runner(state)
+            evals[PLAYER_HASH[max_player]] = heuristic(state)[PLAYER_HASH[max_player]]
+        else:
+            evals = heuristic(state)
         # TODO PLAYER_HASH us self heuristic -> add fave hexes and desp
         return (evals, None)
 
