@@ -16,6 +16,7 @@ from math import inf
 
 # User-defined files
 from mechanics import possible_actions, apply_action
+from algorithms.heuristics import runner
 
 # Global Imports
 from mechanics import PLAYER_HASH, N_PLAYERS
@@ -27,7 +28,8 @@ MAX_DEPTH = 3
 def alpha_beta(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
 
     if not depth_left:
-        evals = heuristic(state)
+        evals = runner(state)
+        evals[PLAYER_HASH[max_player]] = heuristic(state)[PLAYER_HASH[max_player]]
         return (evals, None)
 
     best_action = None
@@ -58,7 +60,8 @@ def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_
     The implementation also uses alpha-beta pruning, with the assumption of good ordering.
     """
     if not depth_left:
-        evals = heuristic(state)
+        evals = runner(state)
+        evals[PLAYER_HASH[max_player]] = heuristic(state)[PLAYER_HASH[max_player]]
         return (evals, None)
 
     best_action = None
@@ -90,8 +93,9 @@ def directed_offensive(state, heuristic, max_player, target, min_eval=inf, depth
     that minimises a target's evaluation and it is still beneficial to us, that becomes our "best action".
     """
     if not depth_left:
-        evals = heuristic(state)
-        # TODO playerhash us self heuristic -> add fave hexes and desp
+        evals = runner(state)
+        evals[PLAYER_HASH[max_player]] = heuristic(state)[PLAYER_HASH[max_player]]
+        # TODO PLAYER_HASH us self heuristic -> add fave hexes and desp
         return (evals, None)
 
     max_player_evals = [-inf]*N_PLAYERS
@@ -128,7 +132,7 @@ def negamax(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_D
     """
 
     if not depth_left:
-        evals = heuristic(state)[PLAYER_HASH[max_player]]
+        evals = runner(state)[PLAYER_HASH[max_player]]
         return (-evals, None)
 
     best_action = None
@@ -154,7 +158,7 @@ def max_n(state, heuristic, depth_left=MAX_DEPTH):
     Pretty useless and it isn't really called at all during our game.
     """
     if not depth_left:
-        evals = heuristic(state)
+        evals = runner(state)
         return (evals, None)
 
     max_player_evals = [-inf]*N_PLAYERS
