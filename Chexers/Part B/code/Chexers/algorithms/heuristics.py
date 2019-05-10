@@ -164,8 +164,8 @@ def end_game_heuristic(state):
     Tribute to Marvel's End Game.
     This is the default evaluation function
     """
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_unreal]])
-    weights = [1, 0.1, 1, 1.5, 0.1]
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
+    weights = [1, 0.1, 0.5, 1.5, 0.75]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
@@ -180,8 +180,6 @@ def runner(state):
     weights = [0.75, 1, 10]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
-
 
 def action_sort(state, heuristics=[exits, achilles]):
     """
