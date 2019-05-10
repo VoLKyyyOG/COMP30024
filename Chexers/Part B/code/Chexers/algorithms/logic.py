@@ -35,11 +35,11 @@ from mechanics import PLAYER_NAMES, PLAYER_HASH, N_PLAYERS
 
 ########################### GLOBALS ##########################
 
-KILL_DEPTH = 3
-PARANOID_MAX_DEPTH = 3
-TWO_PLAYER_MAX_DEPTH = 4
+KILL_DEPTH = 3 # multiple of 3 to make sure the achilles of our last move is g (1 full turn look ahead)
+PARANOID_MAX_DEPTH = 3 # multiple of 3 to make sure the achilles of our last move is g (1 full turn look ahead)
+TWO_PLAYER_MAX_DEPTH = 4 # multiple of 2 to make sure the achilles of our last move is g (2 full turns look ahead)
 DEFAULT_DEPTH = 3
-MAX_UTIL_VAL = 7 # TODO: Calculate a max utility value! For now, this is the equivalent of a "free" exit (worth 10 points)
+MAX_UTIL_VAL = 5 # TODO: Calculate a max utility value! For now, this is the equivalent of a "free" exit (worth 10 points)
 
 ##############################################################
 """
