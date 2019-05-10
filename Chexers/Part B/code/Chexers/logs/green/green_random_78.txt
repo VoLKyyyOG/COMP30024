@@ -1,0 +1,2 @@
+time: 7.376249313354492
+winner: Green

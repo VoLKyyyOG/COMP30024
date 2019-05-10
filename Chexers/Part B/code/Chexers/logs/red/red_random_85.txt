@@ -1,0 +1,2 @@
+time: 13.103960514068604
+draw detected: maximum number of turns reached.
