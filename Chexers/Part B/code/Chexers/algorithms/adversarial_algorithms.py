@@ -44,10 +44,10 @@ def alpha_beta(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MA
             # MaximisingPlayer wants to maximise alpha
             if player_eval[index] > alpha:
                 alpha, best_action = player_eval[index], action
-
-        # MinimisingPlayer wants to worsen beta
-        elif player_eval[index] < beta:
-            beta, best_action = player_eval[index], action
+        else:
+            # MinimisingPlayer wants to worsen beta
+            if player_eval[index] < beta:
+                beta, best_action = player_eval[index], action
 
         if alpha >= beta:
             return (player_eval, best_action)
@@ -75,10 +75,10 @@ def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_
             # MaximisingPlayer wants to maximise alpha
             if player_eval[index] > alpha:
                 alpha, best_action = player_eval[index], action
-
-        # MinimisingPlayer wants to worsen beta
-        elif player_eval[index] < beta:
-            beta, best_action = player_eval[index], action
+        else:
+            # MinimisingPlayer wants to worsen beta
+            if player_eval[index] < beta:
+                beta, best_action = player_eval[index], action
 
         if alpha >= beta:
             return (player_eval, best_action)
