@@ -162,22 +162,38 @@ def end_game_proportion(state):
 def end_game_heuristic(state):
     """
     Tribute to Marvel's End Game.
-    This is the default evaluation function
+    A very well thought out heuristic after several simulations and runs.
+    :eval: number of piece in excess + distance + favourable hex positions + number of exits + number of capturable pieces
+    :priorities: number of pieces in excess and exits, but will lean towards a favourable hex over distance and attempt to minimise
+                 the number of capturable pieces.
+
+    ORIGINAL WEIGHTS: weights = [1, 0.1, 0.5, 1.5, 0.75] (ties as red vs runner)
+
+    NEW WEIGHTS!!! eights = [1, 0.25, 0.1, 1.5, 0.5] (too easy)
     """
     evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
-    weights = [1, 0.1, 0.5, 1.5, 0.75]
-
-    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
-def two_player_heuristics(state):
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_unreal]])
-    weights = [2, 0.1, 1, 10, 0.25]
+    weights = [1, 0.2, 0.1 , 2, 0.25]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def runner(state):
+    """
+    Simple Paranoid Heuristic.
+    :eval: distance + number of pieces + number of exits
+    :priorities: number of pieces over distance, but will always exit if possible.
+    """
     evals = np.array([f(state) for f in [speed_demon, no_pieces, exits]])
     weights = [0.75, 1, 10]
+
+    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
+
+def greedy(state):
+    """
+    Simple Greedy Heuristic.
+    :eval: distance + number of pieces + number of exits
+    """
+    evals = np.array([f(state) for f in [speed_demon, no_pieces, exits]])
+    weights = [1, 1, 1]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
@@ -200,6 +216,12 @@ def action_sort(state, heuristics=[exits, achilles]):
 
 
 ################## DEPRECIATED
+
+def two_player_heuristics(state):
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_unreal]])
+    weights = [2, 0.1, 1, 10, 0.25]
+
+    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def nerfed_desperation(state):
     """

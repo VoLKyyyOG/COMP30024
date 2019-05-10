@@ -91,6 +91,7 @@ def directed_offensive(state, heuristic, max_player, target, min_eval=inf, depth
     """
     if not depth_left:
         evals = heuristic(state)
+        # TODO playerhash us self heuristic -> add fave hexes and desp
         return (evals, None)
 
     max_player_evals = [-inf]*N_PLAYERS

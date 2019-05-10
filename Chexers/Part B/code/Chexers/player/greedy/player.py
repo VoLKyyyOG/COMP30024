@@ -11,7 +11,7 @@ from math import inf
 
 # User-defined files
 from mechanics import *
-from algorithms.heuristics import speed_demon
+from algorithms.heuristics import greedy
 
 class GreedyPlayer:
     def __init__(self, colour):
@@ -53,7 +53,7 @@ class GreedyPlayer:
             if action[0] == "EXIT":
                 return action
             new_state = apply_action(self.state, action)
-            new_eval = speed_demon(new_state)[PLAYER_HASH[self.colour]]
+            new_eval = greedy(new_state)[PLAYER_HASH[self.colour]]
             if new_eval > best_eval:
                 best_eval = new_eval
                 best_action = action
