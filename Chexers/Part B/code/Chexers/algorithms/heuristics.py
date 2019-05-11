@@ -172,7 +172,13 @@ def end_game_heuristic(state):
     NEW WEIGHTS!!! eights = [1, 0.25, 0.1, 1.5, 0.5] (too easy)
     """
     evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
-    weights = [1, 0.2, 0.1 , 2, 0.25]
+    weights = [1, 0.2, 0.1 , 2.5, 0.25]
+
+    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
+
+def two_player_heuristics(state):
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
+    weights = [2, 0.4, 0.2, 5, 0.5]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
@@ -183,7 +189,7 @@ def runner(state):
     :priorities: number of pieces over distance, but will always exit if possible.
     """
     evals = np.array([f(state) for f in [speed_demon, no_pieces, exits]])
-    weights = [0.75, 1, 10]
+    weights = [0.75, 1, 15]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
@@ -206,12 +212,6 @@ def action_sort(state, heuristics=[exits, achilles]):
         pass
 
 ########################### DEPRECIATED HEURISTICS ##########################
-
-def two_player_heuristics(state):
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_unreal]])
-    weights = [2, 0.1, 1, 10, 0.25]
-
-    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def nerfed_desperation(state):
     """

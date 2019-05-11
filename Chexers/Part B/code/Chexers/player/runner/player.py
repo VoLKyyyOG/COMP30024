@@ -9,7 +9,7 @@ Uses number_of_pieces_lost = 0 and retrograde_dijkstra as heuristic
 ########################### IMPORTS ##########################
 # User-defined files
 from mechanics import *
-from moves import get_cubic, get_axial
+from moves import get_cubic, get_axial, exit_action
 from algorithms.adversarial_algorithms import paranoid, alpha_beta
 from algorithms.heuristics import *
 from algorithms.partA.search import part_A_search
@@ -40,10 +40,13 @@ class RunnerPlayer:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        if self.depth%13 == 0:
+        if self.depth%18 == 0:
             return choice(possible_actions(self.state, self.colour))
 
         if is_dead(self.state, self.colour):
             return ("PASS", None)
         else:
+            possible_exits = exit_action(self.state, self.colour)
+            if self.state['exits'][self.colour] == 3 and len(possible_exits) > 0:
+                return possible_exits[0]
             return paranoid(self.state, runner, self.colour)[1]

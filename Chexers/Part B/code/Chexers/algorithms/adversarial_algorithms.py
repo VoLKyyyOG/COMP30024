@@ -53,13 +53,15 @@ def alpha_beta(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MA
             return (player_eval, best_action)
     return (player_eval, best_action)
 
-def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
+def paranoid(state, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH, loser=False):
     """
     Paranoid assuming a 1 vs rest scenario. Used when winning / losing given a certain threshold.
     The implementation also uses alpha-beta pruning, with the assumption of good ordering.
     """
     if not depth_left:
         evals = heuristic(state)
+        if loser:
+            evals[PLAYER_HASH[max_player]] += desperation(state)[PLAYER_HASH[max_player]]
         return (evals, None)
 
     best_action = None

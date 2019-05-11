@@ -45,7 +45,7 @@ class GreedyPlayer:
         if len(self.state[self.colour]) == 0:
             return ("PASS",None)
 
-        if self.depth%13 == 0:
+        if self.depth%18 == 0:
             return choice(possible_actions(self.state, self.colour))
 
         best_eval, best_action = -inf, None

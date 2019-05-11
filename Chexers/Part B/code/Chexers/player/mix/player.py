@@ -17,7 +17,7 @@ from book import opening_moves
 
 from algorithms.logic import mp_mix
 from algorithms.adversarial_algorithms import paranoid
-from algorithms.heuristics import achilles_unreal, speed_demon, end_game_heuristic, two_player_heuristics
+from algorithms.heuristics import achilles_unreal, two_player_heuristics, end_game_heuristic, runner
 from algorithms.partA.search import part_A_search
 
 # Global imports
@@ -27,7 +27,7 @@ PATH = list()
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 0 # The first three moves for each player (four possible good moves)
+    MID_GAME_THRESHOLD = 12 # The first two moves for each player (four possible good moves)
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
@@ -52,7 +52,7 @@ class MPMixPlayer:
         if not self.state[self.colour]:
             return ("PASS", None)
 
-        if self.clock <= 70:
+        if self.clock <= 50:
             start = process_time()
 
             if num_opponents_dead(self.state) == 1:
@@ -79,6 +79,7 @@ class MPMixPlayer:
     def early_game(self):
         """
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
+        If opening move not available, run paranoid and make sure that we maintain good piece structure
         """
         return opening_moves(self.state, self.colour) if not False else paranoid(self.state, achilles_unreal, self.colour)
 
@@ -185,7 +186,7 @@ class MPMixPlayer:
         best_eval, best_action = -inf, None
         for action in possible_actions(self.state, self.colour):
             new_state = apply_action(self.state, action)
-            new_eval = speed_demon(new_state)[PLAYER_HASH[self.colour]]
+            new_eval = runner(new_state)[PLAYER_HASH[self.colour]]
             if new_eval > best_eval:
                 best_eval = new_eval
                 best_action = action

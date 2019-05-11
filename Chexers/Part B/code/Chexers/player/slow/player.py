@@ -40,12 +40,15 @@ class Slow:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        if self.depth%100000 == 0:
+        if self.depth%18 == 0:
             return choice(possible_actions(self.state, self.colour))
 
         if is_dead(self.state, self.colour):
             return ("PASS", None)
         else:
+            possible_exits = exit_action(self.state, self.colour)
+            if self.state['exits'][self.colour] == 3 and len(possible_exits) > 0:
+                return possible_exits[0]
             action = max_n(self.state, runner)[1]
             if action == None:
                 action = possible_actions(self.state, self.colour, sort=True)[0]

@@ -1,2 +1,0 @@
-time: 25.70527172088623
-draw detected: game state occurred 4 times.

@@ -1,2 +1,1 @@
-time: 0.7679750919342041
-winner: Green
+illegal action detected (green): False.
