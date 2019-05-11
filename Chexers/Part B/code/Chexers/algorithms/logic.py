@@ -76,7 +76,7 @@ def mp_mix(state, heuristic, defence_threshold=0, offence_threshold=0, two_playe
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| RIVAL - USING DIRECTED OFFENSIVE AGAINST LEADER  {leader} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, heuristic, max_player, leader, depth_left=KILL_DEPTH)[1]
     else: # leader doesnt have exits so whatever
-        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| RIVAL - USING PARANOID {leader} | DEPTH = {DEFAULT_DEPTH}")
+        print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| RIVAL - USING PARANOID | DEPTH = {DEFAULT_DEPTH}")
         return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
     # If we are losing then we are desperate :^)
@@ -136,7 +136,7 @@ def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_t
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| WE ARE SIGNIFICANTLY AHEAD - DOING A RUNNER AGAINST OPPONENT")
         return False
 
-    if sum(no_pieces(state)) > 8:
+    if sum(no_pieces(state)) >= 8:
         depth = 2
 
     if sum(no_pieces(state)) < 5: # less than six pieces on board
