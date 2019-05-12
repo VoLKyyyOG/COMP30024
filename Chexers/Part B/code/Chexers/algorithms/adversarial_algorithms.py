@@ -116,7 +116,7 @@ def directed_offensive(state, counts, heuristic, max_player, target, min_eval=in
     generated_actions = possible_actions(state, player, sort=(player==max_player))
     for action in generated_actions:
         new_state = apply_action(state, action)
-        player_eval = directed_offensive(new_state, heuristic, max_player, target, min_eval, depth_left-1)[0]
+        player_eval = directed_offensive(new_state, counts, heuristic, max_player, target, min_eval, depth_left-1)[0]
 
         if player != max_player:
 
