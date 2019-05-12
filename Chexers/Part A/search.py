@@ -50,7 +50,7 @@ def main():
         print(pikawin)
     else:
         print(f'# ERROR: No solution found at this depth')
-        
+
 # when this module is executed, run the `main` function:
 if __name__ == '__main__':
     main()

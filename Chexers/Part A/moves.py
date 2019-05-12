@@ -117,8 +117,3 @@ def dijkstra_board(state):
                     cost[new] = est_cost
                 queue.put((cost[new], new))
     return cost
-
-
-
-def move_action(state, occupied):
-    

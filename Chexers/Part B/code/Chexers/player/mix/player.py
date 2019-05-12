@@ -18,7 +18,7 @@ from book import opening_moves
 from algorithms.logic import mp_mix
 from algorithms.adversarial_algorithms import paranoid
 from algorithms.heuristics import achilles_unreal, two_player_heuristics, end_game_heuristic, runner
-from algorithms.partA.search import part_A_search
+from algorithms.IDA import part_A_search
 
 # Global imports
 from mechanics import PLAYER_HASH, MAX_EXITS
@@ -131,11 +131,14 @@ class MPMixPlayer:
 
             alive_opponent = get_remaining_opponent(self.state)
 
-            temp = sorted([get_cubic_ordered(tup) for tup in self.state[self.colour]], reverse=True)
+            temp = sorted(
+                [get_cubic_ordered(tup) for tup in self.state[self.colour]],
+                key=lambda x: x[PLAYER_HASH[self.colour]],
+                reverse=True
+            )
             state['pieces'] = [get_axial_ordered(tup) for tup in temp[:n]]
             state['blocks'] = [get_axial_ordered(tup) for tup in temp[n:]] + self.state[alive_opponent]
-
-            action = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1] # attempting the runner so take first move
+            action = list(map(lambda x: x.action_made, part_A_search(state)))[1] # attempting the runner so take first move
             # (pos, flag, new_pos=None)
 
             return (FLAGS[action[1]], action[0]) if FLAGS[action[1]] == "EXIT" else (FLAGS[action[1]], (action[0], action[2]))
@@ -147,13 +150,18 @@ class MPMixPlayer:
 
             # TODO: Calculate jump distance for each piece and then return closest pieces for exit
             n_exited = self.state["exits"][self.colour]
-            n = 4 - n_exited
+            n = MAX_EXITS - n_exited
 
-            temp = sorted([get_cubic_ordered(tup) for tup in self.state[self.colour]], reverse=True)
+            temp = sorted(
+                [get_cubic_ordered(tup) for tup in self.state[self.colour]],
+                key=lambda x: x[PLAYER_HASH[self.colour]],
+                reverse=True
+            )
             state['pieces'] = [get_axial_ordered(tup) for tup in temp[:n]]
             state['blocks'] = [get_axial_ordered(tup) for tup in temp[n:]]
 
-            PATH = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1:]
+            PATH = list(map(lambda x: x.action_made, part_A_search(state)))[1:]
+            print(PATH)
 
             # (pos, flag, new_pos=None)
             PATH = [(FLAGS[x[1]], x[0]) if FLAGS[x[1]] == "EXIT" else (FLAGS[x[1]], (x[0], x[2])) for x in PATH]

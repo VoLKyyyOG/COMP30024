@@ -12,7 +12,6 @@ from mechanics import *
 from moves import get_cubic, get_axial
 from algorithms.adversarial_algorithms import max_n
 from algorithms.heuristics import *
-from algorithms.partA.search import part_A_search
 from random import choice
 
 PATH = list()

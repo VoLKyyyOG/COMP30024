@@ -5,7 +5,7 @@ Always appends to tests
 
 """
 
-from print_debug import *
+from formatting import *
 from moves import *
 
 def program_board():

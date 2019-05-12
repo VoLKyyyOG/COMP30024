@@ -288,10 +288,10 @@ def retrograde_dijkstra(state):
     return cost
 
 def dijkstra_board(state, colour):
+    raise NotImplementedError
     """Evaluates minimum cost to exit for each non-block position"""
-    #### TODO: Given dynamic board, forcing 'moves only' i.e. jump_heuristic may be more accurate
-    #### Otherwise this is a forward unto death greedy heuristic
 
+    # First fetch all goals unoccupied by enemys
     valid_goals = set(GOALS[colour])
     #occupied = set()
 
