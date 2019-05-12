@@ -203,13 +203,22 @@ def greedy(state):
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
-def action_sort(state, heuristics=[exits, achilles]):
+def action_sort(possible_actions, heuristics=[exits, achilles]):
+    """
+    Sorts actions by value of heuristic
+    """
+    scores = dict()
+    for action in possible_actions:
+        new_state = apply_action(state, action)
+        scores[action] = [h(new_state) for h in heuristics]
+    # Return sorted order
+    return dict(sorted(scores.items(), key=lambda tup: tup[1][PLAYER_HASH[colour]], reverse=True)).keys()
+
+def possible_actions_sorted(state, heuristics=[exits, achilles]):
     """
     Sorts possible actions by value of heuristic
     """
-    scores = np.array([0]*N_PLAYERS)
-    for action in possible_actions(state, state['turn']):
-        pass
+    return action_sort(possible_actions(state, state['turn']))
 
 ########################### DEPRECIATED HEURISTICS ##########################
 
@@ -279,6 +288,7 @@ def killer(state):
 
 
 def retrograde_dijkstra(state):
+    raise NotImplementedError
     """
     Computes minimal traversal distance to exit for all N players
     :returns: vector of distances
