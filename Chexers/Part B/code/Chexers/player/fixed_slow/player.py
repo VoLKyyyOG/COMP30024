@@ -7,6 +7,7 @@ Uses number_of_pieces_lost = 0 and retrograde_dijkstra as heuristic
 """
 
 ########################### IMPORTS ##########################
+from collections import defaultdict
 # User-defined files
 from mechanics import *
 from moves import get_cubic, get_axial
@@ -25,6 +26,7 @@ class Slow:
         self.state = create_initial_state()
         self.depth = 0
         self.colour = colour
+        self.counts = defaultdict(int)
 
     def update(self, colour, action):
         """
@@ -32,6 +34,7 @@ class Slow:
         turns) to inform your player about the most recent, assumedly correct,
         action."""
         self.state = apply_action(self.state, action)
+        self.counts[Z_hash(self.state)] += 1
 
     def action(self):
         self.depth += 1
@@ -45,7 +48,7 @@ class Slow:
             possible_exits = exit_action(self.state, self.colour)
             if self.state['exits'][self.colour] == 3 and len(possible_exits) > 0:
                 return possible_exits[0]
-            action = max_n(self.state, runner)[1]
+            action = max_n(self.state, self.counts, runner)[1]
             if action == None:
                 action = possible_actions(self.state, self.colour, sort=True)[0]
             return action

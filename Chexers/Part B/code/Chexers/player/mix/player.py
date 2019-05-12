@@ -9,15 +9,21 @@
 # Standard modules
 from math import inf
 from time import process_time
+from collections import defaultdict
 
 # User-defined files
-from mechanics import create_initial_state, num_opponents_dead, apply_action, possible_actions, get_remaining_opponent
+from mechanics import (
+    create_initial_state, num_opponents_dead, apply_action, possible_actions,
+    get_remaining_opponent, Z_hash
+)
 from moves import get_axial_ordered, get_cubic_ordered
 from book import opening_moves
 
 from algorithms.logic import mp_mix
 from algorithms.adversarial_algorithms import paranoid
-from algorithms.heuristics import achilles_unreal, two_player_heuristics, end_game_heuristic, runner
+from algorithms.heuristics import (
+    achilles_unreal, two_player_heuristics, end_game_heuristic, runner
+)
 from algorithms.IDA import part_A_search
 
 # Global imports
@@ -38,12 +44,14 @@ class MPMixPlayer:
         self.state = create_initial_state()
         self.state['p_col'] = 'red'
         self.clock = 0
+        self.counts = defaultdict(int)
 
     def update(self, colour, action):
         """
         Updates a players action and adds a turn count.
         """
         self.state = apply_action(self.state, action)
+        self.counts[Z_hash(self.state)] += 1
 
     def action(self):
         """
@@ -88,7 +96,7 @@ class MPMixPlayer:
         :strategy: Runs the MP-Mix Algorithm.
         :returns: The best evaluated function. If True is returned, we are at a good level to attempt a greedy approach.
         """
-        action = mp_mix(self.state, end_game_heuristic, defence_threshold=0, offence_threshold=0)
+        action = mp_mix(self.state, self.counts, end_game_heuristic, defence_threshold=0, offence_threshold=0)
 
         if action == True: # if True then run Greedy
             return self.end_game()
@@ -100,7 +108,7 @@ class MPMixPlayer:
                    This works because paranoid defaults to alpha-beta by ignoring
                    dead players.
         """
-        action = mp_mix(self.state, two_player_heuristics, defence_threshold=0, offence_threshold=0, two_player=True)
+        action = mp_mix(self.state, self.counts, two_player_heuristics, defence_threshold=0, offence_threshold=0, two_player=True)
         if action is False: # If False just use Dijkstra (we are sufficiently ahead)
             action =  self.djikstra(single_player=False)
         elif action is True: # if True then run Greedy
@@ -191,12 +199,14 @@ class MPMixPlayer:
         """
         :strategy: Choose the best action without considering opponent moves.
         """
-        best_eval, best_action = -inf, None
+        best_eval, best_action, best_new_action = -inf, None, None
+
         for action in possible_actions(self.state, self.colour):
             new_state = apply_action(self.state, action)
             new_eval = runner(new_state)[PLAYER_HASH[self.colour]]
             if new_eval > best_eval:
                 best_eval = new_eval
                 best_action = action
-
-        return best_action
+                if Z_hash(new_state) not in self.counts:
+                    best_new_action = action
+        return best_new_action if not None else best_action

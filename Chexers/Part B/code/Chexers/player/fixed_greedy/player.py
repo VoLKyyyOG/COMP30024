@@ -8,6 +8,7 @@ Base class for a Greedy Player.
 # Standard modules
 from random import choice
 from math import inf
+from collections import defaultdict
 
 # User-defined files
 from mechanics import *
@@ -25,6 +26,7 @@ class GreedyPlayer:
         self.colour = colour
         self.depth = 0
         self.state = create_initial_state()
+        self.counts = defaultdict(int)
 
     def update(self, colour, action):
         """
@@ -33,6 +35,7 @@ class GreedyPlayer:
         action.
         """
         self.state = apply_action(self.state, action)
+        self.counts[Z_hash(self.state)] += 1
 
     ################# DEFINE EVERY IMPLEMENTATION ################
 

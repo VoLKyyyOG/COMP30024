@@ -45,14 +45,14 @@ MAX_UTIL_VAL = 5 # TODO: Calculate a max utility value! For now, this is the equ
 """
 MP-Mix Core Implementation
 """
-def mp_mix(state, heuristic, defence_threshold=0, offence_threshold=0, two_player=False):
+def mp_mix(state, counts, heuristic, defence_threshold=0, offence_threshold=0, two_player=False):
     """
     Main function for MP-Mix.
     :strategy: Always returns exits if we are way ahead (force_exit)
                 Otherwise pulls logic of 2/3 player game depending on state
     :return: vector of valuations
     """
-    
+
     # The max_player (us)
     max_player = state["turn"]
 
@@ -64,29 +64,29 @@ def mp_mix(state, heuristic, defence_threshold=0, offence_threshold=0, two_playe
         return move
 
     if two_player:
-        return two_player_logic(state, heuristic, max_player, leader_edge, depth=TWO_PLAYER_MAX_DEPTH, defence_threshold=MAX_UTIL_VAL)
-    
+        return two_player_logic(state, counts, heuristic, max_player, leader_edge, depth=TWO_PLAYER_MAX_DEPTH, defence_threshold=MAX_UTIL_VAL)
+
     # If we are the leader, we use a running heuristics which avoids conflict to the goal
     if max_player == leader:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| LEADER - USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
-        return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
-    
+        return paranoid(state, counts, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
+
     # If we are the rival and we have excess pieces, we will attack the leader
     if max_player == rival and desperation(state)[PLAYER_HASH[max_player]] > 0 and state['exits'][leader] > 0:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| RIVAL - USING DIRECTED OFFENSIVE AGAINST LEADER  {leader} | DEPTH = {KILL_DEPTH}")
-        return directed_offensive(state, heuristic, max_player, leader, depth_left=KILL_DEPTH)[1]
+        return directed_offensive(state, counts, heuristic, max_player, leader, depth_left=KILL_DEPTH)[1]
     else: # leader doesnt have exits so whatever
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| RIVAL - USING PARANOID | DEPTH = {DEFAULT_DEPTH}")
-        return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
+        return paranoid(state, counts, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH)[1]
 
     # If we are losing then we are desperate :^)
     if max_player == loser:
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| LOSER - USING PARANOID | DEPTH = {PARANOID_MAX_DEPTH}")
-        return paranoid(state, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH, loser=True)[1]
+        return paranoid(state, counts, heuristic, max_player, depth_left=PARANOID_MAX_DEPTH, loser=True)[1]
 
     # Otherwise, we will just use our default OP heuristic
     print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| DEFAULTING TO MAX N (RIVAL) | DEPTH = {DEFAULT_DEPTH}")
-    return max_n(state, heuristic, depth_left=DEFAULT_DEPTH)[1]
+    return max_n(state, counts, heuristic, depth_left=DEFAULT_DEPTH)[1]
 
 def score(state, heuristic):
     """
@@ -116,7 +116,7 @@ def winning_move(state, max_player, two_player=False):
     possible_exits = exit_action(state, max_player)
     if state['exits'][max_player] == 3 and len(possible_exits) > 0:
         return (possible_exits[0], True)
-    
+
     if two_player:
         alive_opponent = get_remaining_opponent(state)
         occupied_hexes = function_occupied(state, PLAYER_NAMES)
@@ -125,7 +125,7 @@ def winning_move(state, max_player, two_player=False):
             return (captures[0], True)
     return (None, False)
 
-def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_threshold=0):
+def two_player_logic(state, counts, heuristic, max_player, leader_edge, depth, defence_threshold=0):
     """
     MP-Mix 2 player strategy (no need to be offensive).
     :default: alpha_beta which will have a higher depth if sparse
@@ -144,4 +144,4 @@ def two_player_logic(state, heuristic, max_player, leader_edge, depth, defence_t
 
     print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| ALPHA-BETA AGAINST REMAINING PLAYER USING TWO_PLAYER_HEURISTICS | DEPTH = {depth}")
     # if distance is close to enemy goal, troll them. Else run to our own goal using different heuristic.
-    return alpha_beta(state, heuristic, max_player, depth_left=depth)[1]
+    return alpha_beta(state, counts, heuristic, max_player, depth_left=depth)[1]
