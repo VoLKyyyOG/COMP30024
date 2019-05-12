@@ -15,8 +15,8 @@ ADVERSARIAL SEARCH ALGORITHMS:
 from math import inf
 
 # User-defined files
-from mechanics import possible_actions, apply_action
 from algorithms.heuristics import desperation
+from mechanics import possible_actions, apply_action, Z_hash
 
 # Global Imports
 from mechanics import PLAYER_HASH, N_PLAYERS
