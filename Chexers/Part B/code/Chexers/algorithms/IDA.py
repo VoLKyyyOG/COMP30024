@@ -25,7 +25,7 @@ from mechanics import (
 )
 from mechanics import Z_hash
 from moves import add
-from algorithms.PARTA.search import printing, original_search
+from algorithms.partA.search import printing, original_search
 
 # action_flags for use in action tuples
 MOVE, JUMP, EXIT = 0, 1, 2
