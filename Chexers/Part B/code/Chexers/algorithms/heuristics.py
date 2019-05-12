@@ -15,7 +15,10 @@ import numpy as np
 
 # User-defined functions
 from moves import add, sub, get_cubic_ordered, exit_action, jump_action
-from mechanics import two_players_left, function_occupied, is_capture, is_dead, get_remaining_opponent
+from mechanics import (
+    two_players_left, function_occupied, is_capture, is_dead,
+    get_remaining_opponent, apply_action, possible_actions
+)
 
 # Global Imports
 from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, CORNER_SET, OPPONENT_GOALS, GOALS
@@ -203,22 +206,17 @@ def greedy(state):
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
-def action_sort(possible_actions, heuristics=[exits, achilles]):
-    """
-    Sorts actions by value of heuristic
-    """
-    scores = dict()
-    for action in possible_actions:
-        new_state = apply_action(state, action)
-        scores[action] = [h(new_state) for h in heuristics]
-    # Return sorted order
-    return dict(sorted(scores.items(), key=lambda tup: tup[1][PLAYER_HASH[colour]], reverse=True)).keys()
-
-def possible_actions_sorted(state, heuristics=[exits, achilles]):
+def possible_actions_sorted(state, colour, heuristics, sort=False):
     """
     Sorts possible actions by value of heuristic
     """
-    return action_sort(possible_actions(state, state['turn']))
+    scores = dict()
+    for action in possible_actions(state, colour, sort):
+        new_state = apply_action(state, action)
+        scores[action] = np.array([h(new_state) for h in heuristics])
+    # Return sorted order
+    #### TODO: Needs debugging
+    return dict(sorted(scores.items(), key=lambda tup: np.array(tup[1])[:, PLAYER_HASH[colour]], reverse=True)).keys()
 
 ########################### DEPRECIATED HEURISTICS ##########################
 
