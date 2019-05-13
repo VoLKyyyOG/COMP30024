@@ -1,2 +1,2 @@
-time: 2.819434881210327
-draw detected: game state occurred 4 times.
+time: 10.231852769851685
+winner: Blue

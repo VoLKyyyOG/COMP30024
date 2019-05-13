@@ -136,10 +136,10 @@ def two_player_logic(state, counts, heuristic, max_player, leader_edge, depth, d
         print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| WE ARE SIGNIFICANTLY AHEAD - DOING A RUNNER AGAINST OPPONENT")
         return False
 
-    if sum(no_pieces(state)) >= 8:
+    if sum(no_pieces(state)) >= 6: # less than six pieces on board
         depth = 2
 
-    if sum(no_pieces(state)) < 5: # less than six pieces on board
+    if sum(no_pieces(state)) <= 4: # less than six pieces on board
         depth = 6
 
     print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| ALPHA-BETA AGAINST REMAINING PLAYER USING TWO_PLAYER_HEURISTICS | DEPTH = {depth}")

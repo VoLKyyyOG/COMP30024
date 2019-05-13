@@ -156,6 +156,20 @@ def favourable_hexes(state):
 
     return sum([np.array(eval) for eval in [corner_hex, block_exit_hex]])
 
+def block(state):
+    """
+    Favourable hex positions:
+    1. Corner hexes
+    2. Enemy exit hex positions
+    """
+    try:
+        alive_opponent = get_remaining_opponent(state)
+        corner_hex = [len(set(state[alive_opponent]).intersection(CORNER_SET))]
+        block_exit_hex = [len(set(state[alive_opponent]).intersection(OPPONENT_GOALS[alive_opponent]))]
+        return sum([np.array(eval) for eval in [corner_hex, block_exit_hex]])
+    except:
+        return np.array([0,0,0])
+
 def end_game_proportion(state):
     evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
     weights = [1, 0.2, 0.1 , 2.5, 0.25]
@@ -169,19 +183,15 @@ def end_game_heuristic(state):
     :eval: number of piece in excess + distance + favourable hex positions + number of exits + number of capturable pieces
     :priorities: number of pieces in excess and exits, but will lean towards a favourable hex over distance and attempt to minimise
                  the number of capturable pieces.
-
-    ORIGINAL WEIGHTS: weights = [1, 0.1, 0.5, 1.5, 0.75] (ties as red vs runner)
-
-    NEW WEIGHTS!!! eights = [1, 0.25, 0.1, 1.5, 0.5] (too easy)
     """
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
+    evals = np.array([f(state) for f in [desperation, speed_demon, block, favourable_hexes, achilles_real]])
     weights = [1, 0.2, 0.1 , 2.5, 0.25]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def two_player_heuristics(state):
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
-    weights = [2, 0.4, 0.2, 5, 0.5]
+    evals = np.array([f(state) for f in [desperation, speed_demon, block, exits, achilles_real]])
+    weights = [2, 0.4, 0.1, 5, 0.5]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
@@ -248,30 +258,6 @@ def utility(state):
     evals = np.array([f(state) for f in [exits, nerfed_desperation, speed_demon]])
     weights = np.array([1, 1, 1.0 / 12]) # Displacement ranges up to 24
     return sum(map(lambda x,y: x*y, evals, weights))
-def corner_hexes(state):
-    """
-    See if a piece is in a corner hex (untakeable)
-    TODO: MAKE IT ENEMY GOAL HEX POSITION
-    """
-    return np.array([len(set(state[player]).intersection(CORNER_SET).difference(STARTS[player])) for player in PLAYER_NAMES])
-
-# TODO STRAT FIX
-def troll(state):
-    p = state['p_col']
-    target = get_remaining_opponent(state)
-    desp = desperation(state)[PLAYER_HASH[p]]
-    mad = [0,0,0]
-    if desp >= 2:
-        total_disp = lambda player: sum([get_cubic_ordered(piece)[PLAYER_HASH[target]] -
-            MAX_COORDINATE_VAL for piece in state[player]])
-        mad = np.array([total_disp(player) if player == p else -inf for player in PLAYER_NAMES])
-    return mad
-
-def killer(state):
-    evals = np.array([f(state) for f in [no_pieces, achilles_unreal]])
-    weights = [2.5, 1]
-    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
 
 def retrograde_dijkstra(state):
     raise NotImplementedError

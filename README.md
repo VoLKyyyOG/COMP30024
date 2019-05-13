@@ -2,6 +2,8 @@ COMP300024 - Artificial Intelligence, The University of Melbourne
 =========
 GitHub for Akira and Callum.
 
+RAPPORT https://www.overleaf.com/4252552393kxhndqtrynfg
+
 [Summary Notes for AI here](https://www.overleaf.com/9673243671zvcnrpddhzwf)
 
 ### Notes for the subject (courtesy to [this bloke](https://github.com/samuel-x))
