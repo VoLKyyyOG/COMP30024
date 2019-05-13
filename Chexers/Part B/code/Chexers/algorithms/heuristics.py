@@ -184,8 +184,8 @@ def end_game_heuristic(state):
     :priorities: number of pieces in excess and exits, but will lean towards a favourable hex over distance and attempt to minimise
                  the number of capturable pieces.
     """
-    evals = np.array([f(state) for f in [desperation, speed_demon, block, favourable_hexes, achilles_real]])
-    weights = [1, 0.2, 0.1 , 2.5, 0.25]
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
+    weights = [1.2, 0.2, 0.1 , 2.5, 0.25]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 

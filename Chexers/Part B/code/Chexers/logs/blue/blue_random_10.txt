@@ -1,2 +1,0 @@
-time: 1.1898193359375
-winner: Blue

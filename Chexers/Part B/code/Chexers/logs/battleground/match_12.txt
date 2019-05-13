@@ -1,3 +1,0 @@
-our_colour: red
-time: 95.12655258178711
-winner: Red
