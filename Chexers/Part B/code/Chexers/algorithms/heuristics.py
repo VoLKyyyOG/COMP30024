@@ -215,19 +215,7 @@ def greedy(state):
     weights = [1, 1, 1]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
-def possible_actions_sorted(state, colour, heuristics, sort=False):
-    """
-    Sorts possible actions by value of heuristic
-    """
-    scores = dict()
-    for action in possible_actions(state, colour, sort):
-        new_state = apply_action(state, action)
-        scores[action] = np.array([h(new_state) for h in heuristics])
-    # Return sorted order
-    #### TODO: Needs debugging
-    return dict(sorted(scores.items(), key=lambda tup: np.array(tup[1])[:, PLAYER_HASH[colour]], reverse=True)).keys()
-
+    
 ########################### DEPRECIATED HEURISTICS ##########################
 
 def nerfed_desperation(state):

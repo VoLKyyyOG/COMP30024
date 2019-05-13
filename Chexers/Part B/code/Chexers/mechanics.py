@@ -15,6 +15,7 @@ from collections import defaultdict
 
 # User-defined files
 from moves import VALID_COORDINATES, midpoint, move_action, jump_action, exit_action, jump_sort
+from algorithms.heuristics import achilles_real
 
 ########################### GLOBALS ##########################
 
@@ -188,7 +189,19 @@ def is_capture(state, action, colour):
     # Returns true if what it would jump over is not its own
     return (midpoint(old, new) not in state[colour])
 
-def possible_actions(state, colour, sort=False):
+def sorted_possible_actions(state, colour, heuristic, sort=False):
+    """
+    Sorts possible actions by value of heuristic
+    """
+    scores = dict()
+    for action in possible_actions(state, colour, sort):
+        new_state = apply_action(state, action)
+        scores[action] = heuristics(new_state)
+    # Return sorted order
+    #### TODO: Needs debugging
+    return dict(sorted(scores.items(), key=lambda tup: tup[1][PLAYER_HASH[colour]], reverse=True)).keys()
+
+def possible_actions(state, colour, sort=False, heuristic=achilles_real):
     """
     Returns list of possible actions for a given state
     """
@@ -207,7 +220,12 @@ def possible_actions(state, colour, sort=False):
     if not actions:
         return [("PASS", None)]
     else:
-        return actions
+        scores = dict()
+        for action in actions:
+            new_state = apply_action(state, action)
+            scores[action] = heuristic(new_state)
+        # Return sorted order
+        return dict(sorted(scores.items(), key=lambda tup: tup[1][PLAYER_HASH[colour]], reverse=True)).keys()
 
 ###################### OTHER FUNCTIONS ########################
 

@@ -15,8 +15,8 @@ ADVERSARIAL SEARCH ALGORITHMS:
 from math import inf
 
 # User-defined files
-from algorithms.heuristics import desperation
 from mechanics import possible_actions, apply_action, Z_hash
+from algorithms.heuristics import desperation
 
 # Global Imports
 from mechanics import PLAYER_HASH, N_PLAYERS
@@ -187,7 +187,7 @@ def negamax(state, counts, heuristic, max_player, alpha=-inf, beta=inf, depth_le
     for action in possible_actions(state, p):
         new_state = apply_action(state, action, ignore_dead=True)
 
-        new_eval = -negamax(new_state, heuristic, max_player, -beta, -alpha, depth_left - 1)[0]
+        new_eval = -negamax(new_state, counts,heuristic, max_player, -beta, -alpha, depth_left - 1)[0]
 
         if new_eval >= beta:
             return (beta, best_new_action) if best_new_action is not None else (beta, best_action)
