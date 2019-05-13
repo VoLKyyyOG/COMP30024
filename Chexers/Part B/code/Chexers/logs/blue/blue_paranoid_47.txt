@@ -1,2 +1,2 @@
-time: 2.163217067718506
-winner: Blue
+time: 18.841341257095337
+winner: Red

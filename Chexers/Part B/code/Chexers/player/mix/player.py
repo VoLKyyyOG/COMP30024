@@ -33,7 +33,7 @@ PATH = list()
 
 ######################## MP-Mix Player #######################
 class MPMixPlayer:
-    MID_GAME_THRESHOLD = 12 # The first two moves for each player (four possible good moves)
+    MID_GAME_THRESHOLD = 9 # The first two moves for each player (four possible good moves)
     END_GAME_THRESHOLD = 99
 
     def __init__(self, colour):
@@ -42,7 +42,6 @@ class MPMixPlayer:
         """
         self.colour = colour
         self.state = create_initial_state()
-        self.state['p_col'] = 'red'
         self.clock = 0
         self.counts = defaultdict(int)
 
@@ -71,7 +70,6 @@ class MPMixPlayer:
                 action = self.mid_game()
             else:
                 action = self.early_game()
-
             self.clock += process_time() - start
             print(self.clock)
         else:
@@ -89,7 +87,7 @@ class MPMixPlayer:
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
         If opening move not available, run paranoid and make sure that we maintain good piece structure
         """
-        return opening_moves(self.state, self.colour) if not False else paranoid(self.state, achilles_unreal, self.colour)
+        return opening_moves(self.state, self.colour) if not False else paranoid(self.state, self.counts, end_game_heuristic, self.colour)[1]
 
     def mid_game(self):
         """
