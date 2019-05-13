@@ -1,3 +1,21 @@
 
 *.pyc
 *.pyc
+Chexers/Part B/code/Chexers/__pycache__/mechanics.cpython-37.pyc
+Chexers/Part B/code/Chexers/__pycache__/moves.cpython-37.pyc
+Chexers/Part B/code/Chexers/algorithms/__pycache__/__init__.cpython-37.pyc
+Chexers/Part B/code/Chexers/algorithms/__pycache__/heuristics.cpython-37.pyc
+Chexers/Part B/code/Chexers/player/__pycache__/__init__.cpython-37.pyc
+Chexers/Part B/code/Chexers/player/fixed_greedy/__pycache__/__init__.cpython-37.pyc
+Chexers/Part B/code/Chexers/player/fixed_greedy/__pycache__/player.cpython-37.pyc
+Chexers/Part B/code/Chexers/player/fixed_runner/__pycache__/__init__.cpython-37.pyc
+Chexers/Part B/code/Chexers/player/fixed_runner/__pycache__/player.cpython-37.pyc
+Chexers/Part B/code/Chexers/player/fixed_slow/__pycache__/__init__.cpython-37.pyc
+Chexers/Part B/code/Chexers/player/fixed_slow/__pycache__/player.cpython-37.pyc
+Chexers/Part B/code/Chexers/player/mix/__pycache__/__init__.cpython-37.pyc
+Chexers/Part B/code/Chexers/player/mix/__pycache__/player.cpython-37.pyc
+Chexers/Part B/code/Chexers/referee/__pycache__/__main__.cpython-37.pyc
+Chexers/Part B/code/Chexers/referee/__pycache__/game.cpython-37.pyc
+Chexers/Part B/code/Chexers/referee/__pycache__/log.cpython-37.pyc
+Chexers/Part B/code/Chexers/referee/__pycache__/options.cpython-37.pyc
+Chexers/Part B/code/Chexers/referee/__pycache__/player.cpython-37.pyc

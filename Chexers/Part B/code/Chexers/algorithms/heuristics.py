@@ -185,7 +185,7 @@ def end_game_heuristic(state):
                  the number of capturable pieces.
     """
     evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
-    weights = [1, 0.2, 0.1 , 2.5, 0.25]
+    weights = [1.2, 0.2, 0.1 , 2.5, 0.25]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 

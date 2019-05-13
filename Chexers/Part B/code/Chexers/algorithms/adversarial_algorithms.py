@@ -135,7 +135,7 @@ def directed_offensive(state, counts, heuristic, max_player, target, min_eval=in
 
     return (player_eval, best_new_action) if best_new_action is not None else (player_eval, best_action)
 
-def max_n(state, counts, heuristic, depth_left=MAX_DEPTH):
+def max_n(state, counts, heuristic, max_player_evals=[-inf]*N_PLAYERS, depth_left=MAX_DEPTH):
     """
     Max^N. A 3 player variant of minimax with no good pruning techniques available.
     Pretty useless and it isn't really called at all during our game.
@@ -144,7 +144,6 @@ def max_n(state, counts, heuristic, depth_left=MAX_DEPTH):
         evals = heuristic(state)
         return (evals, None)
 
-    max_player_evals = [-inf]*N_PLAYERS
     best_action, best_new_action = None, None
     player = state["turn"]
     index = PLAYER_HASH[player]
@@ -153,13 +152,7 @@ def max_n(state, counts, heuristic, depth_left=MAX_DEPTH):
 
     for action in generated_actions:
         new_state = apply_action(state, action)
-        player_eval = max_n(new_state, counts, heuristic, depth_left-1)[0] # only take the vector of evaluations
-
-        """ IMMEDIATE PRUNING (need to specify MAX_UTIL_VAL)
-        if player_eval[PLAYER_HASH[p]] > MAX_UTIL_VAL:
-            max_player_evals, best_action = player_eval, action
-            return (max_player_evals, best_action)
-        """
+        player_eval = max_n(new_state, counts, heuristic, max_player_evals, depth_left-1)[0] # only take the vector of evaluations
 
         if player_eval[index] > max_player_evals[index]:
             max_player_evals, best_action = player_eval, action
