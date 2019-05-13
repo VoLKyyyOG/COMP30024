@@ -72,8 +72,9 @@ class GameNode(Node):
         Called when an actual game move has been decided, updates tree
         :returns: new root for player to use
         """
-        print(f"\n{self.hash()}\n")
         try:
+            print(f"\n{self.hash()}\n")
+
             root = [x for x in self.children if x.action == action].pop(0)
             if kill:
                 self.overthrow()  # Delete all irrelevant siblings to free memory
@@ -83,16 +84,17 @@ class GameNode(Node):
             self.TT[root.hash()] = root
             root.increment(root)
             return root
+
+            if kill:
+                root.overthrow()  # Delete all irrelevant siblings to free memory
+                root.clean_tree()
+
+            # Add to storage
+            root.TT[root.hash()] = root
+            root.increment(root)
+            return root
         except:
             self.debugger(self)
-        if kill:
-            root.overthrow()  # Delete all irrelevant siblings to free memory
-            root.clean_tree()
-
-        # Add to storage
-        root.TT[root.hash()] = root
-        root.increment(root)
-        return root
 
     def get_node(self, state_hash, draws):
         """
@@ -177,7 +179,7 @@ class GameNode(Node):
 
     @staticmethod
     def printer(state):
-        from algorithms.partA.formatting import print_board
+        from algorithms.PARTA.formatting import print_board
         board_dict = {}
         for player in PLAYER_NAMES:
             for i in state[player]:

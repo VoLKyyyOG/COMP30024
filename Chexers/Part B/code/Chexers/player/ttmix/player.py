@@ -18,7 +18,7 @@ from book import opening_moves
 from algorithms.logic import mp_mix
 from algorithms.adversarial_algorithms import paranoid
 from algorithms.heuristics import achilles_unreal, speed_demon, end_game_heuristic, two_player_heuristics
-from algorithms.partA.search import part_A_search
+from algorithms.IDA import part_A_search
 
 from structures.gamenode import GameNode
 from structures.ttplayer import TTPlayer
@@ -82,14 +82,14 @@ class MPMixPlayer(TTPlayer):
         """
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
         """
-        return opening_moves(self.root.state, self.colour) if not False else paranoid(self.root.state, achilles_unreal, self.colour)
+        return opening_moves(self.root.state, self.colour) if not False else paranoid(self.root.state, self.root.counts, achilles_unreal, self.colour)
 
     def mid_game(self):
         """
         :strategy: Runs the MP-Mix Algorithm.
         :returns: The best evaluated function. If True is returned, we are at a good level to attempt a greedy approach.
         """
-        action = mp_mix(self.root.state, end_game_heuristic, defence_threshold=0, offence_threshold=0)
+        action = mp_mix(self.root.state, self.root.counts, end_game_heuristic, defence_threshold=0, offence_threshold=0)
 
         if action == True: # if True then run Greedy
             return self.end_game()
@@ -101,7 +101,7 @@ class MPMixPlayer(TTPlayer):
                    This works because paranoid defaults to alpha-beta by ignoring
                    dead players.
         """
-        action = mp_mix(self.root.state, two_player_heuristics, defence_threshold=0, offence_threshold=0, two_player=True)
+        action = mp_mix(self.root.state, self.root.counts, two_player_heuristics, defence_threshold=0, offence_threshold=0, two_player=True)
         if action is False: # If False just use Dijkstra (we are sufficiently ahead)
             action =  self.djikstra(single_player=False)
         elif action is True: # if True then run Greedy
@@ -163,7 +163,11 @@ class MPMixPlayer(TTPlayer):
 
             alive_opponent = get_remaining_opponent(self.root.state)
 
-            temp = sorted([get_cubic_ordered(tup) for tup in self.root.state[self.colour]], reverse=True)
+            temp = sorted(
+                [get_cubic_ordered(tup) for tup in self.state[self.colour]],
+                key=lambda x: x[PLAYER_HASH[self.colour]],
+                reverse=True
+            )
             state['pieces'] = [get_axial_ordered(tup) for tup in temp[:n]]
             state['blocks'] = [get_axial_ordered(tup) for tup in temp[n:]] + self.root.state[alive_opponent]
 
@@ -181,7 +185,11 @@ class MPMixPlayer(TTPlayer):
             n_exited = self.root.state["exits"][self.colour]
             n = MAX_EXITS - n_exited
 
-            temp = sorted([get_cubic_ordered(tup) for tup in self.root.state[self.colour]], reverse=True)
+            temp = sorted(
+                [get_cubic_ordered(tup) for tup in self.state[self.colour]],
+                key=lambda x: x[PLAYER_HASH[self.colour]],
+                reverse=True
+            )
             state['pieces'] = [get_axial_ordered(tup) for tup in temp[:n]]
             state['blocks'] = [get_axial_ordered(tup) for tup in temp[n:]]
 

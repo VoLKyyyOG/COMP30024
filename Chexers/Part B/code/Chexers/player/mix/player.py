@@ -89,7 +89,7 @@ class MPMixPlayer:
         :strategy: Uses the best opening moves found by the Monte Carlo method. (Booking)
         If opening move not available, run paranoid and make sure that we maintain good piece structure
         """
-        return opening_moves(self.state, self.colour) if not False else paranoid(self.state, achilles_unreal, self.colour)
+        return opening_moves(self.state, self.colour) if not False else paranoid(self.state, self.counts, achilles_unreal, self.colour)
 
     def mid_game(self):
         """
