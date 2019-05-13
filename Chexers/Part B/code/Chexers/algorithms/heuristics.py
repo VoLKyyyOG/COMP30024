@@ -16,7 +16,7 @@ import numpy as np
 # User-defined functions
 from moves import add, sub, get_cubic_ordered, exit_action, jump_action
 from mechanics import (
-    two_players_left, function_occupied, is_capture, is_dead,
+    function_occupied, is_capture, is_dead,
     get_remaining_opponent, apply_action, possible_actions
 )
 
@@ -157,8 +157,8 @@ def favourable_hexes(state):
     return sum([np.array(eval) for eval in [corner_hex, block_exit_hex]])
 
 def end_game_proportion(state):
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_unreal]])
-    weights = [1, 0.1, 1, 1.5, 0.1 *10]
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
+    weights = [1, 0.2, 0.1 , 2.5, 0.25]
     outcome = np.array(sum(map(lambda x,y: x*y, evals, weights)))
     return np.round(np.array(list(map(lambda x,y: x*y, evals, weights))) / outcome * 100, 4)
 
@@ -205,7 +205,7 @@ def greedy(state):
     weights = [1, 1, 1]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-    
+
 ########################### DEPRECIATED HEURISTICS ##########################
 
 def nerfed_desperation(state):

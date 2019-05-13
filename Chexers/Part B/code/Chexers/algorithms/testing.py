@@ -1,9 +1,8 @@
 import sys
 sys.path.append("..")
-from mechanics import *
+#from mechanics import
 from moves import *
-from algorithms.heuristics import *
-from structures.TT import *
+from algorithms.heuristics import speed_demon, desperation, favourable_hexes, exits, achilles_real, end_game_heuristics, end_game_proportion
 from algorithms.partA.formatting import print_board
 
 test1 = {
@@ -20,6 +19,14 @@ test2 = {
     "red": [(-1,-1),(0,-2),(0,-1),(1,-2)],
     "green": [(0,3)],
     "blue": [(2,-1),(0,0),(1,0),(2,0)],
+}
+
+test3 = {
+    "turn": 'red', 'depth':142,
+    "exits": {'red':0, 'green':0, 'blue':0},
+    "red": [(3,-3), (3,-2), (3,-1), (2,-3), (0,3), (-1,3), (-3,3)],
+    "green": [(-3,1),(1,2),(-2,3)],
+    "blue": [(2,-2)]
 }
 
 def printer(state):
@@ -40,20 +47,6 @@ print(x)
 print(Z_hash(test1) in x)
 """
 
-from math import factorial as fact
-result = 0
-for N in range(12, 12+1):
-    for r in range(0, N+1):
-        for g in range(0, N-r+1):
-            result += 1.0 * fact(37) / fact(r)*fact(g)*fact(N - r - g)
-
-print(result)
-
-from math import factorial as fact
-result = 0
-for N in range(3,12+1):
-    for r in range(0, N+1):
-        for g in range(0, N-r+1):
-            result += 1.0 * fact(37) / fact(r)*fact(g)*fact(N - r - g)
-
-print(result)
+for f, weight in zip([desperation, speed_demon, favourable_hexes, exits, achilles_real], [1, 0.2, 0.1 , 2.5, 0.25]):
+    print(f"{f.__name__} : {f(test3)}")
+print(end_game_proportion(test3))

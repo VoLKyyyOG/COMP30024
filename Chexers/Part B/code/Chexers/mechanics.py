@@ -15,7 +15,7 @@ from collections import defaultdict
 
 # User-defined files
 from moves import VALID_COORDINATES, midpoint, move_action, jump_action, exit_action, jump_sort
-from algorithms.heuristics import achilles_real
+#from algorithms.heuristics import achilles_real
 
 ########################### GLOBALS ##########################
 
@@ -189,19 +189,7 @@ def is_capture(state, action, colour):
     # Returns true if what it would jump over is not its own
     return (midpoint(old, new) not in state[colour])
 
-def sorted_possible_actions(state, colour, heuristic, sort=False):
-    """
-    Sorts possible actions by value of heuristic
-    """
-    scores = dict()
-    for action in possible_actions(state, colour, sort):
-        new_state = apply_action(state, action)
-        scores[action] = heuristics(new_state)
-    # Return sorted order
-    #### TODO: Needs debugging
-    return dict(sorted(scores.items(), key=lambda tup: tup[1][PLAYER_HASH[colour]], reverse=True)).keys()
-
-def possible_actions(state, colour, sort=False, heuristic=achilles_real):
+def possible_actions(state, colour, sort=False, heuristic=None):
     """
     Returns list of possible actions for a given state
     """
@@ -220,12 +208,15 @@ def possible_actions(state, colour, sort=False, heuristic=achilles_real):
     if not actions:
         return [("PASS", None)]
     else:
-        scores = dict()
-        for action in actions:
-            new_state = apply_action(state, action)
-            scores[action] = heuristic(new_state)
-        # Return sorted order
-        return dict(sorted(scores.items(), key=lambda tup: tup[1][PLAYER_HASH[colour]], reverse=True)).keys()
+        if heuristic is not None:
+            scores = dict()
+            for action in actions:
+                new_state = apply_action(state, action)
+                scores[action] = heuristic(new_state)
+            # Return sorted order
+            return dict(sorted(scores.items(), key=lambda tup: tup[1][PLAYER_HASH[colour]], reverse=True)).keys()
+        else:
+            return actions
 
 ###################### OTHER FUNCTIONS ########################
 
@@ -330,3 +321,35 @@ def Z_hash(state):
             hashed = hashed | (state['exits'][player] << i)
 
     return hashed
+
+if __name__ == "__main__":
+    from moves import *
+    from algorithms.heuristics import speed_demon, desperation, favourable_hexes, exits, achilles_real, end_game_heuristic, end_game_proportion
+    from algorithms.PARTA.formatting import print_board
+    def printer(state):
+        board_dict = {}
+        for player in PLAYER_NAMES:
+            for i in state[player]:
+                board_dict[i] = f"{player}"
+
+        print_board(board_dict)
+
+    test3 = {
+        "turn": 'blue', 'depth':142,
+        "exits": {'red':0, 'green':0, 'blue':0},
+        "blue": [(3,-3), (3,-2), (3,-1), (2,-3), (0,3), (-1,3), (-3,3)],
+        "green": [(-2,2),(1,2),(-2,3)],
+        "red": [(2,-2)]
+    }
+
+    printer(test3)
+    for f, weight in zip([desperation, speed_demon, favourable_hexes, exits, achilles_real, end_game_heuristic], [1, 0.2, 0.1 , 2.5, 0.25]):
+        print(f"{f.__name__} : {f(test3)}")
+    print(end_game_proportion(test3))
+
+    for action in possible_actions(test3, test3['turn']):
+        new_state = apply_action(test3, action)
+        printer(new_state)
+        for f, weight in zip([desperation, speed_demon, favourable_hexes, exits, achilles_real, end_game_heuristic], [1, 0.2, 0.1 , 2.5, 0.25]):
+            print(f"{f.__name__} : {f(new_state)}")
+        print(end_game_proportion(new_state))
