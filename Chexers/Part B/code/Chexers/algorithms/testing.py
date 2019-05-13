@@ -2,8 +2,8 @@ import sys
 sys.path.append("..")
 #from mechanics import
 from moves import *
-from algorithms.heuristics import speed_demon, desperation, favourable_hexes, exits, achilles_real, end_game_heuristics, end_game_proportion
-from algorithms.partA.formatting import print_board
+from algorithms.heuristics import speed_demon, desperation, favourable_hexes, exits, achilles_real, end_game_heuristic, end_game_proportion
+from algorithms.PARTA.formatting import print_board
 
 test1 = {
     "turn" : "red", "depth": 142,

@@ -343,13 +343,20 @@ if __name__ == "__main__":
     }
 
     printer(test3)
-    for f, weight in zip([desperation, speed_demon, favourable_hexes, exits, achilles_real, end_game_heuristic], [1, 0.2, 0.1 , 2.5, 0.25]):
+    for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real, end_game_heuristic]:
         print(f"{f.__name__} : {f(test3)}")
     print(end_game_proportion(test3))
 
+    best_eval, best_action = -inf, None
     for action in possible_actions(test3, test3['turn']):
         new_state = apply_action(test3, action)
-        printer(new_state)
-        for f, weight in zip([desperation, speed_demon, favourable_hexes, exits, achilles_real, end_game_heuristic], [1, 0.2, 0.1 , 2.5, 0.25]):
-            print(f"{f.__name__} : {f(new_state)}")
-        print(end_game_proportion(new_state))
+        #printer(new_state)
+        #for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real, end_game_heuristic]:
+    #        print(f"{f.__name__} : {f(new_state)}")
+    #    print(end_game_proportion(new_state))
+        if best_eval < end_game_heuristic(new_state)[2]:
+            print(f"UPDATED AS {best_eval} < {end_game_heuristic(new_state)[2]}")
+            best_eval = end_game_heuristic(new_state)[2]
+            best_action = action
+    print(len(possible_actions(test3, test3['turn'])))
+    print(f"BEST ACTION WAS {best_action}")
