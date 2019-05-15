@@ -1,1 +1,3 @@
 our_colour: green
+time: 97.78393507003784
+winner: Red

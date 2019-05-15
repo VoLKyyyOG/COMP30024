@@ -1,1 +1,3 @@
 our_colour: green
+time: 193.41656613349915
+winner: Green
