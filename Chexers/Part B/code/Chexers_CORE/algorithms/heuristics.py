@@ -85,14 +85,6 @@ def achilles(state, reality=False):
                         threat_set[player].update(potential_threats)
     return threat_set
 
-def achilles_unreal(state):
-    """
-    :summary: achilles_unreal returns the potential threats for each player.
-    :returns: [val_red, val_green, val_blue]
-    """
-    raw = achilles(state, reality=False)
-    return -np.array([len(raw[player]) for player in PLAYER_NAMES])
-
 def achilles_real(state):
     """
     achilles_real returns the actual number of threats (i.e. immediately capturable) for each player.
@@ -115,13 +107,6 @@ def no_pieces(state):
     :return: numpy array
     """
     return np.array([len(state[player]) for player in PLAYER_NAMES])
-
-def exit_hex(state):
-    """
-    :summary: returns number of possible exit actions for each player.
-    :returns: numpy array
-    """
-    return np.array([len(exit_action(state, colour)) for colour in PLAYER_NAMES])
 
 def favourable_hexes(state):
     """
@@ -189,127 +174,3 @@ def runner(state):
     weights = [0.75, 1, 15]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
-def greedy(state):
-    """
-    :summary: Simple Greedy Heuristic.
-    :eval: distance + number of pieces + number of exits
-    :returns: numpy array
-    """
-    evals = np.array([f(state) for f in [speed_demon, no_pieces, exits]])
-    weights = [1, 1, 1]
-
-    return np.array(sum(map(lambda x,y: x*y, evals, weights)))
-
-########################### DEPRECIATED ##########################
-
-def exclude_dead(heuristic):
-    """
-    :summary: Overwrites heuristic evaluation to -inf for any dead players if you want
-    :returns: adjusted heuristic
-    """
-    def evaluate(state):
-        output = heuristic(state)
-        dead = np.array([-inf if is_dead(state, player) else 0 for player in PLAYER_NAMES])
-        return dead + output
-
-    return evaluate
-
-def nerfed_desperation(state):
-    """
-    :summary: Nerfs desperation so that it gets no gain from having more than 2 pieces in surplus
-    E.g. surplus -inf to 2 will be unaffected but values 3 and above map to 2.
-    Note that this doesn't interfere with exiting as desperation unaffected by exit actions
-    :returns: list of valuations
-    """
-    return np.minimum(np.array(desperation(state)), 2)
-
-def paris(state):
-    """
-    Evaluates captures that each player could perform
-    :shortfall: cannot tell which piece captures what, nor the capturable player
-    :returns: {player: list_of_capturing_actions for each player}
-    """
-    captures = defaultdict(list)
-    occupied_hexes = get_occupied(state, PLAYER_NAMES)
-    for player in PLAYER_NAMES:
-        for action in jump_action(state, occupied_hexes, player):
-            if is_capture(state, action, player):
-                captures[player].append(action)
-    return captures
-
-def paris_vector(state):
-    """
-    Returns the number of capturing actions possible for each player.
-    :returns: [val_red, val_green, val_blue]
-    """
-    return np.array([len(paris(state)[player]) for player in PLAYER_NAMES])
-
-def end_game_proportion(state):
-    """
-    Used in debugging to measure % contribution of heuristics to output.
-    :returns: numpy array
-    """
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
-    weights = [1, 0.2, 0.1 , 2.5, 0.25]
-    outcome = np.array(sum(map(lambda x,y: x*y, evals, weights)))
-    return np.round(np.array(list(map(lambda x,y: x*y, evals, weights))) / outcome * 100, 4)
-
-def utility(state):
-    """
-    Measures strictly aspects of a state that relate to goal acquisition:
-    1. How many exits? -- raw utility: encourages exiting
-    2. Are your pieces in surplus/deficit to what you need? -- controls attack/defence
-    3. Are your pieces (on average) close to goal? -- progression: encourages forward
-    :returns: vector of valuations
-    """
-    evals = np.array([f(state) for f in [exits, nerfed_desperation, speed_demon]])
-    weights = np.array([1, 1, 1.0 / 12]) # Displacement ranges up to 24
-    return sum(map(lambda x,y: x*y, evals, weights))
-
-def retrograde_dijkstra(state):
-    raise NotImplementedError
-    """
-    Computes minimal traversal distance to exit for all N players
-    :returns: vector of distances
-    """
-
-    cost = np.array([sum(dijkstra_board(state, state["turn"])[piece] for piece in state[player]) for player in PLAYER_NAMES])
-    print(f"Retro-D: {cost}")
-    return cost
-
-def dijkstra_board(state, colour):
-    """Evaluates minimum cost to exit for each non-block position"""
-
-    # First fetch all goals unoccupied by enemys
-    valid_goals = set(GOALS[colour])
-    #occupied = set()
-
-    for player in get_opponents(state, player):
-        valid_goals.difference_update(set(state[player]))
-
-    visited = set() # Flags if visited or not
-    cost = {x: inf for x in VALID_SET} # Stores costs
-    cost.update({x: 1 for x in valid_goals}) # Sets goals cost
-    queue = PQ()
-
-    # Add exits to queue to get it started
-    for goal in valid_goals:
-        queue.put((cost[goal], goal))
-
-    # Loop over queue (dijsktra)
-    while not queue.empty():
-        curr_cost, curr = queue.get()
-        if curr not in visited:
-            visited.add(curr)
-            poss_neighbours = set(move_action(state, occupied, colour)).union(set(jump_action(state, occupied, colour)))
-            for flag, coord in poss_neighbours:
-                if flag != "EXIT":
-                    current, destination = coord[0], coord[1]
-                else:
-                    current = coord
-                est_cost = curr_cost + 1
-                if est_cost < cost[current]: # Better path than previous
-                    cost[current] = est_cost
-                queue.put((cost[current], current))
-    return cost

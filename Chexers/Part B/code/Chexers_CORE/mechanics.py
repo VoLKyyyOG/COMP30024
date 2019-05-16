@@ -150,7 +150,7 @@ def is_capture(state, action, colour):
     # Returns true if what it would jump over is not its own
     return (midpoint(old, new) not in state[colour])
 
-def possible_actions(state, colour, sort=False, heuristic=None):
+def possible_actions(state, colour, sort=False):
     """
     :summary: Returns list of possible actions for a given state
     :returns: list of properly formatted actions for Part B
@@ -170,15 +170,7 @@ def possible_actions(state, colour, sort=False, heuristic=None):
     if not actions:
         return [("PASS", None)]
     else:
-        if heuristic is not None:
-            scores = dict()
-            for action in actions:
-                new_state = apply_action(state, action)
-                scores[action] = heuristic(new_state)
-            # Return sorted order
-            return dict(sorted(scores.items(), key=lambda tup: tup[1][PLAYER_HASH[colour]], reverse=True)).keys()
-        else:
-            return actions
+        return actions
 
 ###################### OTHER FUNCTIONS ########################
 
@@ -239,13 +231,6 @@ def players_left(state):
     return [player for player in PLAYER_NAMES if not is_dead(state, player)]
 
 ########################## HASHING ############################
-
-def draw_hash(state):
-    raise NotImplementedError
-    """
-    Hashing scheme but without the exits - so that draws can be detected
-    """
-    return Z_hash(state) >> CODE_LEN * N_PLAYERS
 
 def Z_hash(state):
     """
