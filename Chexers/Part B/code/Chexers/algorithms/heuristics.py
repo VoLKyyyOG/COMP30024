@@ -16,87 +16,55 @@ import numpy as np
 # User-defined functions
 from moves import add, sub, get_cubic_ordered, exit_action, jump_action
 from mechanics import (
-    function_occupied, is_capture, is_dead,
-    get_remaining_opponent, apply_action, possible_actions
+    function_occupied, is_capture, is_dead, get_remaining_opponent,
+    apply_action, possible_actions
 )
 
 # Global Imports
-from moves import POSSIBLE_DIRECTIONS, VALID_COORDINATES, CORNER_SET, OPPONENT_GOALS, GOALS
-from mechanics import PLAYER_NAMES, PLAYER_HASH, MAX_COORDINATE_VAL, MAX_EXITS
+from moves import (
+    POSSIBLE_DIRECTIONS, VALID_COORDINATES, CORNER_SET, OPPONENT_GOALS, GOALS
+)
+from mechanics import (
+    PLAYER_NAMES, PLAYER_HASH, MAX_COORDINATE_VAL, MAX_EXITS
+)
 
-##############################################################
-
-####: TODO: How benefifical is a -inf anyway?
-def exclude_dead(heuristic):
-    """
-    Overwrites heuristic evaluation to -inf for any dead players if you want
-    :returns: adjusted heuristic
-    """
-    def evaluate(state):
-        output = heuristic(state)
-        dead = np.array([-inf if is_dead(state, player) else 0 for player in PLAYER_NAMES])
-        return dead + output
-
-    return evaluate
+########################## FUNCTIONS #########################
 
 def exits(state):
     """
-    Returns raw exit count as a tuple
+    :summary: Returns raw # exits achieved. Absolute benchmark heuristic.
     :returns: [red_eval, green_eval, blue_eval]
     """
     return np.array([state['exits'][player] for player in PLAYER_NAMES])
 
 def desperation(state):
     """
-    Returns deficit/surplus in pieces vs exit
+    :summary: Returns # pieces possessed - # pieces needed to exit to win
+    Hence a high evaluation means one is in surplus, and low in shortage.
     :returns: [red_eval, green_eval, blue_eval]
     """
     # How many pieces available - how many pieces needed to win
     margin = lambda state, player: len(state[player]) - (MAX_EXITS - state['exits'][player])
     return np.array([margin(state, player) for player in PLAYER_NAMES])
 
-@exclude_dead
 def displacement(state):
     """
-    Attempts to fix the exiting problem associated with the daemon by removing n from calculations.
-    This has the virtue of d/dn(daemon) = 0, which (among other factors) means it is unimpacted by exits.
+    :summary: Calculates raw displacement of all pieces from 'starting point'.
+    E.g. a player with 4 pieces about to exit has displacement 6*4 = 24.
+    :returns: sum of displacements for each player in numpy array
     """
     total_disp = lambda player: sum([get_cubic_ordered(piece)[PLAYER_HASH[player]] +
         MAX_COORDINATE_VAL for piece in state[player]])
-    return np.array([total_disp(player) for player in PLAYER_NAMES])
-
-def achilles_unreal(state):
-    """
-    achilles_unreal returns the number of threats for each player.
-    :FLAG reality: if True, counts actual opponents that could capture
-    :returns: [val_red, val_green, val_blue]
-    """
-    raw = achilles(state, reality=False)
-    return -np.array([len(raw[player]) for player in PLAYER_NAMES])
-
-def achilles_real(state):
-    """
-    achilles_unreal returns the number of threats for each player.
-    :FLAG reality: if True, counts actual opponents that could capture
-    :returns: [val_red, val_green, val_blue]
-    """
-    raw = achilles(state, reality=True)
-    return -np.array([len(raw[player]) for player in PLAYER_NAMES])
-
-def achilles_gain(state, action, reality=False):
-    """
-    Evaluates where the action, applied to the state, will alter vulnerability
-    """
-    new_state = apply_action(state, action)
-    return achilles(new_state, reality) - achilles(state, reality)
+    dead = np.array([-inf if is_dead(state, player) else 0 for player in PLAYER_NAMES])
+    return dead + np.array([total_disp(player) for player in PLAYER_NAMES])
 
 def achilles(state, reality=False):
     """
-    Evaluates number of attackable angles on your pieces.
+    :summary: Evaluates number of attackable angles on your pieces.
     :FLAG reality: True only returns actual about-to-kill-you opponents
     Ranges from 0 (all pieces in corners) to 6*N (all N pieces are isolated and not on an edge)
+    :returns: numpy array of counts
     """
-    import time
     threat_set = defaultdict(set)
     possible_axes = POSSIBLE_DIRECTIONS[:3] # Three directions
     for player in PLAYER_NAMES:
@@ -117,39 +85,50 @@ def achilles(state, reality=False):
                         threat_set[player].update(potential_threats)
     return threat_set
 
+def achilles_unreal(state):
+    """
+    :summary: achilles_unreal returns the potential threats for each player.
+    :returns: [val_red, val_green, val_blue]
+    """
+    raw = achilles(state, reality=False)
+    return -np.array([len(raw[player]) for player in PLAYER_NAMES])
+
+def achilles_real(state):
+    """
+    achilles_unreal returns the actual number of threats (i.e. immediately capturable) for each player.
+    :returns: [val_red, val_green, val_blue]
+    """
+    raw = achilles(state, reality=True)
+    return -np.array([len(raw[player]) for player in PLAYER_NAMES])
+
 def speed_demon(state):
     """
-    Heuristic that uses uses a relaxed version of the game board by assuming a piece can always jump with or without a piece.
-    The average is taken so that the player progression can be compared
-
-    TODO: Coordinates must be then transformed so that changes in displacement
-    evaluation do not outweigh the benefit of having exited a piece.
+    :summary: Average piece progression is measured - allows progression comparison
+    :approach: uses a relaxed version of the game board by assuming a piece can always jump with or without a piece.
+    :returns: numpy array, -inf if dead
     """
-    # Return average displacement, -inf if dead
-    #return [total_disp(player) / len(state[player])  if len(state[player]) > 0 else -inf for player in PLAYER_NAMES]
-
-    # Since displacement is -inf wrapped, +1 will preserve -inf
     return np.array(displacement(state)) / (np.array(no_pieces(state)))
 
 def no_pieces(state):
     """
-    What number of pieces do we currently own.
-    :return: vector of piece counts
+    :summary: Computes number of pieces we currently own.
+    :return: numpy array
     """
     return np.array([len(state[player]) for player in PLAYER_NAMES])
 
 def exit_hex(state):
     """
-    Returns number of possible exit actions for each player.
-    :returns: vector of results
+    :summary: returns number of possible exit actions for each player.
+    :returns: numpy array
     """
     return np.array([len(exit_action(state, colour)) for colour in PLAYER_NAMES])
 
 def favourable_hexes(state):
     """
-    Favourable hex positions:
+    :summary: Promotes favourable hex positions:
     1. Corner hexes
     2. Enemy exit hex positions
+    :returns: numpy array
     """
     corner_hex = [len(set(state[player]).intersection(CORNER_SET)) for player in PLAYER_NAMES]
     block_exit_hex = [len(set(state[player]).intersection(OPPONENT_GOALS[player])) for player in PLAYER_NAMES]
@@ -158,9 +137,10 @@ def favourable_hexes(state):
 
 def block(state):
     """
-    Favourable hex positions:
+    :summary: Promotes favourable hex positions with the possibility of two-player games.
     1. Corner hexes
     2. Enemy exit hex positions
+    :returns: numpy array
     """
     try:
         alive_opponent = get_remaining_opponent(state)
@@ -170,19 +150,16 @@ def block(state):
     except:
         return np.array([0,0,0])
 
-def end_game_proportion(state):
-    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
-    weights = [1, 0.2, 0.1 , 2.5, 0.25]
-    outcome = np.array(sum(map(lambda x,y: x*y, evals, weights)))
-    return np.round(np.array(list(map(lambda x,y: x*y, evals, weights))) / outcome * 100, 4)
-
 def end_game_heuristic(state):
     """
-    Tribute to Marvel's End Game.
-    A very well thought out heuristic after several simulations and runs.
-    :eval: number of piece in excess + distance + favourable hex positions + number of exits + number of capturable pieces
-    :priorities: number of pieces in excess and exits, but will lean towards a favourable hex over distance and attempt to minimise
-                 the number of capturable pieces.
+    :summary: Tribute to Marvel's End Game.
+    A heuristic resulting from several simulations and corresponding adjustments.
+    :eval: (no. pieces in excess) + (average distance)
+           + (favourable hex positions) + (no. exits) + (no. capturable pieces)
+    :priorities: no. pieces in excess & exits
+    However, will lean towards a favourable hex over distance,
+    whilst minimising potential captures.
+    :returns: numpy array
     """
     evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
     weights = [1.2, 0.2, 0.1 , 2.5, 0.25]
@@ -190,6 +167,12 @@ def end_game_heuristic(state):
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
 def two_player_heuristics(state):
+    """
+    :summary: end_game but for 2-player scenarios
+    :priorities: higher weighting on desperation, exits and speed_demon,
+    the most exit-weighting heuristics.
+    :returns: numpy array
+    """
     evals = np.array([f(state) for f in [desperation, speed_demon, block, exits, achilles_real]])
     weights = [2, 0.4, 0.1, 5, 0.5]
 
@@ -197,9 +180,10 @@ def two_player_heuristics(state):
 
 def runner(state):
     """
-    Simple Paranoid Heuristic.
+    :summary: Simple Paranoid Heuristic.
     :eval: distance + number of pieces + number of exits
     :priorities: number of pieces over distance, but will always exit if possible.
+    :returns: numpy array
     """
     evals = np.array([f(state) for f in [speed_demon, no_pieces, exits]])
     weights = [0.75, 1, 15]
@@ -208,15 +192,28 @@ def runner(state):
 
 def greedy(state):
     """
-    Simple Greedy Heuristic.
+    :summary: Simple Greedy Heuristic.
     :eval: distance + number of pieces + number of exits
+    :returns: numpy array
     """
     evals = np.array([f(state) for f in [speed_demon, no_pieces, exits]])
     weights = [1, 1, 1]
 
     return np.array(sum(map(lambda x,y: x*y, evals, weights)))
 
-########################### DEPRECIATED HEURISTICS ##########################
+########################### DEPRECIATED ##########################
+
+def exclude_dead(heuristic):
+    """
+    :summary: Overwrites heuristic evaluation to -inf for any dead players if you want
+    :returns: adjusted heuristic
+    """
+    def evaluate(state):
+        output = heuristic(state)
+        dead = np.array([-inf if is_dead(state, player) else 0 for player in PLAYER_NAMES])
+        return dead + output
+
+    return evaluate
 
 def nerfed_desperation(state):
     """
@@ -247,6 +244,17 @@ def paris_vector(state):
     :returns: [val_red, val_green, val_blue]
     """
     return np.array([len(paris(state)[player]) for player in PLAYER_NAMES])
+
+def end_game_proportion(state):
+    """
+    Used in debugging to measure % contribution of heuristics to output.
+    :returns: numpy array
+    """
+    evals = np.array([f(state) for f in [desperation, speed_demon, favourable_hexes, exits, achilles_real]])
+    weights = [1, 0.2, 0.1 , 2.5, 0.25]
+    outcome = np.array(sum(map(lambda x,y: x*y, evals, weights)))
+    return np.round(np.array(list(map(lambda x,y: x*y, evals, weights))) / outcome * 100, 4)
+
 def utility(state):
     """
     Measures strictly aspects of a state that relate to goal acquisition:
@@ -265,12 +273,12 @@ def retrograde_dijkstra(state):
     Computes minimal traversal distance to exit for all N players
     :returns: vector of distances
     """
+
     cost = np.array([sum(dijkstra_board(state, state["turn"])[piece] for piece in state[player]) for player in PLAYER_NAMES])
     print(f"Retro-D: {cost}")
     return cost
 
 def dijkstra_board(state, colour):
-    raise NotImplementedError
     """Evaluates minimum cost to exit for each non-block position"""
 
     # First fetch all goals unoccupied by enemys

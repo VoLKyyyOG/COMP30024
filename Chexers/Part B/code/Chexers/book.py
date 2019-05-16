@@ -1,11 +1,14 @@
+"""
+:filename: book.py
+:summary: Stores first 4 opening moves for each colour to 'get the ball rolling'
+and reduce time/space-complexity with consistently strong opening strategy.
+:authors: Akira Wang (913391), Callum Holmes (899251)
+"""
+
 ########################### IMPORTS ##########################
 
-# Standard modules
+# User-defined functions
 from mechanics import possible_actions
-
-# Global Imports
-#### TODO: Consider if this will be used
-from mechanics import N_PLAYERS
 
 OPENING_BOOK = {
     'red': [
@@ -28,7 +31,7 @@ OPENING_BOOK = {
     ]
 }
 
-######################## MOVE FUNCTIONS #######################
+######################## FUNCTIONS #######################
 
 def opening_moves(state, colour):
     """

@@ -10,7 +10,7 @@ Asks for inputs directly from command line.
 import re
 from ast import literal_eval
 # User-defined files
-from mechanics import *
+from mechanics import create_initial_state, apply_action
 
 class TerminalPlayer:
     def __init__(self, colour):

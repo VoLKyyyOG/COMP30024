@@ -6,7 +6,6 @@ Base class for a Greedy Player.
 
 ########################### IMPORTS ##########################
 # Standard modules
-from random import choice
 from math import inf
 from collections import defaultdict
 
@@ -24,7 +23,6 @@ class GreedyPlayer:
 
         """
         self.colour = colour
-        self.depth = 0
         self.state = create_initial_state()
         self.counts = defaultdict(int)
 
@@ -40,7 +38,6 @@ class GreedyPlayer:
     ################# DEFINE EVERY IMPLEMENTATION ################
 
     def action(self):
-        self.depth += 1
         """
         This method is called at the beginning of each of your turns to request
         a choice of action from your program. Made it so greedy will always prefer exit moves

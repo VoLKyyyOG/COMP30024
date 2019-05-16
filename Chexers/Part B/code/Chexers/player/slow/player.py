@@ -7,14 +7,13 @@ Uses number_of_pieces_lost = 0 and retrograde_dijkstra as heuristic
 """
 
 ########################### IMPORTS ##########################
+# Standard modules
 from collections import defaultdict
-
+from random import choice
 # User-defined files
 from mechanics import *
-from moves import get_cubic, get_axial
 from algorithms.adversarial_algorithms import max_n
-from algorithms.heuristics import *
-from random import choice
+from algorithms.heuristics import runner
 
 PATH = list()
 
@@ -25,7 +24,6 @@ class Slow:
         your player.
         """
         self.state = create_initial_state()
-        self.depth = 0
         self.colour = colour
         self.counts = defaultdict(int)
 
@@ -38,12 +36,11 @@ class Slow:
         self.counts[Z_hash(self.state)] += 1
 
     def action(self):
-        self.depth += 1
         """
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        if self.depth%18 == 0:
+        if self.state['depth'] %  18 == 0:
             return choice(possible_actions(self.state, self.colour))
 
         if is_dead(self.state, self.colour):

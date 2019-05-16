@@ -10,7 +10,7 @@ from random import choice
 from math import inf
 
 # User-defined files
-from mechanics import *
+from mechanics import create_initial_state
 from algorithms.heuristics import speed_demon
 from structures.gamenode import GameNode
 from structures.ttplayer import TTPlayer

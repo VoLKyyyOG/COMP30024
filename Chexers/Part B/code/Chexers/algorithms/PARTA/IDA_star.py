@@ -1,7 +1,7 @@
-""" Algorithms.py
-
-Implements algorithms for use in game exploration, NOT actual agent logic.
-
+"""
+:filename: algorithms.py
+:summary: Implements algorithms for use in game exploration, NOT actual agent logic.
+:authors: Akira Wang (913391), Callum Holmes (899251)
 """
 
 ########################## IMPORTS ###########################
@@ -11,7 +11,7 @@ from queue import PriorityQueue as PQ
 from collections import defaultdict
 
 # User-defined files
-from .moves import *
+from algorithms.PARTA.moves import *
 
 ###################### NODE BASE CLASS #######################
 

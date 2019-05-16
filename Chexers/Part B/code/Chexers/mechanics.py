@@ -1,8 +1,18 @@
-""" mechanics.py
-
-Contains core game functionality: defines number of players, name,
+"""
+:filename: mechanics.py
+:summary: Contains core game functionality: defines number of players, name,
 maximum turns, player names and codes, what a State object is, and any
 game-specific functions and variables.
+:authors: Akira Wang (913391), Callum Holmes (899251)
+
+A state is stored as a dictionary with the structure {
+    'red' : list of coordinates of pieces
+    'green' : list of coordinates of pieces
+    'blue' : list of coordinates of pieces
+    'turn' : player whose turn it is: either 'red' 'green' or 'blue'
+    'exits' : count of [red_exits, green_exits, blue_exits]
+    'depth' : # turns elapsed
+}
 
 """
 
@@ -13,35 +23,32 @@ from math import inf
 from copy import deepcopy
 from collections import defaultdict
 
-# User-defined files
-from moves import VALID_COORDINATES, midpoint, move_action, jump_action, exit_action, jump_sort
-#from algorithms.heuristics import achilles_real
+# User-defined functions and globals
+from moves import midpoint, move_action, jump_action, exit_action, jump_sort, VALID_COORDINATES
 
 ########################### GLOBALS ##########################
 
 N_PLAYERS = 3
 INITIAL_EXITED_PIECES = 0
-
 MAX_TURNS = 256 # PER PLAYER
 MAX_EXITS = 4
 MAX_COORDINATE_VAL = 3
 
+# Startig hexes
 STARTS = {
     'red': [(-3,3), (-3,2), (-3,1), (-3,0)],
     'green': [(0,-3), (1,-3), (2,-3), (3,-3)],
     'blue': [(3, 0), (2, 1), (1, 2), (0, 3)],
 }
 
-##################### CODES FOR PLAYERS ######################
-
-# A default list of all the player names: note the auto-slicing
+# A default list of all the player names
 PLAYER_NAMES = ["red", "green", "blue"]
 
 # For hashing
 NUM_HEXES = 37
 CODE_LEN = 2 # Bit length of each flag. Can be 0,1,2,3
 
-# bidirectional lookup for player bit code
+# bidirectional lookup for player index/hash code
 PLAYER_HASH = {
     "red": 0b00,
     "green" : 0b01,
@@ -54,41 +61,23 @@ PLAYER_HASH.update(dict(zip(PLAYER_HASH.values(), PLAYER_HASH.keys())))
 
 def create_initial_state():
     """
-    Returns the starting game state
-    :returns: copy of new initial game state
+    :summary: Returns the starting game state
+    :returns: state object
     """
-    #### TODO: Instead of deepcopy(), we can just hardcode it here since we
-    ####       won't be using the global again.
     initial_state = deepcopy(STARTS)
     initial_state['exits'] = {name: INITIAL_EXITED_PIECES for name in PLAYER_NAMES}
     initial_state['turn'] = 'red'
     initial_state['depth'] = 0
     return initial_state
 
-def player(state):
-    """
-    Retrieves current player
-    """
-    return state['turn']
-
-def depth(state):
-    """
-    Returns number of turns (interpret 1 = first move by red)
-    """
-    return state['depth']
-
-# NOTE: I simplified stuff, should still work
 def next_player(state, ignore_dead=False):
     """
-    Determines next player. Can reduce to 2-player if ignore_dead is True.
+    :summary: determines next player.
+    :ignore-dead TRUE: Fetches the non-dead opponent (2-player game).
     :returns: player string
     """
-    # Exploits ordering of PLAYER_NAMES, gets index of next along
     if ignore_dead and len(players_left(state)) < N_PLAYERS:
-        # If no alive opponents, return self
-        # If one alive aopponent, return them
-        # Else, just return as usual
-        curr_player = player(state)
+        curr_player = state['turn']
         alive_opponents = [i for i in get_opponents(state) if not is_dead(state, i) and i != curr_player]
         if not alive_opponents:
             return curr_player
@@ -101,43 +90,15 @@ def next_player(state, ignore_dead=False):
         current_index = PLAYER_HASH[state['turn']]
         return PLAYER_NAMES[(current_index + 1) % N_PLAYERS]
 
-def get_score(state, colour):
-    """
-    Retrieves score (number of exits made) for player in a state.
-    """
-    return state['exits'][colour]
-
 def game_drawn(state, counts):
     """
-    Detects if game drawn
+    :summary: Detects if game drawn
     """
     return (counts[draw_hash(state)] >= MAX_EXITS or state['depth'] == MAX_TURNS*3)
 
-def game_over(state, print_debug=False):
-    """
-    Determines if a game is over.
-    :returns: boolean which is True if game is over.
-    Conditions:
-    - A player has exited all pieces (winner)
-    - 256 move max for each player has been exceeded (TODO)
-    - A state has been visited 4 times (draw)
-
-    TODO: ALL_DEAD IS NOT AN ACTUAL GAME OVER SCENARIO, DELETE AFTER DEBUG
-
-    """
-    draw = depth(state) == MAX_TURNS * 3
-    all_dead = sum([bool(state[colour]) for colour in PLAYER_NAMES]) == 1
-    winner = MAX_EXITS in state['exits'].values()
-
-    if print_debug:
-        print(f"\n\t\t\t\t\t\t\t\tMax-turns: {draw}, All Dead: {all_dead}, Winner: {winner}")
-        return None
-
-    return winner or draw
-
 def apply_action(state, action, ignore_dead=False):
     """
-    Applies an action to a State object
+    :summary: applies an action to a State object
     :returns: new fully updated state
     """
     flag, pieces = action
@@ -180,7 +141,7 @@ def apply_action(state, action, ignore_dead=False):
 
 def is_capture(state, action, colour):
     """
-    Checks if an action to be applied to a state will capture
+    :summary: Checks if an action to be applied to a state will capture
     :returns: boolean
     """
     flag, pieces = action
@@ -191,7 +152,8 @@ def is_capture(state, action, colour):
 
 def possible_actions(state, colour, sort=False, heuristic=None):
     """
-    Returns list of possible actions for a given state
+    :summary: Returns list of possible actions for a given state
+    :returns: list of properly formatted actions for Part B
     """
     actions = list()
 
@@ -233,29 +195,27 @@ def function_occupied(state, colours):
 
 def is_dead(state, colour):
     """
-    Returns whether a specified player (colour) has lost all player_pieces
+    :summary: Returns whether a specified player (colour) has lost all player_pieces
     :returns: boolean
     """
     return not bool(state[colour])
 
-######################### TOO MANY? ###########################
-
 def num_opponents_dead(state):
     """
-    Find the number of dead players (player with no pieces left)
+    :summary: Find the number of dead players (player with no pieces left)
     """
     return sum([is_dead(state, player) for player in PLAYER_NAMES])
 
 def two_players_left(state):
     """
-    Checks if one player has lost all pieces
+    :summary: Checks if one player has lost all pieces
     :returns: boolean
     """
     return len(players_left(state)) == 2
 
 def get_opponents(state):
     """
-    Fetches a turn player's opponents
+    :summary: Fetches a turn player's opponents
     :returns: list(
     opponent_names in order)
     """
@@ -263,8 +223,8 @@ def get_opponents(state):
 
 def get_remaining_opponent(state):
     """
-    Fetches a turn player's only remaining (alive) opponent
-    Assumes only one left alive
+    :summary: Fetches a turn player's only remaining (alive) opponent
+    :assumption: only one opponent left (2 players)
     :returns: list(alive_opponent_names in order)
     """
     ### TODO NOTE: Seems redundant but I left it here until we discuss it
@@ -272,15 +232,16 @@ def get_remaining_opponent(state):
 
 def players_left(state):
     """
-    Finds all players left
+    :summary: Fetches all players left
     :returns: list(all_alive_players in order)
     """
 
-    return [player for player in PLAYER_NAMES if len(state[player]) > 0]
+    return [player for player in PLAYER_NAMES if not is_dead(state, player)]
 
 ########################## HASHING ############################
 
 def draw_hash(state):
+    raise NotImplementedError
     """
     Hashing scheme but without the exits - so that draws can be detected
     """
@@ -288,7 +249,8 @@ def draw_hash(state):
 
 def Z_hash(state):
     """
-    Implements a minimal collision NON-INVERTIBLE hash for states. Hash of form
+    :summary: Implements a minimal collision NON-INVERTIBLE hash for states.
+    Hash of form
         0b(turn)(exits)(37 hex state flags....)
     Where the flags are:
     - For turn player:
@@ -321,6 +283,8 @@ def Z_hash(state):
             hashed = hashed | (state['exits'][player] << i)
 
     return hashed
+
+########################### DEPRECIATED ##########################
 
 if __name__ == "__main__":
     from moves import *

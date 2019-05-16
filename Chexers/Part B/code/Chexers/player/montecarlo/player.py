@@ -8,7 +8,7 @@ Runs a MC search using a cached tree - see the file for further details.
 ########################### IMPORTS ##########################
 # Standard modules
 # User-defined files
-from mechanics import *
+from mechanics import create_initial_state
 from structures.mcnode import MCNode
 from structures.ttplayer import TTPlayer
 

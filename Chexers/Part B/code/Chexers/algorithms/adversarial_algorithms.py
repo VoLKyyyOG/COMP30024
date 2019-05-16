@@ -9,12 +9,13 @@ ADVERSARIAL SEARCH ALGORITHMS:
 3. Directed Offensive - for 3 player states
 4. Max^n - the most useless algorithm ever
 """
+
 ########################### IMPORTS ##########################
 
 # Standard modules
 from math import inf
 
-# User-defined files
+# User-defined functions
 from mechanics import possible_actions, apply_action, Z_hash
 from algorithms.heuristics import desperation
 
@@ -23,10 +24,13 @@ from mechanics import PLAYER_HASH, N_PLAYERS
 
 MAX_DEPTH = 3
 
-##############################################################
+########################## FUNCTIONS #########################
 
 def alpha_beta(state, counts, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
-
+    """
+    :summary: Simple yet effective implementation of minimax with alpha-beta pruning.
+    :returns: vector of (evaluation, action_if_any)
+    """
     if not depth_left:
         evals = heuristic(state)
         return (evals, None)
@@ -38,6 +42,8 @@ def alpha_beta(state, counts, heuristic, max_player, alpha=-inf, beta=inf, depth
     generated_actions = possible_actions(state, player)
     for action in generated_actions:
         new_state = apply_action(state, action, ignore_dead=True)
+
+        # Only want vector of evaluations
         player_eval = alpha_beta(new_state, counts, heuristic, max_player, alpha, beta, depth_left-1)[0]
 
         if (player == max_player):
@@ -59,9 +65,12 @@ def alpha_beta(state, counts, heuristic, max_player, alpha=-inf, beta=inf, depth
 
 def paranoid(state, counts, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH, loser=False):
     """
-    Paranoid assuming a 1 vs rest scenario. Used when winning / losing given a certain threshold.
+    :summary: Paranoid assuming a 1 vs rest scenario.
+    Used when winning / losing given a certain threshold.
     The implementation also uses alpha-beta pruning, with the assumption of good ordering.
+    :returns: tuple of (evaluation, action_if_any)
     """
+
     if not depth_left:
         evals = heuristic(state)
         if loser:
@@ -75,6 +84,8 @@ def paranoid(state, counts, heuristic, max_player, alpha=-inf, beta=inf, depth_l
     generated_actions = possible_actions(state, player)
     for action in generated_actions:
         new_state = apply_action(state, action)
+
+        # Only want vector of evaluations
         player_eval = paranoid(new_state, counts, heuristic, max_player, alpha, beta, depth_left-1)[0]
 
         if (player == max_player):
@@ -96,15 +107,19 @@ def paranoid(state, counts, heuristic, max_player, alpha=-inf, beta=inf, depth_l
 
 def directed_offensive(state, counts, heuristic, max_player, target, min_eval=inf, depth_left=MAX_DEPTH):
     """
-    An algorithm aimed to MINIMISE a target player used in a 3 player scenario with no good pruning techniques possible.
-    It will assume that all players will wish to maximise themselves (like a typical Max^n algorithm) but if we find an evaluation
-    that minimises a target's evaluation and it is still beneficial to us, that becomes our "best action".
+    :summary: An algorithm aimed to MINIMISE a target player used in a 3 player
+    scenario with no good pruning techniques possible.
+    :assumption: all players will wish to maximise themselves (like a typical Max^n algorithm)
+    :strategy: If we find an evaluation minimising a target's evaluation,
+    and it is beneficial to us, that becomes our "best action".
+    :returns: tuple of (evaluation, action_if_any)
     """
+
     if not depth_left:
         evals = heuristic(state)
+        # Value should be offset by the situation the target is in
         evals[PLAYER_HASH[max_player]] -= desperation(state)[PLAYER_HASH[target]]
-        # TODO OUR EVAL IS NOW RELIANT ON THE FACT THAT DESPERATION OF TARGET IS LOWERED.
-        # WE TAKE A PIECE AND THEIR DESPERATION GOES NEGATIVE, WE WILL THEN GET AN INCREASE.
+
         return (evals, None)
 
     max_player_evals = [-inf]*N_PLAYERS
@@ -116,12 +131,12 @@ def directed_offensive(state, counts, heuristic, max_player, target, min_eval=in
     generated_actions = possible_actions(state, player, sort=(player==max_player))
     for action in generated_actions:
         new_state = apply_action(state, action)
+
+        # Get vector of evaluations
         player_eval = directed_offensive(new_state, counts, heuristic, max_player, target, min_eval, depth_left-1)[0]
 
         if player != max_player:
-
-            # We are NOT the max_player
-            # If this is not us, we assume they will want to just maximise themselves
+            # NOT the max_player - we assume they will want to just maximise themselves
             if player_eval[index] > max_player_evals[index]:
                 max_player_evals, best_action = player_eval, action
                 if Z_hash(new_state) not in counts:
@@ -137,9 +152,11 @@ def directed_offensive(state, counts, heuristic, max_player, target, min_eval=in
 
 def max_n(state, counts, heuristic, max_player_evals=[-inf]*N_PLAYERS, depth_left=MAX_DEPTH):
     """
-    Max^N. A 3 player variant of minimax with no good pruning techniques available.
-    Pretty useless and it isn't really called at all during our game.
+    :summary: Max^N. A 3 player variant of minimax with no good pruning techniques available.
+    Pretty useless (due to limited pruning) and is used little in game.
+    :returns: tuple of (evaluation, action_if_any)
     """
+
     if not depth_left:
         evals = heuristic(state)
         return (evals, None)
@@ -152,7 +169,9 @@ def max_n(state, counts, heuristic, max_player_evals=[-inf]*N_PLAYERS, depth_lef
 
     for action in generated_actions:
         new_state = apply_action(state, action)
-        player_eval = max_n(new_state, counts, heuristic, max_player_evals, depth_left-1)[0] # only take the vector of evaluations
+
+        # Get vector of evaluations
+        player_eval = max_n(new_state, counts, heuristic, max_player_evals, depth_left-1)[0]
 
         if player_eval[index] > max_player_evals[index]:
             max_player_evals, best_action = player_eval, action
@@ -162,12 +181,13 @@ def max_n(state, counts, heuristic, max_player_evals=[-inf]*N_PLAYERS, depth_lef
     return (player_eval, best_new_action) if best_new_action is not None else (player_eval, best_action)
 
 ########################### DEPRECIATED ALGORITHMS ##########################
+
 def negamax(state, counts, heuristic, max_player, alpha=-inf, beta=inf, depth_left=MAX_DEPTH):
-    raise NotImplementedError
     """
-    Simple yet effective implementation of Negamax with alpha-beta pruning.
+    :summary: Simple yet effective implementation of Negamax with alpha-beta pruning.
     The possible moves functions will always return good ordering for optimal pruning.
-    Assumes a player is dead - hence the game is merely 2-player.
+    :assumption: one player is dead - hence the game is merely 2-player.
+    :returns: tuple of (evaluation, action_if_any)
     """
 
     if not depth_left:
@@ -175,9 +195,9 @@ def negamax(state, counts, heuristic, max_player, alpha=-inf, beta=inf, depth_le
         return (-evals, None)
 
     best_action, best_new_action = None, None
-    p = state["turn"]
+    player = state["turn"]
 
-    for action in possible_actions(state, p):
+    for action in possible_actions(state, player):
         new_state = apply_action(state, action, ignore_dead=True)
 
         new_eval = -negamax(new_state, counts,heuristic, max_player, -beta, -alpha, depth_left - 1)[0]

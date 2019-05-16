@@ -1,31 +1,27 @@
 """
-
-Complete refactoring of Part A code.
-
-Keep moves.py, functions too different in implementation
-Consider renaming though
-
-Classes is essentially redundant
-
-Unsure about formatting but at least keep print_board and debug around
-
-search done
-
+:filename: IDA.py
+:summary: Complete refactoring of Part A code.
+:authors: Akira Wang (913391), Callum Holmes (899251)
 """
+
+########################### IMPORTS ##########################
+
 # Standard modules
 from queue import PriorityQueue as PQ
 from collections import defaultdict
 from math import inf
 from copy import deepcopy
 
-# User-defined files
+# User-defined functions
+from mechanics import Z_hash
+from moves import add
+from algorithms.PARTA.search import printing, original_search
+
+# Global Imports
 from moves import GOALS, POSSIBLE_DIRECTIONS, VALID_COORDINATES
 from mechanics import (
     PLAYER_HASH, N_PLAYERS, CODE_LEN, NUM_HEXES, MAX_EXITS, MAX_COORDINATE_VAL
 )
-from mechanics import Z_hash
-from moves import add
-from algorithms.PARTA.search import printing, original_search
 
 # action_flags for use in action tuples
 MOVE, JUMP, EXIT = 0, 1, 2

@@ -1,3 +1,9 @@
+"""
+:filename: config.py
+:summary: temporary file for keeping optimal weights for heuristics.
+:authors: Akira Wang (913391), Callum Holmes (899251)
+"""
+
 def two_player_heuristics(state):
     evals = np.array([f(state) for f in [favourable_hexes, desperation]])
     weights = [1, 2]
@@ -50,12 +56,12 @@ def three_player_logic(state, max_player, heuristic, leader, rival, loser, defen
     if max_player == rival and desperation(state)[PLAYER_HASH[leader]] > 0:
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER USING KILLER HEURISTICS {leader} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, killer , max_player, leader, depth_left=KILL_DEPTH)[1]
-    
+
     # If we are the rival and we have excess pieces, we will attack the leader
     if max_player == rival and desperation(state)[PLAYER_HASH[max_player]] > 0:
         print(f"\n\t\t\t\t\t\t\t\t* ||| USING DIRECTED OFFENSIVE AGAINST LEADER USING KILLER HEURISTICS {leader} | DEPTH = {KILL_DEPTH}")
         return directed_offensive(state, killer , max_player, leader, depth_left=KILL_DEPTH)[1]
-    
+
     # If we are the rival and we have just enough pieces to make do, we avoid conflict and run
     # NOTE: potential achilles + runner style heuristic
     if max_player == rival and desperation(state)[PLAYER_HASH[max_player]] > 0:

@@ -119,36 +119,6 @@ class MPMixPlayer(TTPlayer):
         :strategy: If everyone is dead, it becomes Part A. Literally Part A code...
         """
 
-        """global PATH
-        FLAGS = ["MOVE", "JUMP", "EXIT"]
-
-        # AKIRA - RETURN DIJKSTRA'S GIVEN A PLAYER IS STILL ALIVE
-        if not single_player:
-            state = dict()
-            state['colour'] = self.colour
-
-            # TODO: Calculate jump distance for each piece and then return closest pieces for exit
-            n_exited = self.root.state["exits"][self.colour]
-            n = MAX_EXITS - n_exited
-
-            alive_opponent = get_remaining_opponent(self.root.state)
-
-            temp = sorted([get_cubic_ordered(tup) for tup in self.root.state[self.colour]], reverse=True)
-            state['pieces'] = [get_axial_ordered(tup) for tup in temp[:n]]
-            state['blocks'] = [get_axial_ordered(tup) for tup in temp[n:]]
-            if not single_player:
-                state['blocks'] += self.root.state[alive_opponent]
-                action = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1] # attempting the runner so take first move
-                # (pos, flag, new_pos=None)
-                return (FLAGS[action[1]], action[0]) if FLAGS[action[1]] == "EXIT" else (FLAGS[action[1]], (action[0], action[2]))
-
-            elif not bool(PATH):
-                PATH = list(map(lambda x: x.action_made, part_A_search(state)[0]))[1:]
-                # (pos, flag, new_pos=None)
-                PATH = [(FLAGS[x[1]], x[0]) if FLAGS[x[1]] == "EXIT" else (FLAGS[x[1]], (x[0], x[2])) for x in PATH]
-
-            print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| GG! 1 PLAYER GAME DIJKSTRA")
-            return PATH.pop(0)"""
         global PATH
         FLAGS = ["MOVE", "JUMP", "EXIT"]
 

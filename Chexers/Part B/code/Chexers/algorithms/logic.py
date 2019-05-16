@@ -23,10 +23,9 @@ Inon Zuckerman, Ariel Felner
 from math import inf
 from pprint import pprint
 
-# User-defined files
+# User-defined functions
 from mechanics import get_remaining_opponent, function_occupied
 from moves import exit_action, capture_jumps
-
 from algorithms.heuristics import *
 from algorithms.adversarial_algorithms import alpha_beta, paranoid, directed_offensive, max_n
 
@@ -35,22 +34,20 @@ from mechanics import PLAYER_NAMES, PLAYER_HASH, N_PLAYERS
 
 ########################### GLOBALS ##########################
 
-KILL_DEPTH = 3 # multiple of 3 to make sure the achilles of our last move is g (1 full turn look ahead)
-PARANOID_MAX_DEPTH = 3 # multiple of 3 to make sure the achilles of our last move is g (1 full turn look ahead)
-TWO_PLAYER_MAX_DEPTH = 4 # multiple of 2 to make sure the achilles of our last move is g (2 full turns look ahead)
+KILL_DEPTH = 3 # multiple of 3 to ensure achilles(last_move) reasonable (1 full turn look ahead)
+PARANOID_MAX_DEPTH = 3 # multiple of 3 to ensure achilles(last_move) reasonable (1 full turn look ahead)
+TWO_PLAYER_MAX_DEPTH = 4 # multiple of 2 to ensure achilles(last_move) reasonable (2 full turns look ahead)
 DEFAULT_DEPTH = 3
 MAX_UTIL_VAL = 5 # TODO: Calculate a max utility value! For now, this is the equivalent of a "free" exit (worth 10 points)
 
-##############################################################
-"""
-MP-Mix Core Implementation
-"""
+########################## FUNCTIONS #########################
+
 def mp_mix(state, counts, heuristic, defence_threshold=0, offence_threshold=0, two_player=False):
     """
     Main function for MP-Mix.
     :strategy: Always returns exits if we are way ahead (force_exit)
                 Otherwise pulls logic of 2/3 player game depending on state
-    :return: vector of valuations
+    :returns: vector of valuations
     """
 
     # The max_player (us)
@@ -90,8 +87,8 @@ def mp_mix(state, counts, heuristic, defence_threshold=0, offence_threshold=0, t
 
 def score(state, heuristic):
     """
-    Function which ranks players by their initial heuristic evaluation
-    :return: best, mid and worst scores, as well as margins
+    :summary: Function which ranks players by their initial heuristic evaluation
+    :returns: best, mid and worst scores, as well as margins
     """
     evals = heuristic(state)
     print(f"\n\t\t\t\t\t\t\t\t\t\t\t\t* ||| Initial Evaluations {evals}")
@@ -109,9 +106,10 @@ def score(state, heuristic):
 
 def winning_move(state, max_player, two_player=False):
     """
-    Forces our agent to make a winning move:
+    :summary: Forces our agent to make a winning move:
     1. Exit our 4th piece
     2. Capture the opponents last piece (given it is a two player scenario)
+    :returns: tuple of (action, IS_WINNING_MOVE boolean)
     """
     possible_exits = exit_action(state, max_player)
     if state['exits'][max_player] == 3 and len(possible_exits) > 0:
@@ -127,8 +125,9 @@ def winning_move(state, max_player, two_player=False):
 
 def two_player_logic(state, counts, heuristic, max_player, leader_edge, depth, defence_threshold=0):
     """
-    MP-Mix 2 player strategy (no need to be offensive).
+    :summary: MP-Mix 2 player strategy (no need to be offensive).
     :default: alpha_beta which will have a higher depth if sparse
+    :returns: action_if_any
     """
     alive_opponent = get_remaining_opponent(state)
 

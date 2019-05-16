@@ -8,8 +8,9 @@ Asks for inputs directly from command line.
 ########################### IMPORTS ##########################
 # Standard modules
 from random import choice
-# User-defined files
-from mechanics import *
+
+# User-defined functions
+from mechanics import possible_actions, create_initial_state, apply_action
 
 class RandomPlayer:
     def __init__(self, colour):
@@ -33,4 +34,4 @@ class RandomPlayer:
         This method is called at the beginning of each of your turns to request
         a choice of action from your program.
         """
-        return choice(possible_actions(self.state, player(self.state)))
+        return choice(possible_actions(self.state, self.state['turn']))

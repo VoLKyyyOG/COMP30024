@@ -11,10 +11,9 @@ from collections import defaultdict
 
 # User-defined files
 from mechanics import *
-from moves import get_cubic, get_axial, exit_action
-from algorithms.adversarial_algorithms import paranoid, alpha_beta
-from algorithms.heuristics import *
-from random import choice
+from moves import exit_action
+from algorithms.adversarial_algorithms import paranoid
+from algorithms.heuristics import runner
 
 PATH = list()
 

@@ -14,7 +14,7 @@ from sys import argv
 
 # User-defined files
 from .formatting import convert_to_tuples, pikawin
-from .algorithms import *
+from .IDA_star import *
 
 ######################### FUNCTIONS ##########################
 
