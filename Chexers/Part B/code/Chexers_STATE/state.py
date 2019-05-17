@@ -1,17 +1,7 @@
 """
 :filename: state.py
 :summary: Defines state object attributes and functionality.
-:authors: Akira Wang (913391), Callum Holmes (899251)
-"""
-"""
-A state is stored as a dictionary with the structure {
-    'red' : list of coordinates of pieces
-    'green' : list of coordinates of pieces
-    'blue' : list of coordinates of pieces
-    'turn' : player whose turn it is: either 'red' 'green' or 'blue'
-    'exits' : count of [red_exits, green_exits, blue_exits]
-    'depth' : # turns elapsed
-}
+:authors: Akira Wang (913391), Callum Holmes (899251
 """
 
 ########################### IMPORTS ##########################
@@ -142,9 +132,13 @@ def midpoint(u, v):
     return (int((u[0] + v[0]) / 2), int((u[1] + v[1]) / 2))
 
 class State:
-    def __init__(self):
+    def __init__(self, state=None):
         # Base state is the starting state
-        self.initial_state()
+        if state:
+            for attr in [RED, GREEN, BLUE, 'turn', 'exits', 'depth', 'action', 'parent']:
+                setattr(self, attr, deepcopy(getattr(state, attr)))
+        else:
+            self.initial_state()
 
     def pieces(self, player):
         try:
