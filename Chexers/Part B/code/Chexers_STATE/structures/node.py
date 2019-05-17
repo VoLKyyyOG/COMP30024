@@ -38,7 +38,7 @@ class Node(State):
     def is_bad(self):
         return self._is_bad
 
-    @is_dead.setter
+    @is_bad.setter
     def is_bad(self, value):
         self._is_bad = value
 

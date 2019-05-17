@@ -241,7 +241,6 @@ def players_left(state):
 ########################## HASHING ############################
 
 def draw_hash(state):
-    raise NotImplementedError
     """
     Hashing scheme but without the exits - so that draws can be detected
     """
@@ -251,7 +250,7 @@ def Z_hash(state):
     """
     :summary: Implements a minimal collision NON-INVERTIBLE hash for states.
     Hash of form
-        0b(turn)(exits)(37 hex state flags....)
+        0b(turn)(37 hex state flags....)(exits)
     Where the flags are:
     - For turn player:
         - 00 for red

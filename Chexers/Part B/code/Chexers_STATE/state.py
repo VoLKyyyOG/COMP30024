@@ -181,9 +181,17 @@ class State:
             current_index = PLAYER_HASH[self.turn]
             return PLAYER_NAMES[(current_index + 1) % N_PLAYERS]
 
+    def game_won(self):
+        """
+        :summary: Detects if someone has exited 4 pieces
+        :returns: boolean
+        """
+        return (MAX_EXITS in self.state.exits.values())
+
     def game_drawn(self, counts):
         """
         :summary: Detects if game drawn
+        :returns: boolean
         """
         return (counts[self.hash] >= MAX_EXITS or self.depth == MAX_TURNS*N_PLAYERS)
 
@@ -324,7 +332,7 @@ class State:
         """
         :summary: Implements a minimal collision NON-INVERTIBLE hash for states.
         Hash of form
-            0b(turn)(exits)(37 hex state flags....)
+            0b(turn)(37 hex state flags....)(exits)
         Where the flags are:
         - For turn player:
             - 00 for red
@@ -356,6 +364,13 @@ class State:
                 hashed = hashed | (self.exits[player] << i)
 
         return hashed
+
+    @property
+    def draw_hash(self):
+        """
+        Hashing scheme but without the exits - so that draws can be detected
+        """
+        return Z_hash(self) >> CODE_LEN * N_PLAYERS
 
     def exit_action(self, player):
         """

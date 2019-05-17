@@ -26,8 +26,8 @@ INHERITED:
 # User-defined files
 from collections import defaultdict
 from structures.node import Node
-from mechanics import Z_hash, draw_hash
-from mechanics import N_PLAYERS, PLAYER_NAMES
+from state import Z_hash, draw_hash
+from state import N_PLAYERS, PLAYER_NAMES
 import numpy as np
 
 class GameNode(Node):

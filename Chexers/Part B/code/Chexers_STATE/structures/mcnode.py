@@ -106,7 +106,7 @@ class MCNode(GameNode):
         Evaluate a terminal simulation state with heuristics, otherwise
         return a vector of winner (1 0 0) or tie (1/3 1/3 1/3)
         """
-        if MAX_EXITS in exits(self.state):
+        if self.state.game_won():
             result = (exits(self.state) == MAX_EXITS).astype(float)
         elif self.state.game_drawn(self.counts):
             result = np.ones(N_PLAYERS)
@@ -124,14 +124,12 @@ class MCNode(GameNode):
         # IDEA: Push to depth_limit randomly and return heuristic evaluation
         simulation_counts = deepcopy(self.counts)
         for i in range(MCNode.depth_limit):
-            try:
+            if current.state.game_won() or current.state.game_drawn():
+                break
+            else:
                 current = choice(current.children)
-            except:
-                break
-            simulation_counts[current.state.hash] += 1
-            # Break immediately if the game is actually over
-            if MAX_EXITS in exits(current.state) or game_drawn(current.state, simulation_counts):
-                break
+
+            simulation_counts[current.state.draw_hash] += 1
 
         return current.evaluate()
 
@@ -143,12 +141,6 @@ class MCNode(GameNode):
         while isinstance(current, MCNode):
             current.wins = current.wins + result
             current = current.parent
-
-    # Overrides in order to adjust totals
-    def kill_tree(self):
-        """Recursively kill down each subtree, side-effect of updating wins/visits"""
-        #MCNode.total_visits -= self.visits
-        #super().kill_tree()
 
     def search(self):
         """Performs the UCT search on a node for given iterations

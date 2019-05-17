@@ -10,7 +10,7 @@ from random import choice
 from math import inf
 
 # User-defined files
-from mechanics import *
+from state import State
 from structures.gamenode import GameNode
 from collections import defaultdict
 
@@ -20,12 +20,12 @@ class TTPlayer:
         This method is called once at the beginning of the game to initialise
         your player.
         """
-        self.root = GameNode(create_initial_state(), None)
+        self.root = GameNode()
         self.kill = True
 
     @property
     def colour(self):
-        return self.root.state['turn']
+        return self.root.state.turn
 
     def debug(self):
         GameNode.debugger(self.root)
@@ -38,4 +38,3 @@ class TTPlayer:
         """
         # Steal root child with this state and overthrow
         self.root = self.root.update_root(action, kill=self.kill)
-        #print(f"\nHash: {self.root.hash()}\n")
