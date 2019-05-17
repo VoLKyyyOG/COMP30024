@@ -94,7 +94,7 @@ def game_drawn(state, counts):
     """
     :summary: Detects if game drawn
     """
-    return (counts[draw_hash(state)] >= MAX_EXITS or state['depth'] == MAX_TURNS*3)
+    return (counts[Z_hash(state)] >= MAX_EXITS or state['depth'] == MAX_TURNS*3)
 
 def apply_action(state, action, ignore_dead=False):
     """
