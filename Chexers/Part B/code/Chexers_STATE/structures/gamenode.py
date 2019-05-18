@@ -5,7 +5,7 @@
 
 Properties of GAMENODE (NOT INHERITED):
 - node.counts[node.hash] --> # visits in the game
-- node.hash --> Z_hash(node.state)
+- node.hash --> node.hash
 - node.update_root(action, kill) --> reassigns root, trims tree if kill
 - node.get_node(statehash)
 
@@ -26,8 +26,7 @@ INHERITED:
 # User-defined files
 from collections import defaultdict
 from structures.node import Node
-from state import Z_hash, draw_hash
-from state import N_PLAYERS, PLAYER_NAMES
+from state import *
 import numpy as np
 
 class GameNode(Node):
@@ -55,7 +54,7 @@ class GameNode(Node):
         """
         Increase number of visits to a node
         """
-        self.counts[node.state.hash] += 1
+        self.counts[node.hash] += 1
 
     def update_root(self, action, kill=False):
         """
@@ -63,15 +62,15 @@ class GameNode(Node):
         :returns: new root for player to use
         """
         try:
-            # print(f"\n{self.state.hash()}\n")
+            # print(f"\n{self.hash()}\n")
 
-            root = [x for x in self.children if x.state.action == action].pop(0)
+            root = [x for x in self.children if x.action == action].pop(0)
             if kill:
                 self.overthrow()  # Delete all irrelevant siblings to free memory
                 self.clean_tree()
 
             # Add to storage
-            self.TT[root.state.hash] = root
+            self.TT[root.hash] = root
             root.increment(root)
             return root
         except:
@@ -90,15 +89,15 @@ class GameNode(Node):
     def expand(self):
         assert(not self.is_expanded)
         if self.is_bad: return
-        for action in self.state.possible_actions(self.state.turn):
-            new_child = self.new_child(self.state.apply_action(action))
+        for action in self.possible_actions(self.turn):
+            new_child = self.new_child(State.apply_action(self, action))
             self._children.append(new_child)
 
             # Use TT to verify it should be considered
-            node_hash = new_child.state.hash
+            node_hash = new_child.hash
             if node_hash in self.TT:
                 current = self.TT[node_hash]
-                if (new_child.state.depth >= current.state.depth) and new_child != current:
+                if (new_child.depth >= current.depth) and new_child != current:
                     # This is a duplicate
                     new_child.is_bad = True
                 else:
@@ -125,7 +124,7 @@ class GameNode(Node):
                 except:
                     print(">> invalid, try again.")
             elif chosen == "p":
-                current = current.state.parent
+                current = current.parent
                 print(">> Navigated to parent.")
             elif chosen == "e":
                 print(">> Executable activated. NOTE: current = GameNode.\n>> To release loop, trigger a NameError (type nonsense).")
@@ -138,7 +137,7 @@ class GameNode(Node):
                         print(">> invalid, try again.")
             elif chosen == "h":
                 from algorithms.heuristics import displacement, desperation, speed_demon, favourable_hexes, exits, achilles_real, end_game_heuristic, two_player_heuristics
-                print("\n".join([f"{f.__name__} : {f(current.state)}" for f in [displacement, desperation, speed_demon, favourable_hexes, exits, achilles_real, end_game_heuristic, two_player_heuristics]]))
+                print("\n".join([f"{f.__name__} : {f(current)}" for f in [displacement, desperation, speed_demon, favourable_hexes, exits, achilles_real, end_game_heuristic, two_player_heuristics]]))
             elif chosen == "s":
                 current.format()
             else:
@@ -148,12 +147,12 @@ class GameNode(Node):
         """
         Defines how to display a state in debugging.
         """
-        self.printer(self.state)
-        print(f"Depth {self.state.depth}, colour {self.state.turn} dead {self.is_bad} expanded {self.is_expanded}\nChildren: ")
+        self.printer(self)
+        print(f"Depth {self.depth}, colour {self.turn} dead {self.is_bad} expanded {self.is_expanded}\nChildren: ")
         for child in self.children:
-            print(f"FULL HASH {child.state.hash} - {child.state.action}",end="")
+            print(f"FULL HASH {child.hash} - {child.action}",end="")
             if child.action in self.child_evaluations.keys():
-                print(f" - {self.child_evaluations[child.state.action]}")
+                print(f" - {self.child_evaluations[child.action]}")
             else:
                 print("")
 

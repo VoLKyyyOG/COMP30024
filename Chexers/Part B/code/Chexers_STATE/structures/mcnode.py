@@ -1,8 +1,8 @@
 """ MC.py
 
 Core functionality for Monte-Carlo tree searches and variants.
-A more succinct implementation: https://github.com/brilee/python_uct/blob/master/numpy_impl.py
-Unused but still curious: https://jeffbradberry.com/posts/2015/09/intro-to-monte-carlo-tree-search/
+A more succinct implementation, which our code was inspired by:
+https://github.com/brilee/python_uct/blob/master/numpy_impl.py
 
 Process:
 - 1. Select an unexpanded node by choosing highest scored branch iteratively, scoring with wins/visits via UCB1
@@ -45,10 +45,10 @@ class MCNode(GameNode):
 
     # Number of times MC will select and simulate a node
     # This is 'sample size' - larger sample size will give better estimates
-    iterations = 25
+    iterations = 10
 
     # Number of moves made before cutting off a simulation with heuristic evaluation
-    depth_limit = 9
+    depth_limit = 3
 
     def __init__(self, state=None):
         super().__init__(state)
@@ -66,7 +66,7 @@ class MCNode(GameNode):
         """
         Fetches exploitation factor, i.e. measures whether this path wins
         """
-        return self.wins[PLAYER_HASH[self.state.turn]] / (self.visits + 1)
+        return self.wins[PLAYER_HASH[self.turn]] / (self.visits + 1)
 
     def U(self):
         """
@@ -106,12 +106,12 @@ class MCNode(GameNode):
         Evaluate a terminal simulation state with heuristics, otherwise
         return a vector of winner (1 0 0) or tie (1/3 1/3 1/3)
         """
-        if self.state.game_won():
-            result = (exits(self.state) == MAX_EXITS).astype(float)
-        elif self.state.game_drawn(self.counts):
+        if self.game_won():
+            result = (exits(self) == MAX_EXITS).astype(float)
+        elif self.game_drawn(self.counts):
             result = np.ones(N_PLAYERS)
         else:
-            total = np.array(heuristic(self.state))
+            total = np.array(heuristic(self))
             result = (total == total.max()).astype(float)
         return result / np.sum(result)
 
@@ -122,16 +122,19 @@ class MCNode(GameNode):
         current = self
 
         # IDEA: Push to depth_limit randomly and return heuristic evaluation
-        simulation_counts = deepcopy(self.counts)
         for i in range(MCNode.depth_limit):
-            if current.state.game_won() or current.state.game_drawn():
+            if current.game_won():
                 break
             else:
                 current = choice(current.children)
 
-            simulation_counts[current.state.draw_hash] += 1
+            self.counts[current.draw_hash] += 1
+        result = current.evaluate()
 
-        return current.evaluate()
+        while current != self and current != None:
+            self.counts[current.draw_hash] -= 1
+            current = current.parent
+        return result
 
     def backpropagate(self, result):
         """Updates parents recursively (note that visits is implicit on wins)

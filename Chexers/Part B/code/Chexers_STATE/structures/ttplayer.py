@@ -25,7 +25,7 @@ class TTPlayer:
 
     @property
     def colour(self):
-        return self.root.state.turn
+        return self.root.turn
 
     def debug(self):
         GameNode.debugger(self.root)

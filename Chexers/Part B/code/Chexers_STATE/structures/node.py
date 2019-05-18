@@ -44,8 +44,8 @@ class Node(State):
 
     def expand(self):
         """Generate children"""
-        for action in self.state.possible_actions(self.state.player):
-            new_child = self.new_child(self.state.apply_action(self.state, action))
+        for action in self.possible_actions(self.player):
+            new_child = self.new_child(State.apply_action(self, action))
             self._children.append(new_child)
         self.is_expanded = True
 
