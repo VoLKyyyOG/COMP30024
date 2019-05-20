@@ -17,9 +17,8 @@ from state import (
 )
 from algorithms.book import opening_moves
 from algorithms.logic import mp_mix
-from algorithms.adversarial_algorithms import paranoid
+from algorithms.adversarial_algorithms import paranoid, part_A_search
 from algorithms.heuristics import two_player_heuristics, end_game_heuristic, runner
-from algorithms.IDA import part_A_search
 
 # Global imports
 from state import PLAYER_HASH, MAX_EXITS
@@ -54,7 +53,7 @@ class MPMixPlayer:
         if not self.state.pieces(self.colour):
             return ("PASS", None)
 
-        if self.clock <= 50:
+        if self.clock <= 45:
             start = process_time()
 
             if self.state.num_opponents_dead() == 1:

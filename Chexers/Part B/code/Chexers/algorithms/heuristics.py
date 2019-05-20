@@ -255,20 +255,7 @@ def end_game_proportion(state):
     outcome = np.array(sum(map(lambda x,y: x*y, evals, weights)))
     return np.round(np.array(list(map(lambda x,y: x*y, evals, weights))) / outcome * 100, 4)
 
-def utility(state):
-    """
-    Measures strictly aspects of a state that relate to goal acquisition:
-    1. How many exits? -- raw utility: encourages exiting
-    2. Are your pieces in surplus/deficit to what you need? -- controls attack/defence
-    3. Are your pieces (on average) close to goal? -- progression: encourages forward
-    :returns: vector of valuations
-    """
-    evals = np.array([f(state) for f in [exits, nerfed_desperation, speed_demon]])
-    weights = np.array([1, 1, 1.0 / 12]) # Displacement ranges up to 24
-    return sum(map(lambda x,y: x*y, evals, weights))
-
 def retrograde_dijkstra(state):
-    raise NotImplementedError
     """
     Computes minimal traversal distance to exit for all N players
     :returns: vector of distances

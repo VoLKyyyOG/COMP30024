@@ -334,17 +334,6 @@ class State:
         :summary: Implements a minimal collision NON-INVERTIBLE hash for states.
         Hash of form
             0b(turn)(37 hex state flags....)(exits)
-        Where the flags are:
-        - For turn player:
-            - 00 for red
-            - 01 for green
-            - 10 for blue
-        - For the 37 hexes:
-            - 01 for red
-            - 10 for green
-            - 11 for blue
-            - 00 for none
-        :returns: integer unique to the state
         """
         hashed = 0
 

@@ -18,6 +18,7 @@ from math import inf
 # User-defined functions
 from mechanics import possible_actions, apply_action, Z_hash
 from algorithms.heuristics import desperation
+from algorithms.PARTA.search import original_search
 
 # Global Imports
 from mechanics import PLAYER_HASH, N_PLAYERS
@@ -179,6 +180,23 @@ def max_n(state, counts, heuristic, max_player_evals=[-inf]*N_PLAYERS, depth_lef
                 best_new_action = best_action
 
     return (player_eval, best_new_action) if best_new_action is not None else (player_eval, best_action)
+
+def part_A_search(data):
+    """
+    Performs the search algorithm used in Part A
+    """
+    optimal_solution = original_search(data)
+
+    if (optimal_solution is not None):
+        path = list()
+        node_temp = optimal_solution
+
+        # Re-assemble path taken
+        while (node_temp is not None):
+            path.append(node_temp)
+            node_temp = node_temp.parent
+
+        return path[::-1]
 
 ########################### DEPRECIATED ALGORITHMS ##########################
 
