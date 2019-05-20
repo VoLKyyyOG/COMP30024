@@ -174,7 +174,6 @@ def possible_actions(state, colour, sort=False):
 
 ###################### OTHER FUNCTIONS ########################
 
-#### TODO: Rename, check redundancy
 def get_occupied(state, colours):
     """
     Fetches set of all pieces for all colours
